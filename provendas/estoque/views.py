@@ -4,7 +4,85 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import CategoriaProdutoForm, ProdutoForm
 from .models import CategoriaProduto, Produto
 from django.contrib import messages
+from django.http import HttpResponse
+import csv 
 
+
+
+# Importador e exportador
+def importar_produtos(request):
+    if request.method == 'POST' and request.FILES['csv_file']:
+        arquivo = request.FILES['csv_file']
+        
+        # Lê o arquivo CSV
+        try:
+            csv_file = csv.reader(arquivo.read().decode('utf-8').splitlines())
+            next(csv_file)  # Ignora o cabeçalho
+
+            for row in csv_file:
+                produto_id = row[0]  # O ID do produto estará na primeira coluna
+                nome = row[1]
+                codigo_barras = row[2]
+                preco_de_venda = row[3]
+                preco_de_cursto = row[4]
+                quantidade_estoque = row[5]
+                categoria_nome = row[6]  # Nome da categoria na posição 6
+                status = row[7]  # Status (ativado/desativado) na posição 7
+                controle_estoque = row[8].lower() == 'sim'  # Controle de Estoque na posição 8 (Sim/Não)
+
+                # Verifica se a categoria já existe, caso contrário cria uma nova
+                categoria, created = CategoriaProduto.objects.get_or_create(nome=categoria_nome)
+                
+                # Tenta encontrar o produto pelo ID. Se não encontrar, cria um novo
+                produto, created = Produto.objects.update_or_create(
+                    id=produto_id,  # Identifica o produto pelo ID
+                    defaults={
+                        'nome': nome,
+                        'codigo_barras': codigo_barras,
+                        'preco_de_venda': preco_de_venda,
+                        'preco_de_cursto': preco_de_cursto,
+                        'quantidade_estoque': quantidade_estoque,
+                        'categoria': categoria,
+                        'status': status,
+                        'controle_estoque': controle_estoque,
+                    }
+                )
+
+                # Mensagem opcional, se o produto foi atualizado
+                if not created:
+                    messages.info(request, f'O produto {nome} foi atualizado.')
+
+            messages.success(request, 'Produtos importados com sucesso!')
+        except Exception as e:
+            messages.error(request, f'Erro ao importar produtos: {e}')
+        return redirect('listar_produtos')
+
+    return render(request, 'estoque/produto/listar_produtos.html')
+
+def exportar_produtos(request):
+    produtos = Produto.objects.all()
+
+    # Cria a resposta HTTP para download de CSV
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="produtos.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['ID', 'Nome', 'Código de Barras', 'Preço de Venda', 'Preço de Custo', 'Quantidade em Estoque', 'Categoria', 'Status', 'Controle de Estoque'])
+
+    for produto in produtos:
+        writer.writerow([
+            produto.id,
+            produto.nome,
+            produto.codigo_barras,
+            produto.preco_de_venda,
+            produto.preco_de_cursto,
+            produto.quantidade_estoque,
+            produto.categoria.nome,
+            produto.status,
+            'Sim' if produto.controle_estoque else 'Não',
+        ])
+    
+    return response
 
 # View para gerenciar Categorias
 def listar_categorias(request):

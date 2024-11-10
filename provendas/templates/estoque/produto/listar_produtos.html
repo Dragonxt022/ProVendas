@@ -17,9 +17,17 @@
                 <div class="row mb-2">
                     <div class="col-sm-6 d-flex align-items-center">
                         <h1 class="mr-3"> Gerenciar Estoque </h1> <!-- Adicionei a classe mr-3 -->
-                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#adicionarModal">
+                        <button type="button" class="btn btn-sm btn-success mr-2" data-toggle="modal" data-target="#adicionarModal">
                             Adicionar Produto
                         </button>
+                        <button type="button" class="btn btn-sm btn-primary mr-2 " data-toggle="modal" data-target="#importarModal">
+                            Importar Produtos
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="window.location.href='{% url 'exportar_produtos' %}'">
+                            Exportar Produtos
+                        </button>
+                        
+                        
                     </div>
                 </div>
                 
@@ -280,6 +288,31 @@
                     {% csrf_token %}
                     <input type="hidden" name="produto_id" id="excluir_produto_id">
                     <button type="submit" class="btn btn-danger w-100">Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal para Importar Produtos -->
+<div class="modal fade" id="importarModal" tabindex="-1" role="dialog" aria-labelledby="importarModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title text-light" id="importarModalLabel">Importar Produtos</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'importar_produtos' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="csv_file">Arquivo CSV</label>
+                        <input type="file" name="csv_file" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-info w-100">Importar Produtos</button>
                 </form>
             </div>
         </div>
