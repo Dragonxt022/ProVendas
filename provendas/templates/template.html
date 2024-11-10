@@ -1,0 +1,511 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %} | Vendas|Pro{% endblock %}</title> <!-- Aqui o título é dinâmico -->
+    <link rel="shortcut icon" href="{%  static 'image/iconsistema.png' %}" type="image/x-icon">
+    
+    
+    <!-- jQuery deve ser o primeiro a ser carregado -->
+    <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'js/jquery.mask.min.js' %}"></script>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{% static 'css/adminlte.min.css' %}">
+
+    <!-- Summernote -->
+    <link rel="stylesheet" href="{% static 'plugins/summernote/summernote-bs4.min.css' %}">
+
+    <!-- Codemirror CSS -->
+    <link rel="stylesheet" href="{% static 'plugins/codemirror/codemirror.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/codemirror/theme/monokai.css' %}">
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="{% static 'plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css' %}">
+
+
+    <link rel="stylesheet" href="{% static 'plugins/toastr/toastr.min.css' %}">
+
+</head>
+
+
+
+<body class="hold-transition sidebar-mini sidebar-collapse">
+    <style>
+        .background-card {
+            position: relative;
+            overflow: hidden; /* Garante que o fundo não saia dos limites do card */
+        }
+        
+        .background-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('{% static "image/iconsistema.png" %}');
+            background-size: 50%; /* Ajusta o tamanho da imagem */
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: grayscale(100%);
+            opacity: 0.05;
+            z-index: 0; /* Fica no fundo */
+        }
+        
+        /* Estilo para os itens da lista */
+        #cart-items {
+            position: relative;
+            z-index: 1; /* Garante que os itens da lista fiquem acima do fundo */
+            /* Qualquer estilo adicional para os itens pode ser aplicado aqui */
+        }
+        
+        
+        
+        .imagemProdutos{
+          width: 11%;
+          background: #fff;
+          position: inherit;
+          border: 1px solid rgba(52, 73, 94, 0.44);
+          padding: 7px;
+          border-radius: 50%;
+        }
+    
+        .modal-fullscreen {
+            max-width: 95%;
+            width: 100%;
+        }
+    
+        .table td, .table th {
+            vertical-align: middle !important;
+    
+        }
+    
+        .image-container {
+            position: relative;
+            overflow: hidden; /* Para esconder partes da imagem que saem do contêiner */
+        }
+    
+        .btn-success{
+            background-color: #ff7100 !important;
+            border-color: #f78a34 !important;
+
+        }
+    
+        .bg-success{
+            background-color: #ff7100 !important;
+            border-color: #f78a34 !important;
+        }
+    
+        .text-title{
+            color:#ff7100;
+        }
+    
+        .btn-success:hover{
+            background-color: #ff4200 !important;
+            border-color: #ff4200 !important;
+        }
+    
+        .btn-suave{
+            border-color: #ff4200 !important;
+        }
+    
+        .btn-suave:hover{
+            color: #ffff;
+            background-color: #ff4200 !important;
+        }
+    
+        .btn{
+            border-radius: 1.50rem !important;
+        }
+    
+        .form-control{
+            border-radius: 2.25rem !important;
+    
+        }
+    
+         /* Estilo do checkmark (ícone de confirmação) */
+         #checkmark-animation {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            margin-bottom: 15px;
+        }
+    
+        .checkmark-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 5px solid #28a745;
+            position: absolute;
+            top: 0;
+            left: 0;
+            box-sizing: border-box;
+            animation: pop-in 0.5s ease-out forwards;
+        }
+    
+        .checkmark-stem {
+            width: 8px;
+            height: 30px;
+            background-color: #28a745;
+            position: absolute;
+            top: 19px;
+            left: 32px;
+            transform: rotate(45deg);
+            transform-origin: bottom left;
+            animation: stem-grow 0.3s ease-out forwards;
+            opacity: 0;
+        }
+    
+        .checkmark-kick {
+            width: 8px;
+            height: 15px;
+            background-color: #28a745;
+            position: absolute;
+            top: 40px;
+            left: 22px;
+            transform: rotate(-45deg);
+            transform-origin: top left;
+            animation: kick-grow 0.3s ease-out forwards 0.15s;
+            opacity: 0;
+        }
+    
+        /* Animações */
+        @keyframes pop-in {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    
+        @keyframes stem-grow {
+            0% {
+                height: 0;
+                opacity: 0;
+            }
+            100% {
+                height: 30px;
+                opacity: 1;
+            }
+        }
+    
+        @keyframes kick-grow {
+            0% {
+                height: 0;
+                opacity: 0;
+            }
+            100% {
+                height: 15px;
+                opacity: 1;
+            }
+        }
+    
+        /* Error */
+    
+        /* Estilo do error (ícone de confirmação) */
+        #error-animation {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            margin-bottom: 15px;
+        }
+    
+        .error-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 5px solid #e70f0f;
+            position: absolute;
+            top: 0;
+            left: 0;
+            box-sizing: border-box;
+            animation: pop-in 0.5s ease-out forwards;
+        }
+    
+        .error-stem {
+            width: 8px;
+            height: 30px;
+            background-color: #e70f0f;
+            position: absolute;
+            top: 22px;
+            left: 48px;
+            transform: rotate(-45deg);
+            transform-origin: bottom left;
+            animation: stem-grow 0.3s ease-out forwards;
+            opacity: 0;
+        }
+    
+        .error-kick {
+            width: 8px;
+            height: 30px;
+            background-color: #e70f0f;
+            position: absolute;
+            top: 17px;
+            left: 28px;
+            transform: rotate(45deg);
+            transform-origin: bottom left;
+            animation: stem-grow 0.3s ease-out forwards;
+            opacity: 0;
+        }
+    
+        /* Animações */
+        @keyframes pop-in {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    
+        @keyframes stem-grow {
+            0% {
+                height: 0;
+                opacity: 0;
+            }
+            100% {
+                height: 30px;
+                opacity: 1;
+            }
+        }
+    
+        @keyframes kick-grow {
+            0% {
+                height: 0;
+                opacity: 0;
+            }
+            100% {
+                height: 15px;
+                opacity: 1;
+            }
+        }
+    
+        
+            
+    
+    </style>
+    
+        <!-- Campo oculto para CSRF Token -->
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+
+        {% block content %}{% endblock %}
+        {% comment %} {% include 'includes/footer.html' %}  {% endcomment %}
+
+    
+    <!-- Bootstrap 4 -->
+    <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- AdminLTE App -->
+    <script src="{% static 'js/adminlte.min.js' %}"></script>
+
+    <!-- DataTables & Plugins -->
+    <script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+    <script src="{% static 'plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+    <script src="{% static 'plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'plugins/jszip/jszip.min.js' %}"></script>
+    <script src="{% static 'plugins/pdfmake/pdfmake.min.js' %}"></script>
+    <script src="{% static 'plugins/pdfmake/vfs_fonts.js' %}"></script>
+    <script src="{% static 'plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+    <script src="{% static 'plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+    <script src="{% static 'plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+    <!-- Summernote -->
+    <script src="{% static 'plugins/summernote/summernote-bs4.min.js' %}"></script>
+
+    <!-- Codemirror -->
+    <script src="{% static 'plugins/codemirror/codemirror.js' %}"></script>
+    <script src="{% static 'plugins/codemirror/mode/css/css.js' %}"></script>
+    <script src="{% static 'plugins/codemirror/mode/xml/xml.js' %}"></script>
+    <script src="{% static 'plugins/codemirror/mode/htmlmixed/htmlmixed.js' %}"></script>
+
+
+    <!-- Select2 -->
+    <script src="{% static 'plugins/select2/js/select2.full.min.js' %}"></script>
+
+    <!-- Flot Charts -->
+    <script src="{% static 'plugins/flot/jquery.flot.js' %}"></script>
+    <script src="{% static 'plugins/flot/plugins/jquery.flot.resize.js' %}"></script>
+    <script src="{% static 'plugins/flot/plugins/jquery.flot.pie.js' %}"></script>
+   
+    <!-- Notificação -->
+    <script src="{% static 'plugins/toastr/toastr.min.js' %}"></script>
+
+    <!-- AdminLTE for demo purposes -->
+    <script src="{% static 'js/demo.js' %}"></script>
+
+    <!-- blocos de script-->
+    {% block extra_scripts %} {% endblock %}
+
+
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                toastr["{{ message.tags }}"]("{{ message }}");
+            {% endfor %}
+        {% endif %}
+
+        // Configuração do Toastr (opcional)
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": true,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+        // tradução
+        const portugueseTranslation = {
+            "sEmptyTable": "Nenhum dado disponível na tabela",
+            "sInfo": "Mostrando de _START_ até _END_ de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando 0 até 0 de 0 registros",
+            "sInfoFiltered": "(filtrado de _MAX_ registros no total)",
+            "sInfoPostFix": "",
+            "sInfoThousands": ".",
+            "sLengthMenu": "Mostrar _MENU_ registros por página",
+            "sLoadingRecords": "Carregando...",
+            "sProcessing": "Processando...",
+            "sSearch": "Buscar:",
+            "sZeroRecords": "Nenhum registro encontrado",
+            "oPaginate": {
+                "sFirst": "Primeiro",
+                "sLast": "Último",
+                "sNext": "Próximo",
+                "sPrevious": "Anterior"
+            },
+            "oAria": {
+                "sSortAscending": ": ativar para ordenar a coluna em ordem crescente",
+                "sSortDescending": ": ativar para ordenar a coluna em ordem decrescente"
+            },
+            "buttons": {
+                "copy": "Copiar",
+                "csv": "CSV",
+                "excel": "Excel",
+                "pdf": "PDF",
+                "print": "Imprimir",
+                "colvis": "Visibilidade da Coluna"
+            }
+        };
+
+        // Função Inicializa nos produtos
+        $(function () {
+            // Inicializa a tabela example1 com DataTables
+            var table1 = $("#example1").DataTable({
+                "responsive": true,
+                "lengthChange": false,
+                "autoWidth": false,
+                "order": [[1, "desc"]],
+                {% comment %} "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"], {% endcomment %}
+                "language": portugueseTranslation,
+                "stateSave": true // Ativa o armazenamento do estado da tabela
+            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+            // Garante que todas as linhas sejam afetadas ao desenhar a tabela novamente
+            table1.on('draw.dt', function () {
+                table1.buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+            });
+
+            // Inicializa a tabela example2 com DataTables
+            $('#example2').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "language": portugueseTranslation,
+                "stateSave": true // Ativa o armazenamento do estado para a tabela example2
+            });
+
+            // Função Inicializa nas tabelas de pedidos
+            $(function () {
+                // Inicializa a tabela de pedidos em aberto com ordenação crescente
+                if (!$.fn.dataTable.isDataTable('#open-orders')) {
+                    $("#open-orders").DataTable({
+                        "responsive": true,
+                        "language": portugueseTranslation,
+                        "order": [[1, "asc"]], // Altere o índice da coluna para aquela que representa o pedido
+                    });
+                }
+
+                // Inicializa a tabela de pedidos finalizados com ordenação decrescente
+                if (!$.fn.dataTable.isDataTable('#completed-orders')) {
+                    $("#completed-orders").DataTable({
+                        "responsive": true,
+                        "language": portugueseTranslation,
+                        "order": [[1, "desc"]], // Altere o índice da coluna para aquela que representa o pedido
+                    });
+                }
+            });
+        });
+
+
+        // Mascaras
+        $(document).ready(function() {
+            $('#phone').mask('+00 (00) 00000-0000');
+            $('#telefone').mask('+00 (00) 00000-0000');
+            $('#cep').mask('00000-000');
+            $('#cpf').mask('000.000.000-00');
+            $('#cnpj').mask('00.000.000/0000-00');
+
+        });
+
+        function validarCPF(cpf) {
+            cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
+            if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false; // Verifica se o CPF tem 11 dígitos e não é uma sequência repetida
+        
+            let soma = 0, resto;
+            for (let i = 1; i <= 9; i++) {
+                soma += parseInt(cpf.substring(i - 1, i)) * (11 - i);
+            }
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(cpf.substring(9, 10))) return false;
+        
+            soma = 0;
+            for (let i = 1; i <= 10; i++) {
+                soma += parseInt(cpf.substring(i - 1, i)) * (12 - i);
+            }
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            return resto === parseInt(cpf.substring(10, 11));
+        }
+        
+    </script>
+
+</body>
+</html>

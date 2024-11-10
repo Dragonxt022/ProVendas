@@ -1,0 +1,281 @@
+
+
+{% extends "template.html" %}
+
+{% load static %}
+{% block title %}
+    Hístorico de vendas
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .imagemProdutos{
+        width: 11%;
+        background: #fff;
+        position: inherit;
+        border: 1px solid rgba(52, 73, 94, 0.44);
+        padding: 7px;
+        border-radius: 50%;
+    }
+
+    .table td, .table th {
+        vertical-align: middle !important;
+
+    }
+    
+</style>
+
+<div class="wrapper">
+    {% include 'includes/sidebar.html' %}
+    {% include 'includes/navbar.html' %} 
+
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6 d-flex align-items-center">
+                        <h1 class="mr-3"> Usuarios </h1> <!-- Adicionei a classe mr-3 -->
+                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#adicionarModal">
+                            Adicionar Usuario
+                        </button>
+                    </div>
+                </div>
+                
+            </div><!-- /.container-fluid -->
+        </section>
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Lista de Usuarios</h3> 
+                            </div>
+                            <div class="card-body">
+                                <table id="example1" class="table table-striped table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">N°</th>
+                                            <th class="text-center">Usuario</th>
+                                            <th class="text-center">E-mail</th>
+                                            <th class="text-center">Nome Completo</th>
+                                            <th class="text-center">Status</th>
+                                            <th class="text-center">Grupos</th>
+                                            <th class="text-center">Ação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for usuario in usuarios %}
+                                            <tr>
+                                                <td class="text-center">{{ forloop.counter }}</td>
+                                                <td class="text-center">{{ usuario.username }}</td>
+                                                <td class="text-center">{{ usuario.email }}</td>
+                                                <td class="text-center">{{ usuario.get_full_name }}</td>
+                                                <td class="text-center">
+                                                    {% if usuario.is_active %}
+                                                        <span class="badge badge-success">Ativo</span>
+                                                    {% else %}
+                                                        <span class="badge badge-danger">Inativo</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-center">
+                                                    {% for group in usuario.groups.all %}
+                                                        <span class="badge badge-info">{{ group.name }}</span>
+                                                    {% endfor %}
+                                                </td>
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-sm btn-warning" 
+                                                            data-toggle="modal" 
+                                                            data-target="#editarModal" 
+                                                            data-id="{{ usuario.id }}" 
+                                                            data-username="{{ usuario.username }}" 
+                                                            data-email="{{ usuario.email }}" 
+                                                            data-first_name="{{ usuario.first_name }}" 
+                                                            data-last_name="{{ usuario.last_name }}" 
+                                                            data-is_active="{{ usuario.is_active|yesno:"true,false" }}" 
+                                                            data-grupos="{{ usuario.grupos|join:',' }}"
+                                                            data-foto_perfil="{{ usuario.foto_perfil }}">
+                                                        Editar
+                                                    </button>
+        
+        
+                                                <a href="{% url 'excluir_usuario' usuario.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir este usuário?');">Excluir</a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>           
+</div>
+
+
+<!-- Modal para Editar Usuario -->
+<div class="modal fade" id="editarModal" tabindex="-1" role="dialog" aria-labelledby="editarModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title text-dark" id="editarModalLabel">Editar Usuario</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Formulário de Edição -->
+                <form method="post" id="editarForm" action="/usuarios/usuarios/cadastra-atualiza-usuario/" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="usuario_id" id="usuario_id" value="{{ usuario.id }}">
+            
+                    <p>
+                        <label for="id_username">Usuário:</label>
+                        <input type="text" name="username" class="form-control" maxlength="150" required="" aria-describedby="id_username_helptext" id="id_username" value="{{ usuario.username }}">
+                        <span class="helptext" id="id_username_helptext">Obrigatório. 150 caracteres ou menos. Letras, números e @/./+/-/_ apenas.</span>
+                    </p>
+            
+                    <p>
+                        <label for="id_email">Endereço de email:</label>
+                        <input type="email" name="email" class="form-control" maxlength="254" id="id_email" value="{{ usuario.email }}">
+                    </p>
+            
+                    <p>
+                        <label for="id_first_name">Primeiro nome:</label>
+                        <input type="text" name="first_name" class="form-control" maxlength="150" id="id_first_name" value="{{ usuario.first_name }}">
+                    </p>
+            
+                    <p>
+                        <label for="id_last_name">Último nome:</label>
+                        <input type="text" name="last_name" class="form-control" maxlength="150" id="id_last_name" value="{{ usuario.last_name }}">
+                    </p>
+            
+                    <p>
+                        <label for="id_is_active">Ativo:</label>
+                        <input type="checkbox" name="is_active" class="form-check-input" aria-describedby="id_is_active_helptext" id="id_is_active" {% if usuario.is_active %}checked{% endif %}>
+                        <span class="helptext" id="id_is_active_helptext">Indica que o usuário será tratado como ativo. Ao invés de excluir contas de usuário, desmarque isso.</span>
+                    </p>
+            
+                    <p>
+                        <label for="id_grupos">Grupos:</label>
+                        {{ form.grupos }}
+                    </p>
+
+                    <p>
+                        <label for="foto_perfil">Imagem de Perfil</label>
+                        <input type="file" name="foto_perfil" id="foto_perfil" class="form-control">
+                    </p>
+            
+                    <button type="submit" class="btn btn-warning w-100">Atualizar Usuário</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Adicionar Usuário -->
+<div class="modal fade" id="adicionarModal" tabindex="-1" role="dialog" aria-labelledby="adicionarModalLabel" aria-hidden="true">
+    <div class="modal-dialog " role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title text-light" id="adicionarModalLabel">Adicionar Usuário</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Formulário de Usuário -->
+                <form id="usuarioForm" method="post" action="{% url 'cadastrar_atualizar_usuario' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.as_p }} 
+                    <button type="submit" class="btn btn-success w-100">Cadastrar Usuário</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<!-- Modal para Excluir produto (apenas um, fora do loop) -->
+<div class="modal fade" id="excluirModal" tabindex="-1" role="dialog" aria-labelledby="excluirModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger">
+                <h5 class="modal-title text-light" id="excluirModalLabel">Excluir produto</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Você tem certeza que deseja excluir esta produto: <strong id="produtoNome"></strong>?</p>
+                <form method="post" id="excluirForm" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="produto_id" id="excluir_produto_id">
+                    <button type="submit" class="btn btn-danger w-100">Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% block extra_scripts %}
+    <script>
+        $(document).ready(function () {
+            // Quando o botão de editar for clicado
+            $('button[data-target="#editarModal"]').on('click', function () {
+                var usuario_id = $(this).data('id');
+                var username = $(this).data('username');
+                var email = $(this).data('email');
+                var first_name = $(this).data('first_name');
+                var last_name = $(this).data('last_name');
+                var is_active = $(this).data('is_active');
+                var grupos = $(this).data('grupos'); // Assumindo que grupos é uma lista ou array
+
+                // Preencher os campos da modal
+                $('#usuario_id').val(usuario_id);
+                $('#id_username').val(username);
+                $('#id_email').val(email);
+                $('#id_first_name').val(first_name);
+                $('#id_last_name').val(last_name);
+                
+                // Preencher checkbox is_active
+                $('#id_is_active').prop('checked', is_active === 'true'); // Certifique-se que is_active é um booleano em string
+
+                // Manipular os grupos
+                if (Array.isArray(grupos)) {
+                    grupos.forEach(function(grupo) {
+                        $('#id_grupos_' + grupo).prop('checked', true);
+                    });
+                }
+                $('#foto_perfil').val(foto_perfil);
+            });
+
+            // Quando o botão de excluir for clicado
+            $('button[data-target="#excluirModal"]').on('click', function () {
+                var produtoId = $(this).data('id');
+                var produtoNome = $(this).data('nome');
+
+                // Atualiza o nome no modal de exclusão
+                $('#produtoNome').text(produtoNome);
+
+                // Define a URL de exclusão com o ID da produto no `action`
+                var excluirUrl = "{% url 'excluir_produto' 0 %}".replace('0', produtoId);
+                $('#excluirForm').attr('action', excluirUrl);
+            });
+
+           
+
+        });
+    </script>
+{% endblock %}
+
+{% endblock %}

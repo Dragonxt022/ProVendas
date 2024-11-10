@@ -1,0 +1,337 @@
+# comanda/views.py
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Mesa, Comanda, ProdutoComanda, Produto
+from django.http import JsonResponse
+import json
+from django.contrib import messages
+import random
+from .forms import MesaForm
+from django.contrib.auth.models import User
+import logging
+
+logger = logging.getLogger(__name__)
+
+def fechar_comanda(request, mesa_id):
+    if request.method == 'POST':
+        try:
+            # Capturar os dados da requisição
+            data = json.loads(request.body)
+            numero_pedido = data.get('numero_pedido')
+            vendedor_id = data.get('vendedor_id')
+            cliente_id = data.get('cliente_id')
+            desconto = data.get('desconto', 0.0)
+            total = data.get('total')
+            payment_method = data.get('payment_method')
+            produtos = data.get('produtos', [])
+
+            # Buscar a mesa e a comanda aberta associada
+            mesa = get_object_or_404(Mesa, id=mesa_id)
+            comanda = get_object_or_404(Comanda, mesa=mesa, status='aberta')
+
+            # Marcar a comanda como fechada e adicionar os dados finais
+            comanda.status = 'fechada'
+            comanda.numero_pedido = numero_pedido
+            comanda.vendedor_id = vendedor_id
+            comanda.cliente_id = cliente_id
+            comanda.desconto = desconto
+            comanda.total = total
+            comanda.payment_method = payment_method
+            comanda.save()
+
+            # Gerenciar o estoque dos produtos
+            for produto_data in produtos:
+                produto = Produto.objects.filter(id=produto_data.get('produto_id')).first()
+
+                if produto:
+                    quantidade = produto_data['quantidade']
+
+                    # Verificar se o controle de estoque está ativado
+                    if produto.controle_estoque:
+                        if produto.quantidade_estoque >= quantidade:
+                            # Descontar do estoque se houver quantidade suficiente
+                            produto.quantidade_estoque -= quantidade
+                            produto.save()
+                        else:
+                            # Se não houver quantidade suficiente, retornar erro
+                            return JsonResponse({'success': False, 'message': 'Estoque insuficiente para um dos produtos.'}, status=400)
+
+                    # Verificar se o produto já existe na comanda
+                    produto_comanda = ProdutoComanda.objects.filter(comanda=comanda, produto=produto).first()
+
+                    if produto_comanda:
+                        # Se já existir, apenas atualiza a quantidade (não somando novamente)
+                        produto_comanda.quantidade = quantidade  # Atualiza a quantidade para o valor correto
+                        produto_comanda.total = quantidade * produto_comanda.preco_unitario  # Atualiza o total
+                        produto_comanda.save()
+                    else:
+                        # Se não existir, cria uma nova relação
+                        ProdutoComanda.objects.create(
+                            comanda=comanda,
+                            produto=produto,
+                            quantidade=quantidade,
+                            preco_unitario=produto.preco_de_venda,
+                            total=quantidade * produto.preco_de_venda
+                        )
+
+            # Liberar a mesa
+            mesa.status = 'livre'
+            mesa.save()
+
+            # Retornar uma resposta de sucesso
+            return JsonResponse({'success': True, 'message': 'Comanda fechada, mesa liberada e venda finalizada com sucesso!'})
+
+        except Exception as e:
+            # Se ocorrer algum erro, retornar uma mensagem de erro
+            return JsonResponse({'success': False, 'message': str(e)})
+
+    # Se não for uma requisição POST, redirecionar para a lista de mesas
+    return redirect('listar_mesas')
+
+
+def historico_vendas(request):
+    vendas = Comanda.objects.filter(status='fechada').order_by('-created_at')  # Filtra apenas as comandas fechadas
+    return render(request, 'comanda/lista_vendas_comanda.html', {'vendas': vendas})
+
+
+def detalhes_comanda(request, comanda_id):
+    try:
+        # Buscar a comanda com seus produtos
+        comanda = Comanda.objects.get(id=comanda_id)
+        produtos_comanda = ProdutoComanda.objects.filter(comanda=comanda)
+
+        # Estrutura para enviar os dados para o frontend
+        produtos = [{
+            'nome': produto_comanda.produto.nome,
+            'quantidade': produto_comanda.quantidade,
+            'preco_unitario': produto_comanda.preco_unitario,
+            'total': produto_comanda.total
+        } for produto_comanda in produtos_comanda]
+
+        # Dados da comanda
+        dados_comanda = {
+            'numero_pedido': comanda.numero_pedido,
+            'vendedor': comanda.vendedor.username,
+            'cliente': comanda.cliente.nome,
+            'total': comanda.total,
+            'desconto': comanda.desconto,
+            'payment_method': comanda.payment_method,
+            'produtos': produtos
+        }
+
+        return JsonResponse({'success': True, 'data': dados_comanda})
+
+    except Comanda.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Comanda não encontrada.'})
+
+def excluir_comanda(request, comanda_id):
+    try:
+        # Recupera a comanda
+        comanda = Comanda.objects.get(id=comanda_id)
+        
+        # Recupera todos os produtos da comanda
+        produtos_comanda = ProdutoComanda.objects.filter(comanda=comanda)
+        
+        # Para cada produto na comanda, repor estoque se for gerenciável
+        for produto_comanda in produtos_comanda:
+            produto = produto_comanda.produto  # Produto relacionado à comanda
+
+            # Verifica se o produto é gerenciável no estoque
+            if produto.controle_estoque:
+                # Repor a quantidade de estoque do produto
+                produto.quantidade_estoque += produto_comanda.quantidade
+                produto.save()  # Salva as alterações no estoque
+
+        # Exclui a comanda
+        comanda.delete()
+
+        return JsonResponse({"success": True, "message": "Comanda excluída com sucesso."})
+    except Comanda.DoesNotExist:
+        return JsonResponse({"success": False, "message": "Comanda não encontrada."})
+
+def adicionar_produto_comanda(request, mesa_id):
+    if request.method == 'POST':
+        try:
+            # Buscar a mesa e a comanda associada
+            mesa = get_object_or_404(Mesa, id=mesa_id)
+            comanda = get_object_or_404(Comanda, mesa=mesa, status='aberta')
+
+            # Carregar os dados do corpo da requisição como JSON
+            data = json.loads(request.body)
+            produtos = data.get('produtos', [])
+
+            # Obter os IDs dos produtos enviados
+            produtos_enviados_ids = [item.get('produto_id') for item in produtos]
+
+            # Iterar sobre os produtos enviados e processar cada um
+            for item in produtos:
+                produto_id = item.get('produto_id')
+                quantidade = int(item.get('quantidade', 1))  # Quantidade padrão é 1
+
+                # Buscar o produto no banco de dados
+                produto = get_object_or_404(Produto, id=produto_id)
+                preco_unitario = produto.preco_de_venda  # Ajuste o nome do campo aqui
+
+                # Verificar se o produto já existe na comanda
+                produto_comanda = ProdutoComanda.objects.filter(comanda=comanda, produto=produto).first()
+
+                if produto_comanda:
+                    # Se o produto já existe, ajustar a quantidade
+                    if quantidade == 0:
+                        # Se a quantidade for zero, remover o produto da comanda
+                        produto_comanda.delete()
+                    else:
+                        # Se a quantidade for maior que zero, atualizar a quantidade e o total
+                        produto_comanda.quantidade = quantidade
+                        produto_comanda.total = produto_comanda.quantidade * preco_unitario
+                        produto_comanda.save()
+                else:
+                    # Se o produto não existir na comanda, criar um novo registro
+                    if quantidade > 0:
+                        ProdutoComanda.objects.create(
+                            comanda=comanda,
+                            produto=produto,
+                            quantidade=quantidade,
+                            preco_unitario=preco_unitario,
+                            total=quantidade * preco_unitario
+                        )
+
+            # Remover os produtos da comanda que não foram enviados na requisição
+            produtos_na_comanda = ProdutoComanda.objects.filter(comanda=comanda)
+            for produto_comanda in produtos_na_comanda:
+                if produto_comanda.produto.id not in produtos_enviados_ids:
+                    produto_comanda.delete()
+
+            # Atualizar o total da comanda
+            comanda.total = sum(item.total for item in ProdutoComanda.objects.filter(comanda=comanda))
+            comanda.save()
+
+            # Responder com sucesso
+            return JsonResponse({'success': True, 'message': 'Produtos atualizados com sucesso!'})
+
+        except Exception as e:
+            # Se ocorrer algum erro, retornar uma mensagem de erro
+            return JsonResponse({'success': False, 'message': str(e)})
+
+    # Se não for uma requisição POST, redirecionar para a lista de mesas
+    return redirect('listar_mesas')
+
+def get_comanda_details(request, mesa_id):
+    # Buscar a mesa com o ID fornecido
+    mesa = get_object_or_404(Mesa, id=mesa_id)
+    
+    # Buscar a comanda associada à mesa
+    comanda = get_object_or_404(Comanda, mesa=mesa, status='aberta')
+
+    # Buscar os produtos relacionados a essa comanda
+    produtos = ProdutoComanda.objects.filter(comanda=comanda)
+
+    # Estruturar os dados que serão retornados
+    data = {
+        'id': comanda.id,
+        'numero_pedido': comanda.numero_pedido,
+        'vendedor': {
+            'id': comanda.vendedor.id,
+            'nome': comanda.vendedor.username,  # Ajuste conforme necessário
+        },
+        'status': comanda.status,
+        'desconto': comanda.desconto,
+        'total': comanda.total,
+        'payment_method': comanda.payment_method,
+        'produtos': [{
+            'produto': {
+                'id': produto.produto.id,
+                'nome': produto.produto.nome,
+                'codigoBarras': produto.produto.codigo_barras or "",
+                'file': produto.produto.file.url if produto.produto.file else None,
+                'categoria': {
+                    'nome': produto.produto.categoria.nome if produto.produto.categoria else None,
+                    'file': produto.produto.categoria.file.url if produto.produto.categoria and produto.produto.categoria.file else None
+                } if produto.produto.categoria else None,
+            },
+            'quantidade': produto.quantidade,
+            'preco_unitario': produto.preco_unitario,
+            'total': produto.total,
+        } for produto in produtos]
+    }
+
+    return JsonResponse(data)
+
+def listar_mesas(request):
+    mesas = Mesa.objects.all()  # Obter todas as mesas
+    form = MesaForm()  # Formulário vazio para cadastro
+    return render(request, 'comanda/listar_mesas.html', {'mesas': mesas, 'form': form})
+    
+def cadastrar_mesa(request):
+    if request.method == 'POST':
+        form = MesaForm(request.POST)
+        if form.is_valid():
+            form.save()  # Salva a nova mesa no banco de dados
+            return redirect('listar_mesas')  # Redireciona para a página de listagem das mesas
+    else:
+        form = MesaForm()  # Cria um formulário vazio
+    return render(request, 'comanda/cadastrar_mesa.html', {'form': form})
+
+def excluir_mesa(request, mesa_id):
+    mesa = get_object_or_404(Mesa, id=mesa_id)  # Encontra a mesa ou retorna 404 se não existir
+
+    # # Verifica se a mesa está ocupada
+    # if mesa.status == 'ocupada':
+    #     # Se estiver ocupada, exibe uma mensagem informando que não pode excluir
+    #     messages.error(request, f"A mesa {mesa.nome} não pode ser excluída porque está ocupada.")
+    #     messages.info(request, f"Finalize ou cansele avenda para estar disponivel para exclusão.")
+
+    #     return redirect('listar_mesas')  # Redireciona para a página de listagem das mesas
+
+    # Se a mesa estiver livre, exclui a mesa
+    mesa.delete()
+
+    # Exibe uma mensagem de sucesso após a exclusão
+    messages.success(request, f"A mesa {mesa.nome} foi excluída com sucesso.")
+    return redirect('listar_mesas')  # Redireciona para a página de listagem das mesas
+
+
+def abrir_ou_gerenciar_comanda(request, mesa_id):
+    mesa = get_object_or_404(Mesa, id=mesa_id)
+
+    # Verifica se já existe uma comanda associada à mesa
+    comanda_existente = Comanda.objects.filter(mesa=mesa, status='aberta').first()
+
+    if comanda_existente:
+        # Se já existir uma comanda aberta, redireciona para a página de gerenciamento da comanda
+        # Passa o ID da mesa em vez da comanda
+        return render(request, 'comanda/caixa_comanda.html', {'mesa_id': mesa.id})
+    
+    if mesa.status == 'livre':
+        # Se a mesa estiver livre, cria uma nova comanda
+        mesa.status = 'ocupada'
+        mesa.save()
+
+        # Gera o número do pedido único
+        numero_pedido = gerar_numero_pedido()
+
+        # Criação de uma nova comanda associada à mesa e ao vendedor (usuário autenticado)
+        comanda = Comanda.objects.create(
+            numero_pedido=numero_pedido,  # Adiciona o número do pedido gerado
+            mesa=mesa,
+            status='aberta',
+            vendedor=request.user  # Atribuindo o vendedor como o usuário logado
+        )
+
+        # Redireciona para a página de gerenciamento da comanda
+        return render(request, 'comanda/caixa_comanda.html', {'comanda': comanda})
+
+    # Se a mesa não estiver livre, redireciona para a lista de mesas
+    return redirect('listar_mesas')
+
+
+def gerar_numero_pedido():
+    # Gera um número aleatório de 8 dígitos
+    numero_aleatorio = random.randint(10000000, 99999999)
+    
+    # Formata o número de pedido
+    numero_pedido = f"PDV-{numero_aleatorio}"
+
+    return numero_pedido
+
+

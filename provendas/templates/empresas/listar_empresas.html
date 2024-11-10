@@ -1,0 +1,251 @@
+
+
+{% extends "template.html" %}
+
+{% load static %}
+{% block title %}
+    Hístorico de vendas
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .imagemProdutos{
+        width: 11%;
+        background: #fff;
+        position: inherit;
+        border: 1px solid rgba(52, 73, 94, 0.44);
+        padding: 7px;
+        border-radius: 50%;
+    }
+
+    .table td, .table th {
+        vertical-align: middle !important;
+
+    }
+    
+</style>
+
+<div class="wrapper">
+    {% include 'includes/sidebar.html' %}
+    {% include 'includes/navbar.html' %} 
+
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6 d-flex align-items-center">
+                        <h1 class="mr-3"> Empresas </h1> <!-- Adicionei a classe mr-3 -->
+                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#adicionarModal">
+                            Adicionar Empresa
+                        </button>
+                    </div>
+                </div>
+                
+            </div><!-- /.container-fluid -->
+        </section>
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Lista de empresas</h3> 
+                            </div>
+                            <div class="card-body">
+                                
+                                <table id="datatable2" class="table table-striped table-bordered" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center" >N°</th>
+                                            <th >Nome da Empresa</th>
+                                            <th class="text-center">Telefone</th>
+                                            <th class="text-center">E-mail</th>
+                                            <th class="text-center">Status</th>
+                                            <th class="text-center">CNPJ</th>
+                                            <th class="text-center">Cidade</th>
+                                            <th class="text-center">CEP</th>
+                                            <th class="text-center">Estado</th>
+                                            {% comment %} <th class="text-center">Endereço</th> {% endcomment %}
+                                            <th class="text-center">Ação</th>
+                                         
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for empresa in empresas %}
+                                            <tr>
+                                                
+                                                <td class="text-center">{{ forloop.counter }}</td>
+                                                <td>{{ empresa.nome_empresa }}</td>
+                                                <td class="text-center">{{ empresa.telefone }}</td>
+                                                <td class="text-center">{{ empresa.email }}</td>
+                                                <td class="text-center">
+                                                    {% if empresa.status == 'ativo' %}
+                                                        <span class="badge badge-success">Ativo</span>
+                                                    {% elif empresa.status == 'inativo' %}
+                                                        <span class="badge badge-danger">Inativo</span>
+                                                    {% else %}
+                                                        <span class="badge badge-secondary">Indefinido</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-center">{{ empresa.cnpj }}</td>
+                                                <td class="text-center">{{ empresa.cidade }}</td>
+                                                <td class="text-center">{{ empresa.cep }}</td>
+                                                <td class="text-center">{{ empresa.estado }}</td>
+                                                {% comment %} <td class="text-center">{{ empresa.endereco }}</td> {% endcomment %}
+                                       
+                                                <td class="text-center">
+                                                     <!-- Botão Editar para abrir a modal com os dados preenchidos -->
+                                                     <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" 
+                                                        data-target="#editarModal" 
+                                                        data-id="{{ empresa.id }}" 
+                                                        data-nome="{{ empresa.nome }}" 
+                                                        data-descricao="{{ empresa.descricao }}" 
+                                                        data-preco="{{ empresa.preco }}" 
+                                                        data-quantidade="{{ empresa.quantidade_estoque }}" 
+                                                        data-categoria-id="{{ empresa.categoria.id }}" 
+                                                        data-status="{{ empresa.status }}">
+                                                        Editar
+                                                    </button>
+        
+                                                    
+                                                    <!-- Botão Excluir para abrir a modal de confirmação -->
+                                                    <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" 
+                                                        data-target="#excluirModal" 
+                                                        data-id="{{ produto.id }}" 
+                                                        data-nome="{{ produto.nome }}">
+                                                        Excluir
+                                                    </button><!-- Adicione ações de edição e exclusão de produto aqui -->
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>           
+</div>
+
+<!-- Modal para Editar Emprea -->
+<div class="modal fade" id="editarModal" tabindex="-1" role="dialog" aria-labelledby="editarModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title text-dark" id="editarModalLabel">Editar Empresa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Formulário de Edição -->
+                <form method="post" id="editarForm" action="{% url 'editar_produto' 0 %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <input type="hidden" name="produto_id" id="produto_id"> <!-- Campo escondido para ID do produto -->
+
+                    <button type="submit" class="btn btn-warning w-100">Atualizar Empresa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal para Adicionar Empresa -->
+<div class="modal fade" id="adicionarModal" tabindex="-1" role="dialog" aria-labelledby="adicionarModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title text-light" id="adicionarModalLabel">Adicionar Empresa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Formulário de Empresa -->
+                <form method="post" action="{% url 'cadastrar_empresa' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-success w-100">Cadastrar Empresa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Excluir produto (apenas um, fora do loop) -->
+<div class="modal fade" id="excluirModal" tabindex="-1" role="dialog" aria-labelledby="excluirModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger">
+                <h5 class="modal-title text-light" id="excluirModalLabel">Excluir Empresa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Você tem certeza que deseja excluir esta produto: <strong id="produtoNome"></strong>?</p>
+                <form method="post" id="excluirForm" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="produto_id" id="excluir_produto_id">
+                    <button type="submit" class="btn btn-danger w-100">Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% block extra_scripts %}
+    <script>
+        $(document).ready(function () {
+            // Quando o botão de editar for clicado
+            $('button[data-target="#editarModal"]').on('click', function () {
+                var produtoId = $(this).data('id');
+                var produtoNome = $(this).data('nome');
+
+                // Preenche os campos da modal de edição
+                $('#produto_id').val(produtoId);
+                $('#nome').val(produtoNome);
+            });
+
+            // Quando o botão de excluir for clicado
+            $('button[data-target="#excluirModal"]').on('click', function () {
+                var produtoId = $(this).data('id');
+                var produtoNome = $(this).data('nome');
+
+                // Atualiza o nome no modal de exclusão
+                $('#produtoNome').text(produtoNome);
+
+                // Define a URL de exclusão com o ID da produto no `action`
+                var excluirUrl = "{% url 'excluir_produto' 0 %}".replace('0', produtoId);
+                $('#excluirForm').attr('action', excluirUrl);
+            });
+
+            // Quando o botão de editar for clicado
+            $('button[data-target="#editarModal"]').on('click', function () {
+                var produtoId = $(this).data('id');
+                var produtoNome = $(this).data('nome');
+                var produtoDescricao = $(this).data('descricao');
+                var produtoPreco = $(this).data('preco');
+                var produtoQuantidade = $(this).data('quantidade');
+                var produtoCategoriaId = $(this).data('categoria-id');
+                var produtoStatus = $(this).data('status');
+    
+                // Preenche os campos da modal de edição
+                $('#produto_id').val(produtoId);
+                $('#nome').val(produtoNome);
+                $('#descricao').val(produtoDescricao);
+                $('#preco').val(produtoPreco);
+                $('#quantidade_estoque').val(produtoQuantidade);
+                $('#categoria').val(produtoCategoriaId);
+                $('#status').val(produtoStatus);
+            });
+        });
+    </script>
+{% endblock %}
+
+{% endblock %}

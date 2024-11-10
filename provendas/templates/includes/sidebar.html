@@ -1,0 +1,200 @@
+
+{% load static %}
+
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar sidebar-light-success elevation-4">
+  <!-- Brand Logo -->
+  <a href="{% url 'dashboard' %}" class="brand-link">
+    <img src="{% static 'image/iconsistema.png' %}" alt="Logo da empresa" class="brand-image img-circle elevation-3" style="opacity: .8">
+    <span class="brand-text font-weight-light">Sistam Vendas</span>
+  </a>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <!-- Sidebar user (optional) -->
+    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+      <div class="image">
+
+        {% if user.perfil.foto_perfil %}  <!-- Verifica se a imagem do perfil existe -->
+            <img src="{{ user.perfil.foto_perfil.url }}" class="img-circle elevation-2" alt="User Image">
+        {% else %}
+            <img src="{% static 'image/no_image.png' %}" alt="Default Profile Image" class="img-circle elevation-2" alt="User Image"> 
+        {% endif %}
+
+      </div>
+      <div class="info">
+        <a href="{% url 'dashboard' %}" class="d-block">Olá, {{ user.username }}</a>
+      </div>
+    </div>
+
+    <!-- SidebarSearch Form -->
+    <div class="form-inline">
+      <div class="input-group" data-widget="sidebar-search">
+        <input class="form-control form-control-sidebar" type="search" placeholder="buscar" aria-label="Search">
+        <div class="input-group-append">
+          <button class="btn btn-sidebar">
+            <i class="fas fa-search fa-fw"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar Menu -->
+    <nav class="mt-2">
+      <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+        <li class="nav-item">
+          <a href="{% url 'dashboard' %}" class="nav-link">
+            <i class="nav-icon fas fa-tachometer-alt"></i>
+            <p>
+              Dashboard
+            </p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-shopping-cart"></i>
+            <p>
+              Caixa
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'abrir_caixa_pdv' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Caixa PDV</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'listar_caixa' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Hístórico vendas</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-chair"></i>
+            <p>
+                Comanda
+                <i class="right fas fa-angle-left"></i>
+
+            </p>
+            </a>
+            <ul class="nav nav-treeview">
+            <li class="nav-item">
+                <a href="{% url 'listar_mesas' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Mesas</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'historico_vendas' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Hístórico vendas</p>
+                </a>
+            </li>
+            </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-database"></i>
+            <p>
+              Gerenciar Estoque
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'listar_produtos' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Produtos</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'listar_categorias' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Categorias</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-user-edit"></i>
+            <p>
+              Clientes
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'listar_clientes'%}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Lista de clientes</p>
+              </a>
+            </li>
+
+          </ul>
+        </li>
+
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+
+            <i class="nav-icon fas fa-building"></i>
+            <p>
+              Empresas
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'listar_empresas' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Lista Empresas</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <li class="nav-header">Outros</li>
+        <li class="nav-item">
+          <a href="{% url 'listar_usuarios'%}" class="nav-link">
+            <i class="nav-icon fas fa-users"></i>
+            <p>
+              Usuários
+              <span class="badge badge-info right"></span>
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-cog"></i>
+            <p>
+              Configurações
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href=" #" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Sistema</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Chaves</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+    </nav>
+    <!-- /.sidebar-menu -->
+  </div>
+  <!-- /.sidebar -->
+</aside>

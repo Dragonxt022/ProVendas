@@ -1,0 +1,342 @@
+
+
+{% extends "template.html" %}
+
+{% load static %}
+{% block title %}
+    Clientes
+{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    {% include 'includes/sidebar.html' %}
+    {% include 'includes/navbar.html' %} 
+
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6 d-flex align-items-center">
+                        <h1 class="mr-3"> Clientes </h1> <!-- Adicionei a classe mr-3 -->
+                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#adicionarModal">
+                            Adicionar Cliente
+                        </button>
+                    </div>
+                </div>
+                
+            </div><!-- /.container-fluid -->
+        </section>
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Lista de clientes</h3> 
+                            </div>
+                            <div class="card-body">   
+                                <table id="example1" class="table table-striped table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">N°</th>
+                                            <th class="text-center">Nome</th>
+                                            <th class="text-center">E-mail</th>
+                                            <th class="text-center">CPF</th>
+                                            <th class="text-center">Telefone</th>
+                                            <th class="text-center">Status</th>
+                                            <th class="text-center">Ação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for cliente in clientes %}
+                                            <tr>
+                                                <td class="text-center">{{ forloop.counter }}</td>
+                                                <td class="text-center">{{ cliente.nome }}</td>
+                                                <td class="text-center">{{ cliente.email }}</td>
+                                                <td class="text-center">{{ cliente.cpf }}</td>
+                                                <td class="text-center">{{ cliente.telefone }}</td>
+                                                <td class="text-center">
+                                                    {% if cliente.status == 'ativo' %}
+                                                        <span class="badge badge-success">Ativo</span>
+                                                    {% else %}
+                                                        <span class="badge badge-danger">Inativo</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-center">
+                                                    <!-- Botão Editar -->
+                                                    <button type="button" class="btn btn-sm btn-success" data-toggle="modal" 
+                                                            data-target="#editarModal" 
+                                                            data-id="{{ cliente.id }}" 
+                                                            data-nome="{{ cliente.nome }}"
+                                                            data-email="{{ cliente.email }}"
+                                                            data-cpf="{{ cliente.cpf }}"
+                                                            data-telefone="{{ cliente.telefone }}" 
+                                                            data-data_nascimento="{{ cliente.data_nascimento }}" 
+                                                            data-endereco="{{ cliente.endereco }}"
+                                                            data-cidade="{{ cliente.cidade }}"
+                                                            data-estado="{{ cliente.estado }}"
+                                                            data-cep="{{ cliente.cep }}"
+                                                            data-status="{{ cliente.status }}"
+                                                            data-limite_credito_ativo="{{ cliente.limite_credito_ativo }}"
+                                                            data-limite_credito="{{ cliente.limite_credito }}">
+                                                        Editar
+                                                    </button>
+
+                                                    <!-- Botão Ver Detalhes -->
+                                                    <button type="button" class="btn btn-sm btn-info" data-toggle="modal" 
+                                                            data-target="#detalhesModal" 
+                                                            data-nome="{{ cliente.nome }}"
+                                                            data-data_nascimento="{{ cliente.data_nascimento }}"
+                                                            data-email="{{ cliente.email }}"
+                                                            data-cpf="{{ cliente.cpf }}"
+                                                            data-telefone="{{ cliente.telefone }}" 
+                                                            data-status="{{ cliente.status }}"
+                                                            data-endereco="{{ cliente.endereco }}"
+                                                            data-cidade="{{ cliente.cidade }}"
+                                                            data-estado="{{ cliente.estado }}"
+                                                            data-cep="{{ cliente.cep }}">
+                                                        Ver Detalhes
+                                                    </button>
+
+                                                    <!-- Botão Excluir -->
+                                                    <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" 
+                                                        data-target="#excluirModal" 
+                                                        data-id="{{ cliente.id }}" 
+                                                        data-nome="{{ cliente.nome }}">
+                                                        Excluir
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        </div> 
+            
+</div>
+<!-- Modal para Editar Usuario -->
+<div class="modal fade" id="editarModal" tabindex="-1" role="dialog" aria-labelledby="editarModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title text-dark" id="editarModalLabel">Editar Usuario</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <form method="POST" id="editarForm" action="{% url 'editar_cliente' 0 %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <input type="hidden" name="cliente_id" id="cliente_id">
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-warning btn-sm w-100">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detalhes -->
+<div class="modal fade" id="detalhesModal" tabindex="-1" role="dialog" aria-labelledby="detalhesModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title" id="detalhesModalLabel">Detalhes do Cliente</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <th>Nome</th>
+                                <td id="detalhes_nome"></td>
+                            </tr>
+                            <tr>
+                                <th>Data de Nacimento</th>
+                                <td id="data_nascimento"></td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td id="detalhes_email"></td>
+                            </tr>
+                            <tr>
+                                <th>CPF</th>
+                                <td id="detalhes_cpf"></td>
+                            </tr>
+                            <tr>
+                                <th>Telefone</th>
+                                <td id="detalhes_telefone"></td>
+                            </tr>
+                            <tr>
+                                <th>Endereço</th>
+                                <td id="detalhes_endereco"></td>
+                            </tr>
+                            <tr>
+                                <th>Cidade</th>
+                                <td id="detalhes_cidade"></td>
+                            </tr>
+                            <tr>
+                                <th>Estado</th>
+                                <td id="detalhes_estado"></td>
+                            </tr>
+                            <tr>
+                                <th>CEP</th>
+                                <td id="detalhes_cep"></td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td id="detalhes_status"></td>
+                            </tr>
+                            <tr>
+                                <th>Limite de Crédito</th>
+                                <td id="limite_credito"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Adicionar Usuário -->
+<div class="modal fade" id="adicionarModal" tabindex="-1" role="dialog" aria-labelledby="adicionarModalLabel" aria-hidden="true">
+    <div class="modal-dialog " role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title text-light" id="adicionarModalLabel">Adicionar Usuário</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Formulário de Usuário -->
+                <form id="usuarioForm" method="post" action="{% url 'cadastrar_cliente' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                
+                    {{ form.as_p }}
+                
+                    <!-- Botão de Enviar -->
+                    <button type="submit" class="btn btn-success w-100">Cadastrar Usuário</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Excluir Cliente -->
+<div class="modal fade" id="excluirModal" tabindex="-1" role="dialog" aria-labelledby="excluirModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger">
+                <h5 class="modal-title text-light" id="excluirModalLabel">Excluir cliente</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Você tem certeza que deseja excluir este cliente: <strong id="clienteNome"></strong>?</p>
+                <form method="post" id="excluirForm" action="">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger w-100">Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% block extra_scripts %}
+    <script>
+        $('#editarForm').on('submit', function (e) {
+            var cpf = $('#cpf').val();
+            if (!validarCPF(cpf)) {
+                e.preventDefault(); // Impede o envio do formulário
+                alert('CPF inválido! Por favor, digite um CPF válido.');
+                $('#cpf').focus(); // Coloca o foco no campo CPF
+            }
+        });
+        
+
+        $('button[data-target="#editarModal"]').on('click', function () {
+            var cliente_id = $(this).data('id');
+            var nome = $(this).data('nome');
+            var email = $(this).data('email');
+            var cpf = $(this).data('cpf');
+            var telefone = $(this).data('telefone');
+            var data_nascimento = $(this).data('data_nascimento');
+            var endereco = $(this).data('endereco');
+            var cidade = $(this).data('cidade');
+            var estado = $(this).data('estado');
+            var cep = $(this).data('cep');
+            var status = $(this).data('status');
+            
+            // Preenche os campos do formulário na modal
+            $('#cliente_id').val(cliente_id);
+            $('#nome').val(nome);
+            $('#email').val(email);
+            $('#cpf').val(cpf);
+            $('#telefone').val(telefone);
+            $('#data_nascimento').val(data_nascimento);
+            $('#endereco').val(endereco);
+            $('#cidade').val(cidade);
+            $('#estado').val(estado);
+            $('#cep').val(cep);
+            $('#status').val(status);
+        
+            $('#editarForm').attr('action', "{% url 'editar_cliente' 0 %}".replace('0', cliente_id));
+        });
+        
+
+        // Preencher modal Detalhes
+        $('button[data-target="#detalhesModal"]').on('click', function () {
+            $('#detalhes_nome').text($(this).data('nome'));
+            $('#data_nascimento').text($(this).data('data_nascimento'));
+            $('#detalhes_email').text($(this).data('email'));
+            $('#detalhes_cpf').text($(this).data('cpf'));
+            $('#detalhes_telefone').text($(this).data('telefone'));
+            $('#detalhes_endereco').text($(this).data('endereco'));
+            $('#detalhes_cidade').text($(this).data('cidade'));
+            $('#detalhes_estado').text($(this).data('estado'));
+            $('#detalhes_cep').text($(this).data('cep'));
+            $('#detalhes_status').text($(this).data('status'));
+            $('#limite_credito').text($(this).data('limite_credito'));
+        });
+        
+        // JavaScript para preencher a modal de exclusão com dados do cliente
+        $('button[data-target="#excluirModal"]').on('click', function () {
+            var cliente_id = $(this).data('id');
+            var clienteNome = $(this).data('nome');
+
+            // Atualiza o nome do cliente na modal
+            $('#clienteNome').text(clienteNome);
+
+            // Define a URL de exclusão com o ID do cliente no `action`
+            var excluirUrl = "{% url 'excluir_cliente' 0 %}".replace('0', cliente_id);
+            $('#excluirForm').attr('action', excluirUrl);
+        });
+
+
+    </script>
+{% endblock %}
+
+{% endblock %}
+
+
+                

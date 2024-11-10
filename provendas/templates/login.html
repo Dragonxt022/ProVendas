@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Login | PRO Vendas</title>
+
+    <!-- Importar a fonte Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Theme Style -->
+    <link href="{% static 'build/css/custom.min.css' %}" rel="stylesheet">
+    <link rel="shortcut icon" href="{% static 'image/iconsistema.png' %}" type="image/x-icon">
+    <!-- Bootstrap -->
+    <link href="{% static 'vendors/bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="{% static 'vendors/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif; /* Aplicando a fonte Poppins */
+        }
+    </style>
+</head>
+<body>
+    <div class="login-page">
+        <div class="container py-5">
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2">
+                    <h2 class="text-center py-4"> PRO | Vendas </h2>
+                    <div class="bg-white shadow rounded">
+                        <div class="row">
+                            <div class="col-md-7 pe-0">
+                                <div class="form-left h-100 py-5 px-5">
+                                    <form method="post" action="">
+                                        {% csrf_token %}
+                                        <div class="row g-4">
+                                            <div class="col-12">
+                                                <label>Usuario<span class="text-danger">*</span></label>
+                                                <div class="input-group">
+                                                    <div class="input-group-text"><i class="fa fa-user"></i></div>
+                                                    <input type="text" class="form-control" name="username" placeholder="digite o seu usuario" required>
+                                                </div>
+                                            </div>
+    
+                                            <div class="col-12">
+                                                <label>Senha<span class="text-danger">*</span></label>
+                                                <div class="input-group">
+                                                    <div class="input-group-text"><i class="fa fa-lock"></i></div>
+                                                    <input type="password" class="form-control" name="password" placeholder="digite sua senha" required>
+                                                </div>
+                                            </div>
+    
+                                            <div class="col-sm-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="inlineFormCheck">
+                                                    <label class="form-check-label" for="inlineFormCheck">Relembrar-me</label>
+                                                </div>
+                                            </div>
+    
+                                            <div class="col-12">
+                                                <button type="submit" class="btn btn-primary px-4 w-100 mt-4">Entrar</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-md-5 ps-0 d-none d-md-block">
+                                <div class="form-right h-100 bg-primary text-white text-center pt-5">
+                                    <i class="bi bi-bootstrap" style="font-size: 100px;"></i>
+                                    <h2 class="fs-1">Bem vindo!</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="{% static 'vendors/jquery/dist/jquery.min.js' %}"></script>
+    <!-- Bootstrap -->
+    <script src="{% static 'vendors/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+    <!-- Custom Theme Scripts -->
+    <script src="{% static 'build/js/custom.min.js' %}"></script>
+</body>
+</html>

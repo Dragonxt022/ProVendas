@@ -1,0 +1,190 @@
+{% extends "template.html" %}
+
+{% load static %}
+{% block title %}
+    Gerenciar Categoria
+{% endblock %}
+
+{% block content %}
+
+<div class="wrapper">
+    {% include 'includes/sidebar.html' %}
+    {% include 'includes/navbar.html' %} 
+    <div class="content-wrapper py-2">
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6 d-flex align-items-center">
+                        <h1 class="mr-3"> Gerenciar Categoria</h1> <!-- Adicionei a classe mr-3 -->
+                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#adicionarModal">
+                            Adicionar Categoria
+                        </button>
+                    </div>
+                </div>
+                
+            </div><!-- /.container-fluid -->
+        </section>
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <table id="example1" class="table table-striped table-bordered">
+                                    <thead >
+                                        <tr>
+                                            <th class="text-center">N°</th>
+                                            <th>Img</th>
+                                            <th>Nome</th>
+                                            <th class="text-center" >Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for categoria in categorias %}
+                                            <tr>
+                                                <td class="text-center">{{ forloop.counter }}</td>
+                                                
+                                                <td class="text-center">
+                                                    {% if categoria.file %}
+                                                        <img src="{{ categoria.file.url }}" alt="Imagem de {{ categoria.nome }}" width="50" height="50">
+                                                    {% else %}
+                                                        <span>Sem imagem</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ categoria.nome }}</td>
+                                                <td class="text-center">
+                                                    <!-- Botão Editar para abrir a modal com os dados preenchidos -->
+                                                    <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" 
+                                                        data-target="#editarModal" 
+                                                        data-id="{{ categoria.id }}" 
+                                                        data-nome="{{ categoria.nome }}">
+                                                        Editar
+                                                    </button>
+         
+                                                    <!-- Botão Excluir -->
+                                                    <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" 
+                                                        data-target="#excluirModal" 
+                                                        data-id="{{ categoria.id }}" 
+                                                        data-nome="{{ categoria.nome }}">
+                                                        Excluir
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <!-- Modal para Editar Categoria -->
+                                            <div class="modal fade" id="editarModal" tabindex="-1" role="dialog" aria-labelledby="editarModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header bg-warning">
+                                                            <h5 class="modal-title text-dark" id="editarModalLabel">Editar Categoria</h5>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <form method="post" id="editarForm" action="{% url 'cadastrar_categoria' %}">
+                                                                {% csrf_token %}
+                                                                <input type="hidden" name="categoria_id" id="categoria_id">
+                                                                <input type="text" name="nome" id="nome" class="form-control" required>
+                                                                <div class="py-2 "></div>
+                                                                <button type="submit" class="btn btn-warning w-100">Atualizar Categoria</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div> 
+                                            
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+      </div>    
+</div>
+<!-- Modal para Adicionar Categoria -->
+<div class="modal fade" id="adicionarModal" tabindex="-1" role="dialog" aria-labelledby="adicionarModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title text-light" id="adicionarModalLabel">Adicionar Categoria</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Formulário de Categoria -->
+                <form method="post" id="adicionarForm" action="{% url 'cadastrar_categoria' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="categoria_id" id="categoria_id">
+                    
+                    <label class="py-2">Nome da Categoria:</label>
+                    <input type="text" name="nome" id="nome" class="form-control py-2" required>
+                    
+                    <label class="py-2">Imagem:</label>
+                    <input type="file" name="file" id="file" class="form-control">
+                    
+                    <div class="py-2"></div>
+                    <button type="submit" class="btn btn-success w-100">Adicionar Categoria</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+ 
+<!-- Modal para Excluir Categoria (apenas um, fora do loop) -->
+<div class="modal fade" id="excluirModal" tabindex="-1" role="dialog" aria-labelledby="excluirModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger">
+                <h5 class="modal-title text-light" id="excluirModalLabel">Excluir Categoria</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Você tem certeza que deseja excluir esta categoria: <strong id="categoriaNome"></strong>?</p>
+                <form method="post" id="excluirForm" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="categoria_id" id="excluir_categoria_id">
+                    <button type="submit" class="btn btn-danger w-100">Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    $(document).ready(function () {
+        // Quando o botão de editar for clicado
+        $('button[data-target="#editarModal"]').on('click', function () {
+            var categoriaId = $(this).data('id');
+            var categoriaNome = $(this).data('nome');
+
+            // Preenche os campos da modal de edição
+            $('#categoria_id').val(categoriaId);
+            $('#nome').val(categoriaNome);
+        });
+
+        // Quando o botão de excluir for clicado
+        $('button[data-target="#excluirModal"]').on('click', function () {
+            var categoriaId = $(this).data('id');
+            var categoriaNome = $(this).data('nome');
+
+            // Atualiza o nome no modal de exclusão
+            $('#categoriaNome').text(categoriaNome);
+
+            // Define a URL de exclusão com o ID da categoria no `action`
+            var excluirUrl = "{% url 'excluir_categoria' 0 %}".replace('0', categoriaId);
+            $('#excluirForm').attr('action', excluirUrl);
+        });
+    });
+</script>
+{% endblock %}
+

@@ -1,0 +1,229 @@
+{% extends "template.html" %}
+
+{% load static %}
+{% block title %}
+    Hístorico de vendas
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .imagemProdutos{
+      width: 11%;
+      background: #fff;
+      position: inherit;
+      border: 1px solid rgba(52, 73, 94, 0.44);
+      padding: 7px;
+      border-radius: 50%;
+    }
+
+    .table td, .table th {
+        vertical-align: middle !important;
+
+    }
+   
+</style>
+
+<div class="wrapper">
+    {% include 'includes/sidebar.html' %}
+    {% include 'includes/navbar.html' %} 
+
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6 d-flex align-items-center">
+                        <h1 class="mr-3"> Controle de Vendas comanda </h1> <!-- Adicionei a classe mr-3 -->
+                        
+                        <!-- Link para nova venda -->
+                        <a href="{% url 'listar_mesas' %}" class="btn btn-sm btn-success">
+                            Ir para Mesas
+                        </a>
+                    </div>
+                </div>
+                
+            </div><!-- /.container-fluid -->
+        </section>
+        
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Vendas Realizadas</h3>
+                            </div>
+                            <!-- Modal para exibir os detalhes -->
+                            <div class="modal fade" id="detalhesComandaModal" tabindex="-1" aria-labelledby="detalhesComandaModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-success">
+                                            <h5 class="modal-title" id="detalhesComandaModalLabel">Detalhes da Comanda</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <h4>Informações da Comanda</h4>
+                                            <p><strong>Pedido:</strong> <span id="numero_pedido"></span></p>
+                                            <p><strong>Vendedor:</strong> <span id="vendedor"></span></p>
+                                            <p><strong>Cliente:</strong> <span id="cliente"></span></p>
+                                            <p><strong>Total:</strong> R$ <span id="total"></span></p>
+                                            <p><strong>Desconto:</strong> R$ <span id="desconto"></span></p>
+                                            <p><strong>Método de Pagamento:</strong> <span id="payment_method"></span></p>
+
+                                            <h4>Produtos Comprados</h4>
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Produto</th>
+                                                        <th>Quantidade</th>
+                                                        <th>Preço Unitário</th>
+                                                        <th>Total</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="produtos_comanda">
+                                                    <!-- Os produtos serão carregados via AJAX aqui -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+        
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tabela de Comandas Fechadas -->
+                            <div class="card-body">
+                                <table id="example1" class="table table-striped table-bordered">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <th>Pedido</th>
+                                            <th>Data</th>
+                                            <th>Vendedor</th>
+                                            <th>Cliente</th>
+                                            <th>Total</th>
+                                            <th>Status</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for venda in vendas %}
+                                            <tr class="text-center">
+                                                <td>#{{ venda.numero_pedido }}</td>
+                                                <td>{{ venda.created_at|date:"d/m/Y H:i" }}</td>
+                                                <td>{{ venda.vendedor.username }}</td>
+                                                <td>{{ venda.cliente.nome }}</td>
+                                                <td>R$ {{ venda.total|floatformat:2 }}</td>
+                                                <td>{{ venda.status }}</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-success" onclick="verDetalhes({{ venda.id }})">Detalhes</button>
+                                                    <button class="btn btn-danger btn-sm" onclick="excluirComanda({{ venda.id }})">Excluir</button>
+
+                                                </td>
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="7" class="text-center">Nenhuma venda encontrada.</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+      </div> 
+         
+</div>
+
+{% block extra_scripts %}
+<script>
+    function verDetalhes(comandaId) {
+        // Fazer requisição AJAX para obter os detalhes da comanda
+        fetch(`/comanda/detalhes_comanda/${comandaId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Preencher os dados da comanda na modal
+                    document.getElementById('numero_pedido').textContent = data.data.numero_pedido;
+                    document.getElementById('vendedor').textContent = data.data.vendedor;
+                    document.getElementById('cliente').textContent = data.data.cliente;
+                    document.getElementById('total').textContent = parseFloat(data.data.total).toFixed(2); // Garantir que o total seja numérico
+                    document.getElementById('desconto').textContent = data.data.desconto ? parseFloat(data.data.desconto).toFixed(2) : '0.00'; // Garantir que o desconto seja numérico
+                    document.getElementById('payment_method').textContent = data.data.payment_method;
+    
+                    // Limpar e preencher os produtos
+                    const produtosTabela = document.getElementById('produtos_comanda');
+                    produtosTabela.innerHTML = ''; // Limpar tabela
+                    data.data.produtos.forEach(produto => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${produto.nome}</td>
+                            <td>${produto.quantidade}</td>
+                            <td>R$ ${parseFloat(produto.preco_unitario).toFixed(2)}</td>
+                            <td>R$ ${parseFloat(produto.total).toFixed(2)}</td>
+                        `;
+                        produtosTabela.appendChild(row);
+                    });
+    
+                    // Exibir a modal
+                    $('#detalhesComandaModal').modal('show');
+                } else {
+                    alert('Erro ao carregar os detalhes.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao carregar os detalhes.');
+            });
+    }
+
+
+    function excluirComanda(comandaId) {
+        if (confirm("Tem certeza de que deseja excluir esta comanda?")) {
+            // Envia a requisição AJAX para excluir a comanda
+            fetch(`/comanda/excluir/comanda/${comandaId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken') // Não se esqueça de passar o token CSRF
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Comanda excluída com sucesso!");
+                    location.reload();  // Recarrega a página para refletir a exclusão
+                } else {
+                    alert("Erro ao excluir a comanda: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert("Erro ao tentar excluir a comanda.");
+            });
+        }
+    }
+    
+    // Função para pegar o CSRF Token para enviar com o AJAX
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            let cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    
+    </script>
+{% endblock %}
+
+{% endblock %}
