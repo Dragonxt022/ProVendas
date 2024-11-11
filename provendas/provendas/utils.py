@@ -1,12 +1,22 @@
 # provendas/utils.py
 import os
 from datetime import datetime
+import hashlib
+from django.utils.crypto import get_random_string
 
 def caminho_upload(instance, filename):
     # Obtém o mês e ano atual no formato mm-aaaa
     subpasta = datetime.now().strftime("%m-%Y")
-    # Define o caminho completo
-    return os.path.join("images", subpasta, filename)
+    
+    # Limita o comprimento do nome do arquivo a 200 caracteres
+    nome_arquivo, extensao = os.path.splitext(filename)
+    nome_arquivo = nome_arquivo[:200]  # Trunca para garantir que não ultrapasse 200 caracteres
+    
+    # Garante que o nome do arquivo seja único, adicionando um hash ou um sufixo aleatório
+    nome_arquivo = f"{nome_arquivo}_{get_random_string(8)}"  # Gerando sufixo aleatório para evitar conflitos
+
+    # Retorna o caminho completo, incluindo o nome do arquivo gerado
+    return os.path.join("images", subpasta, f"{nome_arquivo}{extensao}")
 
 
 def converter_para_float(valor):

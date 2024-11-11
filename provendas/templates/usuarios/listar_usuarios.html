@@ -4,7 +4,7 @@
 
 {% load static %}
 {% block title %}
-    Hístorico de vendas
+    Lista de Usuarios
 {% endblock %}
 
 {% block content %}
@@ -22,6 +22,11 @@
     .table td, .table th {
         vertical-align: middle !important;
 
+    }
+    
+    .form-check-input {
+        margin-top: 0.3rem !important  ;
+        margin-left: 0.75rem !important;
     }
     
 </style>
@@ -58,6 +63,7 @@
                                     <thead>
                                         <tr>
                                             <th class="text-center">N°</th>
+                                            <th class="text-center">Imagem</th>
                                             <th class="text-center">Usuario</th>
                                             <th class="text-center">E-mail</th>
                                             <th class="text-center">Nome Completo</th>
@@ -70,6 +76,13 @@
                                         {% for usuario in usuarios %}
                                             <tr>
                                                 <td class="text-center">{{ forloop.counter }}</td>
+                                                <td class="text-center">
+                                                    {% if usuario.perfil.foto_perfil %}
+                                                        <img src="{{ usuario.perfil.foto_perfil.url }}" alt="Foto de perfil" width="50" height="50">
+                                                    {% else %}
+                                                        <img src="{% static 'images/default-avatar.jpg' %}" alt="Imagem padrão" width="50" height="50">
+                                                    {% endif %}
+                                                </td>
                                                 <td class="text-center">{{ usuario.username }}</td>
                                                 <td class="text-center">{{ usuario.email }}</td>
                                                 <td class="text-center">{{ usuario.get_full_name }}</td>
@@ -94,19 +107,20 @@
                                                             data-email="{{ usuario.email }}" 
                                                             data-first_name="{{ usuario.first_name }}" 
                                                             data-last_name="{{ usuario.last_name }}" 
-                                                            data-is_active="{{ usuario.is_active|yesno:"true,false" }}" 
-                                                            data-grupos="{{ usuario.grupos|join:',' }}"
-                                                            data-foto_perfil="{{ usuario.foto_perfil }}">
+                                                            data-is_active="{{ usuario.is_active }}"
+                                                            data-grupos="{{ usuario.groups|join:',' }}" 
+                                                            data-foto_perfil="{{ usuario.perfil.foto_perfil.url }}">
                                                         Editar
                                                     </button>
-        
-        
-                                                <a href="{% url 'excluir_usuario' usuario.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir este usuário?');">Excluir</a>
+                                                    <a href="{% url 'excluir_usuario' usuario.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir este usuário?');">Excluir</a>
                                                 </td>
+                                                
                                             </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
+                                
+                                
                             </div>
                         </div>
                     </div>
@@ -122,7 +136,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-warning">
-                <h5 class="modal-title text-dark" id="editarModalLabel">Editar Usuario</h5>
+                <h5 class="modal-title text-dark" id="editarModalLabel">Editar Usuário</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -133,42 +147,45 @@
                     {% csrf_token %}
                     <input type="hidden" name="usuario_id" id="usuario_id" value="{{ usuario.id }}">
             
-                    <p>
+                    <div class="form-group">
                         <label for="id_username">Usuário:</label>
-                        <input type="text" name="username" class="form-control" maxlength="150" required="" aria-describedby="id_username_helptext" id="id_username" value="{{ usuario.username }}">
-                        <span class="helptext" id="id_username_helptext">Obrigatório. 150 caracteres ou menos. Letras, números e @/./+/-/_ apenas.</span>
-                    </p>
+                        <input type="text" name="username" class="form-control" maxlength="150" required="" id="id_username">
+                    </div>
             
-                    <p>
+                    <div class="form-group">
                         <label for="id_email">Endereço de email:</label>
-                        <input type="email" name="email" class="form-control" maxlength="254" id="id_email" value="{{ usuario.email }}">
-                    </p>
+                        <input type="email" name="email" class="form-control" maxlength="254" id="id_email">
+                    </div>
             
-                    <p>
+                    <div class="form-group">
                         <label for="id_first_name">Primeiro nome:</label>
-                        <input type="text" name="first_name" class="form-control" maxlength="150" id="id_first_name" value="{{ usuario.first_name }}">
-                    </p>
+                        <input type="text" name="first_name" class="form-control" maxlength="150" id="id_first_name">
+                    </div>
             
-                    <p>
+                    <div class="form-group">
                         <label for="id_last_name">Último nome:</label>
-                        <input type="text" name="last_name" class="form-control" maxlength="150" id="id_last_name" value="{{ usuario.last_name }}">
-                    </p>
+                        <input type="text" name="last_name" class="form-control" maxlength="150" id="id_last_name">
+                    </div>
             
-                    <p>
+                    <div class="form-group">
                         <label for="id_is_active">Ativo:</label>
-                        <input type="checkbox" name="is_active" class="form-check-input" aria-describedby="id_is_active_helptext" id="id_is_active" {% if usuario.is_active %}checked{% endif %}>
-                        <span class="helptext" id="id_is_active_helptext">Indica que o usuário será tratado como ativo. Ao invés de excluir contas de usuário, desmarque isso.</span>
-                    </p>
+                        <input type="checkbox" name="is_active" class="form-check-input" id="id_is_active">
+                    </div>
             
-                    <p>
-                        <label for="id_grupos">Grupos:</label>
-                        {{ form.grupos }}
-                    </p>
-
-                    <p>
+                    <select id="id_grupos" name="grupos" class="form-control" multiple>
+                        {% for grupo in grupos %}
+                            <option value="{{ grupo.id }}" {% if grupo.id in grupos_selected %}selected{% endif %}>
+                                {{ grupo.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    
+                    
+                    <div class="form-group">
                         <label for="foto_perfil">Imagem de Perfil</label>
-                        <input type="file" name="foto_perfil" id="foto_perfil" class="form-control">
-                    </p>
+                        <input type="file" name="foto_perfil" id="foto_perfil" class="form-control" accept="image/*">
+                        <img id="foto_perfil_preview" class="img-fluid mt-3" src="" alt="Imagem de Perfil" style="max-height: 150px; display: none;">
+                    </div>
             
                     <button type="submit" class="btn btn-warning w-100">Atualizar Usuário</button>
                 </form>
@@ -176,6 +193,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- Modal para Adicionar Usuário -->
 <div class="modal fade" id="adicionarModal" tabindex="-1" role="dialog" aria-labelledby="adicionarModalLabel" aria-hidden="true">
@@ -198,10 +216,6 @@
         </div>
     </div>
 </div>
-
-
-
-
 
 
 <!-- Modal para Excluir produto (apenas um, fora do loop) -->
@@ -231,34 +245,44 @@
     <script>
         $(document).ready(function () {
             // Quando o botão de editar for clicado
-            $('button[data-target="#editarModal"]').on('click', function () {
-                var usuario_id = $(this).data('id');
-                var username = $(this).data('username');
-                var email = $(this).data('email');
-                var first_name = $(this).data('first_name');
-                var last_name = $(this).data('last_name');
-                var is_active = $(this).data('is_active');
-                var grupos = $(this).data('grupos'); // Assumindo que grupos é uma lista ou array
-
-                // Preencher os campos da modal
-                $('#usuario_id').val(usuario_id);
+            $('#editarModal').on('show.bs.modal', function (event) {
+                // Botão que abriu o modal
+                var button = $(event.relatedTarget);
+            
+                // Recupera os dados dos atributos data-* do botão
+                var usuarioId = button.data('id');
+                var username = button.data('username');
+                var email = button.data('email');
+                var firstName = button.data('first_name');
+                var lastName = button.data('last_name');
+                var isActive = button.data('is_active') === true || button.data('is_active') === 'true'; // Converte para booleano
+                var grupos = button.data('grupos').split(','); // Converte os IDs dos grupos para array
+                var fotoPerfil = button.data('foto_perfil');
+            
+                // Preenche os campos do modal com os dados
+                $('#usuario_id').val(usuarioId);
                 $('#id_username').val(username);
                 $('#id_email').val(email);
-                $('#id_first_name').val(first_name);
-                $('#id_last_name').val(last_name);
+                $('#id_first_name').val(firstName);
+                $('#id_last_name').val(lastName);
                 
-                // Preencher checkbox is_active
-                $('#id_is_active').prop('checked', is_active === 'true'); // Certifique-se que is_active é um booleano em string
-
-                // Manipular os grupos
-                if (Array.isArray(grupos)) {
-                    grupos.forEach(function(grupo) {
-                        $('#id_grupos_' + grupo).prop('checked', true);
-                    });
+                // Checkbox de ativo (marca ou desmarca)
+                $('#id_is_active').prop('checked', isActive);
+            
+                // Se houver foto de perfil, exibe a imagem
+                if (fotoPerfil) {
+                    $('#foto_perfil_preview').attr('src', fotoPerfil).show(); // Exibe a foto de perfil
+                } else {
+                    $('#foto_perfil_preview').hide(); // Caso não tenha foto, esconde a preview
                 }
-                $('#foto_perfil').val(foto_perfil);
+            
+                // Para os grupos, você pode marcar os grupos que o usuário já possui
+                $('#id_grupos').val(grupos); // Este método de jQuery seleciona os grupos corretos
             });
-
+            
+            
+            
+            
             // Quando o botão de excluir for clicado
             $('button[data-target="#excluirModal"]').on('click', function () {
                 var produtoId = $(this).data('id');

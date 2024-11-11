@@ -1,4 +1,3 @@
-# usuarios/forms.py
 from django import forms
 from django.contrib.auth.models import User, Group
 from .models import Perfil  # Importa o modelo Perfil
@@ -9,7 +8,10 @@ class UsuarioForm(forms.ModelForm):
         widget=forms.SelectMultiple(attrs={'class': 'form-control', 'multiple': 'multiple'}),
         required=True
     )
-    foto_perfil = forms.ImageField(required=False)  # Campo para upload de imagem
+    foto_perfil = forms.ImageField(
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control-file'})  # Adiciona estilo para o campo de upload
+    )
 
     class Meta:
         model = User
@@ -19,5 +21,5 @@ class UsuarioForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),  # A classe foi ajustada para melhor estilo
         }
