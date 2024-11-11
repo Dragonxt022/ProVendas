@@ -136,29 +136,10 @@ def finalizar_venda(request):
     return JsonResponse({'success': False, 'message': 'Método não permitido.'}, status=405)
     
 def search_client(request):
-    if request.method == "GET":
-        q = request.GET.get('q', '')  # Termo de busca
-        clientes = Cliente.objects.filter(nome__icontains=q)  # Filtra clientes pelo nome
-
-        results = []
-        for cliente in clientes:
-            results.append({
-                'id': cliente.id,
-                'nome': cliente.nome,
-                'email': cliente.email,
-                'cpf': cliente.cpf,
-                'telefone': cliente.telefone,
-                'data_nascimento': cliente.data_nascimento.isoformat() if cliente.data_nascimento else None,
-                'endereco': cliente.endereco,
-                'cidade': cliente.cidade,
-                'estado': cliente.estado,
-                'cep': cliente.cep,
-                'status': cliente.status,
-                'created_at': cliente.created_at.isoformat(),
-                'updated_at': cliente.updated_at.isoformat()
-            })
-
-        return JsonResponse(results, safe=False)
+    term = request.GET.get('q', '')
+    clientes = Cliente.objects.filter(nome__icontains=term)[:10]  # Limite de 10 resultados
+    results = [{"id": cliente.id, "nome": cliente.nome} for cliente in clientes]
+    return JsonResponse(results, safe=False)
 
 def search_products(request):
     if request.method == "GET":

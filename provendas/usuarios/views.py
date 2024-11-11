@@ -30,7 +30,7 @@ def cadastrar_atualizar_usuario(request):
 
             # Define uma senha padrão ao criar um novo usuário
             if not usuario_id:
-                usuario_salvo.set_password('defaultpassword')
+                usuario_salvo.set_password('password')
 
             usuario_salvo.save()  # Salva o usuário primeiro
 

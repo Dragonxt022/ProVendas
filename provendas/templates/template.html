@@ -38,6 +38,10 @@
     <link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
     <link rel="stylesheet" href="{% static 'plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css' %}">
 
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
 
     <link rel="stylesheet" href="{% static 'plugins/toastr/toastr.min.css' %}">
 
@@ -47,6 +51,54 @@
 
 <body class="hold-transition sidebar-mini sidebar-collapse">
     <style>
+
+        /* Estilo para o campo de pesquisa */
+        #cliente {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        #cliente:focus {
+            border-color: #007bff; /* Cor do contorno quando o campo é selecionado */
+            outline: none;
+        }
+
+        /* Estilo da lista de sugestões do autocomplete */
+        .ui-autocomplete {
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 9999 !important;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estilo para o item da lista quando é destacado */
+        .ui-autocomplete .ui-menu-item {
+            padding: 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .ui-autocomplete .ui-menu-item:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        /* Estilo para o item selecionado */
+        .ui-autocomplete .ui-state-focus {
+            background-color: #007bff;
+            color: #fff;
+            
+        }  /* Fim Sistema de clientes */
+
+
         .background-card {
             position: relative;
             overflow: hidden; /* Garante que o fundo não saia dos limites do card */

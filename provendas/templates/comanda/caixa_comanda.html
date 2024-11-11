@@ -177,9 +177,8 @@
                         <div class="row py-2">
                             <div class="col">
                                 <label for="cliente" class="form-label">Cliente:</label>
-                                <select id="cliente" class="form-select form-control" style="width: 100%;" placeholder="Digite o nome do cliente">
-                                    <option value="" selected disabled>carregando...</option>
-                                </select>
+                                <input type="text" id="cliente" class="form-control" placeholder="Digite o nome do cliente">
+                                <input type="hidden" id="cliente_id" name="cliente_id"> <!-- Campo oculto para armazenar o ID -->
                             </div>
                         </div>
                         <label for="payment_method" class="form-label">Forma de Pagamento</label>
@@ -533,60 +532,43 @@
 
         // Sistema de Cliente
         $(document).ready(function() {
-            // Iniciar Select2 para busca de clientes
-            $('#cliente').select2({
-                placeholder: "Digite o nome do cliente",
-                ajax: {
-                    url: '{% url "search_client" %}', // Endpoint da sua API para buscar clientes
-                    dataType: 'json',
-                    delay: 250,
-                    data: function (params) {
-                        return {
-                            q: params.term // Termo de busca
-                        };
-                    },
-                    processResults: function (data) {
-                        // Transformar o array de resultados no formato que o Select2 espera
-                        return {
-                            results: $.map(data, function (client) {
+            $('#cliente').autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: '{% url "search_client" %}',
+                        dataType: 'json',
+                        data: {
+                            q: request.term  // Termo de busca digitado pelo usuário
+                        },
+                        success: function(data) {
+                            console.log("Dados recebidos: ", data); // Verifique se os dados estão corretos
+                            response($.map(data, function(client) {
                                 return {
-                                    id: client.id, // Este ID será o valor retornado no select
-                                    text: client.nome // Este é o nome exibido
+                                    label: client.nome,  // Nome do cliente a ser mostrado
+                                    value: client.nome,  // Valor a ser preenchido no campo de pesquisa
+                                    id: client.id       // ID do cliente
                                 };
-                            })
-                        };
-                    },
-                    cache: true
+                            }));
+                        },
+                        error: function(xhr, status, error) {
+                            console.log("Erro ao buscar clientes: ", error);  // Verifique se há erro
+                        }
+                    });
                 },
-                minimumInputLength: 2
-            });
-
-            // Função para configurar o cliente padrão com ID 1
-            function configurarClientePadrao() {
-                // Definindo o cliente padrão com ID 1
-                const clientePadrao = {
-                    id: 1, // ID do cliente padrão
-                    nome: "Cliente Padrão" // Nome do cliente padrão (substitua pelo nome real, se necessário)
-                };
-
-                // Adiciona o cliente padrão ao select
-                $('#cliente').append(new Option(clientePadrao.nome, clientePadrao.id, true, true)).trigger('change');
-            }
-
-            // Chamada para configurar o cliente padrão ao carregar a página
-            configurarClientePadrao();
-
-            // Captura o evento de seleção de um cliente
-            $('#cliente').on('select2:select', function (e) {
-                var selectedClientId = e.params.data.id; // O ID do cliente selecionado
-                console.log("ID do cliente selecionado: ", selectedClientId);
-            });
-
-            // Evento para verificar se uma nova busca foi realizada
-            $('#cliente').on('select2:opening', function() {
-                $(this).select2('data', null); // Limpa a seleção anterior para permitir uma nova busca
+                minLength: 2,  // Mínimo de 2 caracteres para começar a busca
+                select: function(event, ui) {
+                    $('#cliente_id').val(ui.item.id);  // Armazena o ID do cliente selecionado
+                    console.log("ID do cliente selecionado: ", ui.item.id);
+        
+                    // Após selecionar o cliente, oculta a lista de sugestões
+                    $('#cliente').autocomplete('close');
+                },
+                open: function() {
+                    $('.ui-autocomplete').css('max-height', '200px').css('overflow-y', 'scroll');  // Ajusta a altura da lista
+                }
             });
         });
+        
 
 
         // Bolsa de Itens
@@ -815,7 +797,7 @@
             let venda_id = document.getElementById('venda_id').value;
             let numero_pedido = document.getElementById('numero_pedido').value;
             let vendedor_id = document.getElementById('vendedor').value;
-            let cliente_id = document.getElementById('cliente').value;
+            let cliente_id = $('#cliente_id').val();
             let discount = parseFloat(document.getElementById('discount').value) || 0; // Convertendo para float
             let payment_method = document.getElementById('payment_method').value;
             let total = document.getElementById('total').innerText;
@@ -895,7 +877,7 @@
             let venda_id = document.getElementById('venda_id').value;
             let numero_pedido = document.getElementById('numero_pedido').value;
             let vendedor_id = document.getElementById('vendedor').value;
-            let cliente_id = document.getElementById('cliente').value;
+            let cliente_id = $('#cliente_id').val();
             let discount = parseFloat(document.getElementById('discount').value) || 0; // Convertendo para float
             let total = document.getElementById('total').innerText;
             
