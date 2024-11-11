@@ -9,8 +9,33 @@ import random
 from .forms import MesaForm
 from django.contrib.auth.models import User
 import logging
+from empresas.models import Empresa
 
 logger = logging.getLogger(__name__)
+
+def gerar_cupom_fiscal_comanda(request, comanda_id):
+    # Busca a comanda pelo ID
+    comanda = get_object_or_404(Comanda, id=comanda_id)
+    
+    # Busca todos os produtos associados à comanda
+    produtos = ProdutoComanda.objects.filter(comanda=comanda)
+    
+    # Busca o cliente, caso exista
+    cliente = comanda.cliente
+    
+    # Busca os dados da empresa para o cabeçalho
+    empresa = Empresa.objects.first()  # ou o método que você usar para pegar os dados da empresa
+    
+    # Passa os dados necessários para o template
+    context = {
+        'comanda': comanda,
+        'produtos': produtos,
+        'cliente': cliente,
+        'empresa': empresa,
+    }
+    
+    # Renderiza o template de cupom fiscal
+    return render(request, 'comanda/cupom_fiscal.html', context)
 
 def fechar_comanda(request, mesa_id):
     if request.method == 'POST':

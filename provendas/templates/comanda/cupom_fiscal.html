@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cupom Fiscal - Comanda</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            background-color: #fff;
+        }
+
+        @page {
+            size: A4 landscape;
+            margin: 5mm;
+        }
+
+        .cupom {
+            width: 80mm;
+            margin-left: auto;  /* Posiciona o cupom no canto direito */
+        }
+
+        .header, .footer {
+            text-align: center;
+        }
+
+        .items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
+        .items th, .items td {
+            text-align: left;
+            padding: 2px 0;
+        }
+
+        .items th {
+            border-bottom: 1px solid #000;
+        }
+
+        .col-item {
+            width: 10%; /* Número do item */
+        }
+        .col-descricao {
+            width: 40%; /* Descrição do produto */
+        }
+        .col-quantidade {
+            width: 10%; /* Quantidade */
+        }
+        .col-vl-unit {
+            width: 20%; /* Valor unitário */
+        }
+        .col-vl-item {
+            width: 20%; /* Valor total do item */
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .total {
+            font-weight: bold;
+        }
+
+        .cancelado {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="cupom">
+        <div class="header">
+            <p><strong>{{ empresa.nome_empresa }}</strong></p>
+            <p>{{ empresa.endereco }}</p>
+            <p>{{ empresa.cep }} {{ empresa.cidade }} - {{ empresa.estado }}</p>
+            <p>CNPJ: {{ empresa.cnpj }}</p>
+            <p>Telefone: {{ empresa.telefone }}</p>
+            <p class="text-center">------------------------------------</p>
+        </div>
+
+        <h3 class="text-center">CUPOM NÃO FISCAL</h3>
+
+        <table class="items">
+            <thead>
+                <tr>
+                    <th class="col-item">N°</th>
+                    <th class="col-descricao">Item</th>
+                    <th class="col-quantidade">Qt</th>
+                    <th class="col-vl-unit">Sub</th>
+                    <th class="col-vl-item">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produto in produtos %}
+                    <tr>
+                        <td class="col-item">{{ forloop.counter }}</td>
+                        <td class="col-descricao">{{ produto.produto.nome }}</td>
+                        <td class="col-quantidade">{{ produto.quantidade }}</td>
+                        <td class="col-vl-unit">{{ produto.preco_unitario|floatformat:2 }}</td>
+                        <td class="col-vl-item">{{ produto.total|floatformat:2 }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <p class="text-center">------------------------------------</p>
+        <p><strong>Pedido:</strong> {{ comanda.numero_pedido }}</p>
+        <p><strong>Cliente:</strong> {% if cliente %}{{ cliente.nome }}{% else %}N/A{% endif %}</p>
+        <p><strong>Forma de Pagamento:</strong> {{ comanda.payment_method }}</p>
+        <p><strong>Subtotal:</strong> {{ comanda.total|floatformat:2 }}</p>
+        <p><strong>Desconto:</strong> {{ comanda.desconto|floatformat:2 }}</p>
+        <p><strong>Total:</strong> {{ comanda.total|add:comanda.desconto }}</p>
+
+        <div class="footer">
+            <p><strong>Vendedor:</strong> {{ comanda.vendedor.username }}</p>
+            <p class="text-center">------------------------------------</p>
+            <p>Data de compra: {{ comanda.created_at|date:"d/m/Y H:i:s" }}</p>
+            <p>Cupom não fiscal emitido</p>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            window.print();
+        };
+    </script>
+</body>
+</html>

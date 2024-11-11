@@ -1,0 +1,62 @@
+{% extends "template.html" %}
+
+{% load static %}
+{% block title %}
+    Importar Produtos
+{% endblock %}
+
+{% block content %}
+
+
+<div class="wrapper">
+    {% include 'includes/sidebar.html' %}
+    {% include 'includes/navbar.html' %} 
+    <div class="content-wrapper py-2">
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6 d-flex align-items-center">
+                        <h1 class="mr-3"> Importar Produtos </h1> <!-- Adicionei a classe mr-3 -->
+                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#adicionarModal">
+                            importar Produto
+                        </button>
+                    </div>
+                </div>
+                
+            </div><!-- /.container-fluid -->
+        </section>
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                            
+                                <form method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <label for="csv_file">Selecione o arquivo CSV:</label>
+                                    <input type="file" name="csv_file" accept=".csv" required>
+                                    <button type="submit">Importar</button>
+                                </form>
+                            
+                                <hr>
+                                <h2><a href="{% url 'exportar_produtos' %}">Exportar Produtos para CSV</a></h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+      </div>    
+</div>
+
+{% block extra_scripts %}
+    <script>
+
+        
+
+    </script>
+
+{% endblock %}
+
+{% endblock %}
+

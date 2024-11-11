@@ -5,7 +5,37 @@ from django.contrib.auth.models import User
 from clientes.models import Cliente
 from estoque.models import Produto, CategoriaProduto
 from .models import CaixaPdv, ProdutoCaixaPdv
+from empresas.models import Empresa 
 import json
+
+
+def gerar_cupom_fiscal(request, pedido_id):
+    # Busca o pedido (CaixaPdv) pelo ID
+    pedido = get_object_or_404(CaixaPdv, id=pedido_id)
+    
+    # Busca todos os produtos associados ao pedido
+    produtos = ProdutoCaixaPdv.objects.filter(caixa_pdv=pedido)
+    
+    # Busca o cliente, caso exista
+    cliente = pedido.cliente
+    
+    # Busca os dados da empresa para o cabeçalho
+    empresa = Empresa.objects.first()  # ou o método que você usar para pegar os dados da empresa
+
+    # Calcula o total com o desconto
+    total_com_desconto = pedido.total - pedido.desconto
+
+    # Passa os dados necessários para o template, incluindo o total com desconto
+    context = {
+        'sale': pedido,
+        'produtos': produtos,
+        'cliente': cliente,
+        'empresa': empresa,
+        'total_com_desconto': total_com_desconto,  # Adiciona o total com desconto ao contexto
+    }
+    
+    # Renderiza o template de cupom fiscal
+    return render(request, 'caixa/cupom_fiscal.html', context)
 
 
 def finalizar_venda(request):
@@ -104,8 +134,6 @@ def finalizar_venda(request):
             return JsonResponse({'success': False, 'message': f'Erro ao salvar a venda: {str(e)}'}, status=500)
 
     return JsonResponse({'success': False, 'message': 'Método não permitido.'}, status=405)
-
- 
     
 def search_client(request):
     if request.method == "GET":

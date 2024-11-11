@@ -118,6 +118,8 @@
                                                 <td><span class="badge badge-success">{{ pedido.status }}</span></td>
                                                 <td>
                                                     {% comment %} <a href="{% url 'abrir_caixa_pdv' %}?id={{ pedido.id }}" class="btn btn-sm btn-warning">Editar</a> {% endcomment %}
+                                                    <a href="{% url 'gerar_cupom_fiscal' pedido.id %}"  target="_blank" class="btn btn-sm btn-primary">Gerar Cupom</a>
+
                                                     <button type="button" class="btn btn-sm btn-danger" onclick="excluirVenda({{ pedido.id }})">Excluir</button>
                                                 </td>
                                             </tr>
@@ -174,6 +176,8 @@
         </div>
     </div>
 </div>
+
+
 
 
 {% block extra_scripts %}

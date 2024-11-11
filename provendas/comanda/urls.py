@@ -13,5 +13,7 @@ urlpatterns = [
     path('historico-vendas/', views.historico_vendas, name='historico_vendas'),
     path('detalhes_comanda/<int:comanda_id>/', views.detalhes_comanda, name='detalhes_comanda'),
     path('excluir/comanda/<int:comanda_id>/', views.excluir_comanda, name='excluir_comanda'),
+    path('gerar-cupom-fiscal/<int:comanda_id>/', views.gerar_cupom_fiscal_comanda, name='gerar_cupom_fiscal_comanda'),
+
 
 ]

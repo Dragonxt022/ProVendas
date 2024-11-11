@@ -115,6 +115,7 @@
                                                 <td>R$ {{ venda.total|floatformat:2 }}</td>
                                                 <td>{{ venda.status }}</td>
                                                 <td>
+                                                    <a href="{% url 'gerar_cupom_fiscal_comanda' venda.id %}"  target="_blank" class="btn btn-sm btn-primary">Gerar Cupom</a>
                                                     <button class="btn btn-sm btn-success" onclick="verDetalhes({{ venda.id }})">Detalhes</button>
                                                     <button class="btn btn-danger btn-sm" onclick="excluirComanda({{ venda.id }})">Excluir</button>
 
