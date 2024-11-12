@@ -205,7 +205,6 @@ def listar_caixa(request):
     })
 
 def abrir_caixa_pdv(request):
-
     # Busca todos os pedidos do CaixaPdv
     pedidos = CaixaPdv.objects.all()  # Todos os pedidos
     clientes = Cliente.objects.all()  # Todos os clientes
@@ -221,6 +220,10 @@ def abrir_caixa_pdv(request):
     # Busca os produtos relacionados ao pedido, se existir
     produtos_do_pedido = ProdutoCaixaPdv.objects.filter(caixa_pdv=pedido) if pedido else []
 
+    # Pega a configuração do cliente padrão
+    configuracao = Configuracao.objects.first()
+    cliente_padrao = configuracao.cliente_padrao if configuracao else None
+
     return render(request, 'caixa/caixa_pdv.html', {
         'pedidos': pedidos, 
         'clientes': clientes, 
@@ -228,8 +231,8 @@ def abrir_caixa_pdv(request):
         'categorias': categorias,
         'pedido': pedido,  # Passa o pedido encontrado para o template
         'produtos_do_pedido': produtos_do_pedido,  # Passa os produtos do pedido para o template
+        'cliente_padrao': cliente_padrao,  # Passa o cliente padrão para o template
     })
-
 
 def get_venda_details(request, id):
     # Busca o pedido pelo ID

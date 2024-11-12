@@ -538,6 +538,16 @@
 
         // Sistema de Cliente
         $(document).ready(function() {
+            // Obtém o cliente padrão do contexto do Django
+            var clientePadraoNome = "{{ cliente_padrao.nome|default:'' }}";  // Nome do cliente padrão
+            var clientePadraoId = "{{ cliente_padrao.id|default:'' }}";      // ID do cliente padrão
+
+            // Se houver um cliente padrão, preencha o campo automaticamente
+            if (clientePadraoNome) {
+                $('#cliente').val(clientePadraoNome);  // Preenche o nome no campo de entrada
+                $('#cliente_id').val(clientePadraoId); // Armazena o ID do cliente no campo oculto
+            }
+
             $('#cliente').autocomplete({
                 source: function(request, response) {
                     $.ajax({
@@ -547,7 +557,6 @@
                             q: request.term  // Termo de busca digitado pelo usuário
                         },
                         success: function(data) {
-                            console.log("Dados recebidos: ", data); // Verifique se os dados estão corretos
                             response($.map(data, function(client) {
                                 return {
                                     label: client.nome,  // Nome do cliente a ser mostrado
@@ -557,20 +566,17 @@
                             }));
                         },
                         error: function(xhr, status, error) {
-                            console.log("Erro ao buscar clientes: ", error);  // Verifique se há erro
+                            console.log("Erro ao buscar clientes: ", error);
                         }
                     });
                 },
                 minLength: 2,  // Mínimo de 2 caracteres para começar a busca
                 select: function(event, ui) {
                     $('#cliente_id').val(ui.item.id);  // Armazena o ID do cliente selecionado
-                    console.log("ID do cliente selecionado: ", ui.item.id);
-        
-                    // Após selecionar o cliente, oculta a lista de sugestões
-                    $('#cliente').autocomplete('close');
+                    $('#cliente').autocomplete('close');  // Oculta a lista de sugestões
                 },
                 open: function() {
-                    $('.ui-autocomplete').css('max-height', '200px').css('overflow-y', 'scroll');  // Ajusta a altura da lista
+                    $('.ui-autocomplete').css('max-height', '200px').css('overflow-y', 'scroll');
                 }
             });
         });

@@ -10,9 +10,11 @@ from .forms import MesaForm
 from django.contrib.auth.models import User
 import logging
 from empresas.models import Empresa
+from configuracoes.models import Configuracao
 
 logger = logging.getLogger(__name__)
 
+# Gera cupon fiscal da parte de comanda
 def gerar_cupom_fiscal_comanda(request, comanda_id):
     # Busca a comanda pelo ID
     comanda = get_object_or_404(Comanda, id=comanda_id)
@@ -37,6 +39,7 @@ def gerar_cupom_fiscal_comanda(request, comanda_id):
     # Renderiza o template de cupom fiscal
     return render(request, 'comanda/cupom_fiscal.html', context)
 
+# Fecha comanda se necessário
 def fechar_comanda(request, mesa_id):
     if request.method == 'POST':
         try:
@@ -113,12 +116,12 @@ def fechar_comanda(request, mesa_id):
     # Se não for uma requisição POST, redirecionar para a lista de mesas
     return redirect('listar_mesas')
 
-
+# Pagina de hístórico de vendas
 def historico_vendas(request):
     vendas = Comanda.objects.filter(status='fechada').order_by('-created_at')  # Filtra apenas as comandas fechadas
     return render(request, 'comanda/lista_vendas_comanda.html', {'vendas': vendas})
 
-
+#  Veja os detalhes da comanda
 def detalhes_comanda(request, comanda_id):
     try:
         # Buscar a comanda com seus produtos
@@ -149,6 +152,7 @@ def detalhes_comanda(request, comanda_id):
     except Comanda.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Comanda não encontrada.'})
 
+#  Exluir a comanda criada
 def excluir_comanda(request, comanda_id):
     try:
         # Recupera a comanda
@@ -297,16 +301,17 @@ def cadastrar_mesa(request):
         form = MesaForm()  # Cria um formulário vazio
     return render(request, 'comanda/cadastrar_mesa.html', {'form': form})
 
+#  Excluir a mesa
 def excluir_mesa(request, mesa_id):
     mesa = get_object_or_404(Mesa, id=mesa_id)  # Encontra a mesa ou retorna 404 se não existir
 
-    # # Verifica se a mesa está ocupada
-    # if mesa.status == 'ocupada':
-    #     # Se estiver ocupada, exibe uma mensagem informando que não pode excluir
-    #     messages.error(request, f"A mesa {mesa.nome} não pode ser excluída porque está ocupada.")
-    #     messages.info(request, f"Finalize ou cansele avenda para estar disponivel para exclusão.")
+    # Verifica se a mesa está ocupada
+    if mesa.status == 'ocupada':
+        # Se estiver ocupada, exibe uma mensagem informando que não pode excluir
+        messages.error(request, f"A mesa {mesa.nome} não pode ser excluída porque está ocupada.")
+        messages.info(request, f"Finalize ou cansele avenda para estar disponivel para exclusão.")
 
-    #     return redirect('listar_mesas')  # Redireciona para a página de listagem das mesas
+        return redirect('listar_mesas')  # Redireciona para a página de listagem das mesas
 
     # Se a mesa estiver livre, exclui a mesa
     mesa.delete()
@@ -315,17 +320,24 @@ def excluir_mesa(request, mesa_id):
     messages.success(request, f"A mesa {mesa.nome} foi excluída com sucesso.")
     return redirect('listar_mesas')  # Redireciona para a página de listagem das mesas
 
-
+# Abra uma comanda ou continue editando depois
 def abrir_ou_gerenciar_comanda(request, mesa_id):
     mesa = get_object_or_404(Mesa, id=mesa_id)
+
+    # Pega a configuração do cliente padrão
+    configuracao = Configuracao.objects.first()
+    cliente_padrao = configuracao.cliente_padrao if configuracao else None
 
     # Verifica se já existe uma comanda associada à mesa
     comanda_existente = Comanda.objects.filter(mesa=mesa, status='aberta').first()
 
     if comanda_existente:
         # Se já existir uma comanda aberta, redireciona para a página de gerenciamento da comanda
-        # Passa o ID da mesa em vez da comanda
-        return render(request, 'comanda/caixa_comanda.html', {'mesa_id': mesa.id})
+        # Passa o ID da mesa e o cliente padrão para o template
+        return render(request, 'comanda/caixa_comanda.html', {
+            'mesa_id': mesa.id,
+            'cliente_padrao': cliente_padrao
+        })
     
     if mesa.status == 'livre':
         # Se a mesa estiver livre, cria uma nova comanda
@@ -343,13 +355,16 @@ def abrir_ou_gerenciar_comanda(request, mesa_id):
             vendedor=request.user  # Atribuindo o vendedor como o usuário logado
         )
 
-        # Redireciona para a página de gerenciamento da comanda
-        return render(request, 'comanda/caixa_comanda.html', {'comanda': comanda})
+        # Redireciona para a página de gerenciamento da comanda, passando a comanda e o cliente padrão
+        return render(request, 'comanda/caixa_comanda.html', {
+            'comanda': comanda,
+            'cliente_padrao': cliente_padrao
+        })
 
     # Se a mesa não estiver livre, redireciona para a lista de mesas
     return redirect('listar_mesas')
 
-
+# Gera o Numero do pedido automaticamente
 def gerar_numero_pedido():
     # Gera um número aleatório de 8 dígitos
     numero_aleatorio = random.randint(10000000, 99999999)
