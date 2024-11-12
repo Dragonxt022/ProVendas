@@ -32,14 +32,80 @@
                             <div class="card-header">
                                 <h3 class="card-title">Lista de clientes</h3> 
                             </div>
-                            <div class="card-body">   
-                                <h2 class="py-3" >Estamos trabalhando nosso...</h2>
+                            <div class="card-body">
+                                <!-- Abas de Configuração -->
+                                <ul class="nav nav-tabs" id="configuracoesTabs" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="gerais-tab" data-toggle="tab" href="#gerais" role="tab" aria-controls="gerais" aria-selected="true">
+                                            Configurações Gerais
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="clientes-tab" data-toggle="tab" href="#clientes" role="tab" aria-controls="clientes" aria-selected="false">
+                                            Configurações de Clientes
+                                        </a>
+                                    </li>
+                                </ul>
 
-                                <form method="post">
-                                    {% csrf_token %}
-                                    {{ form.as_p }}
-                                    <button type="submit">Salvar Configuração</button>
-                                </form>
+                                <div class="tab-content mt-3" id="configuracoesTabsContent">
+                                    <!-- Aba de Configurações Gerais -->
+                                    <div class="tab-pane fade show active" id="gerais" role="tabpanel" aria-labelledby="gerais-tab">
+                                        <form method="POST" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            
+                                            <!-- Nome da Aplicação -->
+                                            <div class="form-group">
+                                                <label for="id_nome_aplicacao">Nome da Aplicação</label>
+                                                {{ form.nome_aplicacao }}
+                                            </div>
+
+                                            <!-- Logo da Empresa -->
+                                            <div class="form-group">
+                                                <label for="id_logo_empresa">Logo da Empresa</label>
+                                                {{ form.logo_empresa }}
+                                            </div>
+
+                                            <!-- Ícone da Aplicação -->
+                                            <div class="form-group">
+                                                <label for="id_icone_aplicacao">Ícone da Aplicação</label>
+                                                {{ form.icone_aplicacao }}
+                                            </div>
+
+                                            <!-- Cores -->
+                                            <div class="form-row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="id_cor_primaria">Cor Primária</label>
+                                                        {{ form.cor_primaria }}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="id_cor_secundaria">Cor Secundária</label>
+                                                        {{ form.cor_secundaria }}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <button type="submit" class="btn btn-success">Salvar Configurações Gerais</button>
+                                        </form>
+                                    </div>
+
+                                    <!-- Aba de Configurações de Clientes -->
+                                    <div class="tab-pane fade" id="clientes" role="tabpanel" aria-labelledby="clientes-tab">
+                                        <form method="POST" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            
+                                            <!-- Cliente Padrão -->
+                                            <div class="form-group">
+                                                <label for="id_cliente_padrao">Cliente Padrão</label>
+                                                {{ form.cliente_padrao }}
+                                            </div>
+
+                                            <button type="submit" class="btn btn-success">Salvar Configurações de Clientes</button>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
