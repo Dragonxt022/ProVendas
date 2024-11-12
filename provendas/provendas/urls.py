@@ -27,6 +27,7 @@ urlpatterns = [
     path('clientes/', include('clientes.urls')),
     path('caixa/', include('caixa.urls')),
     path('comanda/', include('comanda.urls')),
+    path('configuracoes/', include('configuracoes.urls')),
 ]
 
 # Adicione o suporte para arquivos de mídia

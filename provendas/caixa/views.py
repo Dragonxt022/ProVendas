@@ -1,3 +1,4 @@
+# caixa/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib import messages
@@ -6,6 +7,7 @@ from clientes.models import Cliente
 from estoque.models import Produto, CategoriaProduto
 from .models import CaixaPdv, ProdutoCaixaPdv
 from empresas.models import Empresa 
+from configuracoes.models import Configuracao
 import json
 
 
@@ -181,7 +183,7 @@ def search_products(request):
 
         return JsonResponse({'products': results, 'categories': categories})
 
-
+# caixa/views.py
 def listar_caixa(request):
     # Busca todos os pedidos do CaixaPdv
     
@@ -190,11 +192,16 @@ def listar_caixa(request):
     produtos = Produto.objects.all()   # Todos os produtos
     categorias = CategoriaProduto.objects.all()  # Todas as categorias de produtos
 
+    # Pega a configuração do cliente padrão
+    configuracao = Configuracao.objects.first()
+    cliente_padrao = configuracao.cliente_padrao if configuracao else None
+
     return render(request, 'caixa/listar_caixa.html', {
         'pedidos': pedidos, 
         'clientes': clientes, 
         'produtos': produtos,
         'categorias': categorias,
+        'cliente_padrao': cliente_padrao,
     })
 
 def abrir_caixa_pdv(request):
