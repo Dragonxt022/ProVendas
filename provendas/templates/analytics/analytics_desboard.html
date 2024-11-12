@@ -1,0 +1,154 @@
+{% extends "template.html" %}
+
+{% block title %}
+    dashboard
+{% endblock %}
+
+{% block content %}
+
+<div class="wrapper">
+    {% include 'includes/sidebar.html' %}
+    {% include 'includes/navbar.html' %} 
+    
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Analytcs</h1>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card card-success card-outline">
+                            <div class="card-header">
+                                <h3 class="card-title">Relatório de Vendas</h3>
+                                <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="bar-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card card-success card-outline">
+                            <div class="card-header">
+                                <h3 class="card-title">Relatório de Vendas</h3>
+                                <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="payment-method-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+{% block extra_scripts %}
+
+{% comment %} Comparativo de compras por Mês {% endcomment %}
+<script>
+    var ctx = document.getElementById('bar-chart').getContext('2d');
+    var barChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ meses|safe }},  // Meses do ano
+            datasets: [{
+                label: 'Vendas por Mês',
+                data: {{ vendas_mes|safe }},  // Dados de vendas por mês
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        // Configuração para formatar o eixo Y como R$
+                        callback: function(value) {
+                            // Utiliza a API Intl.NumberFormat para formatação de valores em reais
+                            var formatter = new Intl.NumberFormat('pt-BR', {
+                                style: 'currency',
+                                currency: 'BRL'
+                            });
+                            return formatter.format(value);
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+{% comment %} Fromas de pagamentos mais usadas {% endcomment %}
+
+<!-- Script para o Gráfico de Formas de Pagamento -->
+<script>
+    var ctx2 = document.getElementById('payment-method-chart').getContext('2d');
+    var paymentChart = new Chart(ctx2, {
+        type: 'pie',  // Gráfico de pizza
+        data: {
+            labels: {{ payment_methods|safe }},  // Formas de pagamento
+            datasets: [{
+                data: {{ payment_counts|safe }},  // Contagem de cada forma de pagamento
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],  // Cores para cada categoria
+                hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return tooltipItem.label + ': ' + tooltipItem.raw + ' vendas';
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}
+
+
+{% endblock %}
+
+

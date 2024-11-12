@@ -32,12 +32,14 @@ INSTALLED_APPS = [
 
     # Apps do Projeto
     'configuracoes',
+    'analytics',
     'empresas',
     'clientes',
     'estoque',
     'usuarios',
     'caixa',
     'comanda',
+    
     
 ]
 
