@@ -1,4 +1,6 @@
+
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -154,24 +156,42 @@
         }
     
         .btn-success{
-            background-color: #ff7100 !important;
-            border-color: #f78a34 !important;
+            background-color: {{ cor_primaria }} !important;
+            border-color: {{ cor_primaria }} !important;
 
         }
     
         .bg-success{
-            background-color: #ff7100 !important;
-            border-color: #f78a34 !important;
+            background-color: {{ cor_primaria }} !important;
+            border-color: {{ cor_primaria }} !important;
+        }
+
+        .btn-success:hover{
+            background-color: {{ cor_primaria }} !important;
+            border-color: {{ cor_primaria }} !important;
+        }
+
+        .btn-warning {
+            background-color: {{ cor_secundaria }} !important;
+            border-color: {{ cor_secundaria }} !important;
+
         }
     
+        .bg-warning {
+            background-color: {{ cor_secundaria }} !important;
+            border-color: {{ cor_secundaria }} !important;
+        }
+
+        .btn-warning :hover{
+            background-color: {{ cor_secundaria }} !important;
+            border-color: {{ cor_secundaria }} !important;
+        }
+
         .text-title{
             color:#ff7100;
         }
     
-        .btn-success:hover{
-            background-color: #ff4200 !important;
-            border-color: #ff4200 !important;
-        }
+        
     
         .btn-suave{
             border-color: #ff4200 !important;
