@@ -12,4 +12,5 @@ def configuracoes(request):
         'cor_primaria': configuracao.cor_primaria,
         'cor_secundaria': configuracao.cor_secundaria,
         'logo_empresa': configuracao.logo_empresa.url if configuracao.logo_empresa else None,
+        'icone_aplicacao': configuracao.icone_aplicacao.url if configuracao.icone_aplicacao else None,
     }

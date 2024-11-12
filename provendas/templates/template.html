@@ -8,8 +8,14 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %} | Vendas|Pro{% endblock %}</title> <!-- Aqui o título é dinâmico -->
-    <link rel="shortcut icon" href="{%  static 'image/iconsistema.png' %}" type="image/x-icon">
+    <title>{% block title %} {{ nome_aplicacao }} {% endblock %}</title> <!-- Aqui o título é dinâmico -->
+
+    <!-- Definir o Favicon -->
+    {% if icone_aplicacao %}
+        <link rel="shortcut icon" href="{{ icone_aplicacao }}" type="image/x-icon">
+    {% else %}
+        <link rel="shortcut icon" href="{% static 'image/iconsistema.png' %}" type="image/x-icon">
+    {% endif %}
     
     
     <!-- jQuery deve ser o primeiro a ser carregado -->
