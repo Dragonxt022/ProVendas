@@ -1,43 +1,42 @@
-
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import EmpresaForm
 from .models import Empresa
 from django.contrib import messages
 
-# View para gerenciar empresas
+# View para listar e gerenciar empresas
 def listar_empresas(request):
     empresas = Empresa.objects.all()
-    form = EmpresaForm()
-    return render(request, 'empresas/listar_empresas.html', {'empresas': empresas, 'form': form})
+    form = EmpresaForm()  # Formulário vazio para o modal de cadastro/edição
 
-def cadastrar_empresa(request):
+    # Passa a lista de estados para o contexto
+    estados_brasil = Empresa.ESTADOS_BRASIL
+
+    # Se for uma requisição POST, significa que o usuário está cadastrando ou editando uma empresa
     if request.method == 'POST':
         empresa_id = request.POST.get('empresa_id')
-        
-        # Se o ID da empresa estiver presente, vamos editar
-        if empresa_id:  
+
+        # Se o ID da empresa estiver presente, trata-se de uma edição
+        if empresa_id:
             empresa = get_object_or_404(Empresa, id=empresa_id)
-            form = EmpresaForm(request.POST, instance=empresa)  # Edita a empresa existente
+            form = EmpresaForm(request.POST, instance=empresa)
             action = "atualizada"
         else:
-            form = EmpresaForm(request.POST)  # Cria uma nova empresa
+            form = EmpresaForm(request.POST)  # Nova empresa
             action = "cadastrada"
 
         if form.is_valid():
-            empresa_salva = form.save()  # Salva a empresa (nova ou editada)
-            messages.success(request, f'empresa "{empresa_salva.nome_empresa}" {action} com sucesso!')
-            return redirect('listar_empresas')  # Redireciona após salvar
+            empresa_salva = form.save()
+            messages.success(request, f'Empresa "{empresa_salva.nome_empresa}" {action} com sucesso!')
+            return redirect('listar_empresas')  # Redireciona para a lista de empresas após o sucesso
 
-    # Caso não seja um POST ou o formulário não seja válido, recarrega a lista de empresas
-    empresas = Empresa.objects.all()
-    form = EmpresaForm()  # Reinicializa o formulário para exibir vazio
-    return render(request, 'empresas/listar_empresas.html', {'empresas': empresas, 'form': form})
-
+    return render(request, 'empresas/listar_empresas.html', {
+        'empresas': empresas,
+        'form': form,
+        'estados_brasil': estados_brasil
+    })
+# View para excluir uma empresa
 def excluir_empresa(request, empresa_id):
-    print(f"ID da empresa recebida para exclusão: {empresa_id}")  # Adicione esta linha para verificar o ID
-
-    empresa = get_object_or_404(Empresas, id=empresa_id)
+    empresa = get_object_or_404(Empresa, id=empresa_id)
     empresa.delete()
-    messages.success(request, f'empresa "{empresa.nome_empresa}" excluída com sucesso!')
+    messages.success(request, f'Empresa "{empresa.nome_empresa}" excluída com sucesso!')
     return redirect('listar_empresas')
-

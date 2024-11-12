@@ -10,7 +10,6 @@ def listar_usuarios(request):
     form = UsuarioForm()  # Inicializa o formulário para criação de usuário
     usuarios = User.objects.all()  # Lista todos os usuários
     grupos = Group.objects.all()
-
     
     for usuario in usuarios:
         # Carrega o perfil associado a cada usuário

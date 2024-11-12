@@ -96,16 +96,18 @@
                                                 {% comment %} <td class="text-center">{{ empresa.endereco }}</td> {% endcomment %}
                                        
                                                 <td class="text-center">
-                                                     <!-- Botão Editar para abrir a modal com os dados preenchidos -->
-                                                     <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" 
-                                                        data-target="#editarModal" 
-                                                        data-id="{{ empresa.id }}" 
-                                                        data-nome="{{ empresa.nome }}" 
-                                                        data-descricao="{{ empresa.descricao }}" 
-                                                        data-preco="{{ empresa.preco }}" 
-                                                        data-quantidade="{{ empresa.quantidade_estoque }}" 
-                                                        data-categoria-id="{{ empresa.categoria.id }}" 
-                                                        data-status="{{ empresa.status }}">
+                                                    <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" 
+                                                            data-target="#editarModal" 
+                                                            data-id="{{ empresa.id }}" 
+                                                            data-nome="{{ empresa.nome_empresa }}" 
+                                                            data-telefone="{{ empresa.telefone }}" 
+                                                            data-email="{{ empresa.email }}" 
+                                                            data-cnpj="{{ empresa.cnpj }}" 
+                                                            data-cidade="{{ empresa.cidade }}" 
+                                                            data-cep="{{ empresa.cep }}" 
+                                                            data-estado="{{ empresa.estado }}" 
+                                                            data-endereco="{{ empresa.endereco }}" 
+                                                            data-status="{{ empresa.status }}">
                                                         Editar
                                                     </button>
         
@@ -131,29 +133,72 @@
     </div>           
 </div>
 
-<!-- Modal para Editar Emprea -->
-<div class="modal fade" id="editarModal" tabindex="-1" role="dialog" aria-labelledby="editarModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<!-- Modal de Edição -->
+<div class="modal fade" id="editarModal" tabindex="-1" aria-labelledby="editarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-warning">
-                <h5 class="modal-title text-dark" id="editarModalLabel">Editar Empresa</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <h5 class="modal-title" id="editarModalLabel">Editar Empresa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Formulário de Edição -->
-                <form method="post" id="editarForm" action="{% url 'editar_produto' 0 %}" enctype="multipart/form-data">
+                <form id="editarEmpresaForm" method="post" action="{% url 'listar_empresas' %}">
                     {% csrf_token %}
+                    <input type="hidden" id="empresa_id" name="empresa_id">
                     
-                    <input type="hidden" name="produto_id" id="produto_id"> <!-- Campo escondido para ID do produto -->
-
-                    <button type="submit" class="btn btn-warning w-100">Atualizar Empresa</button>
+                    <div class="mb-3">
+                        <label for="nome_empresa" class="form-label">Nome da Empresa</label>
+                        <input type="text" class="form-control" id="nome_empresa" name="nome_empresa" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="telefone" class="form-label">Telefone</label>
+                        <input type="text" class="form-control" id="telefone" name="telefone">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="cnpj" class="form-label">CNPJ</label>
+                        <input type="text" class="form-control" id="cnpj" name="cnpj" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cidade" class="form-label">Cidade</label>
+                        <input type="text" class="form-control" id="cidade" name="cidade">
+                    </div>
+                    <div class="mb-3">
+                        <label for="cep" class="form-label">CEP</label>
+                        <input type="text" class="form-control" id="cep" name="cep">
+                    </div>
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select class="form-control" id="estado" name="estado">
+                            {% for estado in estados_brasil %}
+                                <option value="{{ estado.0 }}" {% if estado.0 == empresa.estado %}selected{% endif %}>
+                                    {{ estado.1 }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="endereco" class="form-label">Endereço</label>
+                        <input type="text" class="form-control" id="endereco" name="endereco">
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="ativo">Ativo</option>
+                            <option value="inativo">Inativo</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100">Salvar Alterações</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
 <!-- Modal para Adicionar Empresa -->
 <div class="modal fade" id="adicionarModal" tabindex="-1" role="dialog" aria-labelledby="adicionarModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -166,10 +211,10 @@
             </div>
             <div class="modal-body">
                 <!-- Formulário de Empresa -->
-                <form method="post" action="{% url 'cadastrar_empresa' %}" enctype="multipart/form-data">
+                <form method="post" action="{% url 'listar_empresas' %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ form.as_p }}
-                    <button type="submit" class="btn btn-success w-100">Cadastrar Empresa</button>
+                    <button type="submit" class="btn btn-success w-100">adiconar Empresa</button>
                 </form>
             </div>
         </div>
@@ -204,12 +249,28 @@
         $(document).ready(function () {
             // Quando o botão de editar for clicado
             $('button[data-target="#editarModal"]').on('click', function () {
-                var produtoId = $(this).data('id');
-                var produtoNome = $(this).data('nome');
+                var empresaId = $(this).data('id');
+                var empresaNome = $(this).data('nome');
+                var empresaTelefone = $(this).data('telefone');
+                var empresaEmail = $(this).data('email');
+                var empresaCnpj = $(this).data('cnpj');
+                var empresaCidade = $(this).data('cidade');
+                var empresaCep = $(this).data('cep');
+                var empresaEstado = $(this).data('estado');
+                var empresaEndereco = $(this).data('endereco');
+                var empresaStatus = $(this).data('status');
 
                 // Preenche os campos da modal de edição
-                $('#produto_id').val(produtoId);
-                $('#nome').val(produtoNome);
+                $('#empresa_id').val(empresaId);
+                $('#nome_empresa').val(empresaNome);
+                $('#telefone').val(empresaTelefone);
+                $('#email').val(empresaEmail);
+                $('#cnpj').val(empresaCnpj);
+                $('#cidade').val(empresaCidade);
+                $('#cep').val(empresaCep);
+                $('#estado').val(empresaEstado);
+                $('#endereco').val(empresaEndereco);
+                $('#status').val(empresaStatus);
             });
 
             // Quando o botão de excluir for clicado
@@ -225,25 +286,6 @@
                 $('#excluirForm').attr('action', excluirUrl);
             });
 
-            // Quando o botão de editar for clicado
-            $('button[data-target="#editarModal"]').on('click', function () {
-                var produtoId = $(this).data('id');
-                var produtoNome = $(this).data('nome');
-                var produtoDescricao = $(this).data('descricao');
-                var produtoPreco = $(this).data('preco');
-                var produtoQuantidade = $(this).data('quantidade');
-                var produtoCategoriaId = $(this).data('categoria-id');
-                var produtoStatus = $(this).data('status');
-    
-                // Preenche os campos da modal de edição
-                $('#produto_id').val(produtoId);
-                $('#nome').val(produtoNome);
-                $('#descricao').val(produtoDescricao);
-                $('#preco').val(produtoPreco);
-                $('#quantidade_estoque').val(produtoQuantidade);
-                $('#categoria').val(produtoCategoriaId);
-                $('#status').val(produtoStatus);
-            });
         });
     </script>
 {% endblock %}

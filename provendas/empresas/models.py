@@ -18,7 +18,7 @@ class Empresa(models.Model):
     cnpj = models.CharField(max_length=14, unique=True)
     cidade = models.CharField(max_length=100, null=True, blank=True)
     cep = models.CharField(max_length=10, null=True, blank=True)
-    estado = models.CharField(max_length=2, choices=ESTADOS_BRASIL, null=True, blank=True)  # Corrigido
+    estado = models.CharField(max_length=2, choices=ESTADOS_BRASIL, null=True, blank=True)
     endereco = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
