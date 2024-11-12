@@ -759,17 +759,19 @@
         }
 
         // Evento para exibir/ocultar o campo de valor recebido com base na forma de pagamento
-        document.getElementById('payment_method').addEventListener('change', function() {
-            const paymentMethod = this.value;
-            const cashInput = document.getElementById('cash-input');
-
+        function toggleCashInput() {
+            // Obtém o valor selecionado da forma de pagamento
+            var paymentMethod = document.getElementById('payment_method').value;
+            
+            // Verifica se a opção selecionada é "Dinheiro"
             if (paymentMethod === 'Dinheiro') {
-                cashInput.style.display = 'block';
+                // Exibe o campo de entrada para o valor em dinheiro
+                document.getElementById('cash-input').style.display = 'block';
             } else {
-                cashInput.style.display = 'none';
-                clearCashReceived(); // Limpa o valor recebido se o método de pagamento não for dinheiro
+                // Oculta o campo de entrada para o valor em dinheiro
+                document.getElementById('cash-input').style.display = 'none';
             }
-        });
+        }
 
 
         // Função para finalizar a venda

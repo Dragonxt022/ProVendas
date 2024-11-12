@@ -39,7 +39,6 @@ def gerar_cupom_fiscal(request, pedido_id):
     # Renderiza o template de cupom fiscal
     return render(request, 'caixa/cupom_fiscal.html', context)
 
-
 def finalizar_venda(request):
     if request.method == 'POST':
         try:
@@ -52,6 +51,7 @@ def finalizar_venda(request):
             desconto = float(data.get('desconto', 0))
             total = float(data.get('total', '0'))
             status = data.get('status', 'Em aberto')
+            payment_method = data.get('payment_method')
             produtos = data.get('produtos', [])
 
             # Verifica se a venda já existe para atualizar, caso contrário, cria uma nova
@@ -75,7 +75,8 @@ def finalizar_venda(request):
                     cliente=cliente,
                     desconto=desconto,
                     total=total,
-                    status=status
+                    status=status,
+                    payment_method=payment_method
                 )
 
             # Salva os produtos quando a venda está em aberto, sem ajuste de estoque
@@ -127,6 +128,7 @@ def finalizar_venda(request):
 
                 # Atualiza o status do pedido como "Finalizado"
                 caixa_pdv.status = 'Finalizado'
+                
                 caixa_pdv.save()
 
                 return JsonResponse({'success': True, 'message': 'Venda finalizada com sucesso!'})
