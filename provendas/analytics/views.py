@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from caixa.models import CaixaPdv, ProdutoCaixaPdv
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, F
+from django.db.models.functions import ExtractHour
 from django.utils.timezone import now
 import calendar
 
@@ -33,6 +34,40 @@ def analytics_desboard(request):
     payment_methods = [fp['payment_method'] for fp in formas_pagamento]
     payment_counts = [fp['count'] for fp in formas_pagamento]
 
+    # Vendas por hora do dia
+    vendas_por_hora = CaixaPdv.objects.filter(
+        created_at__month=now().month  # Filtro de mês atual
+    ).annotate(hour=ExtractHour('created_at')).values('hour').annotate(count=Count('id')).order_by('hour')
+
+    horas = [0] * 24  # Inicializa a lista de horas com zero
+    for venda in vendas_por_hora:
+        horas[venda['hour']] = venda['count']
+
+    # Vendas por dia da semana (Alternativa sem ExtractWeekday)
+    vendas = CaixaPdv.objects.filter(created_at__month=now().month)
+    dias_semana = [0] * 7  # Inicializa a lista de dias da semana com zero
+    for venda in vendas:
+        weekday = venda.created_at.weekday()  # Retorna 0 (segunda-feira) a 6 (domingo)
+        dias_semana[weekday] += 1
+
+    # Mapeamento dos dias da semana
+    dias_da_semana = [
+        'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'
+    ]
+
+    # Produtos mais vendidos com conversão de Decimal para float
+    produtos_mais_vendidos = ProdutoCaixaPdv.objects.values(
+        'produto__nome'
+    ).annotate(
+        quantidade_total=Sum('quantidade'),
+        valor_total=Sum(F('quantidade') * F('preco_unitario'))
+    ).order_by('-quantidade_total')
+
+    # Convertendo os valores de Decimal para float
+    produtos_nomes = [produto['produto__nome'] for produto in produtos_mais_vendidos]
+    produtos_quantidades = [float(produto['quantidade_total']) for produto in produtos_mais_vendidos]
+    produtos_valores = [float(produto['valor_total']) for produto in produtos_mais_vendidos]
+
     return render(request, 'analytics/analytics_desboard.html', {
         'pedidos_finalizados': pedidos_finalizados,
         'total_vendas_mes': total_vendas_mes,
@@ -41,4 +76,10 @@ def analytics_desboard(request):
         'meses': meses,
         'payment_methods': payment_methods,
         'payment_counts': payment_counts,
+        'horas': horas,  # Dados das vendas por hora
+        'dias_semana': dias_semana,  # Dados dos dias da semana
+        'dias_da_semana': dias_da_semana,  # Nomes dos dias da semana
+        'produtos_nomes': produtos_nomes,  # Nomes dos produtos mais vendidos
+        'produtos_quantidades': produtos_quantidades,  # Quantidades dos produtos mais vendidos
+        'produtos_valores': produtos_valores,  # Valores totais dos produtos mais vendidos
     })

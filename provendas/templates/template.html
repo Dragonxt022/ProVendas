@@ -20,7 +20,12 @@
     
     <!-- jQuery deve ser o primeiro a ser carregado -->
     <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+
     <script src="{% static 'js/jquery.mask.min.js' %}"></script>
+
+    <!-- Importando Chart.js -->
+    <script src="{% static 'plugins/chart.js/chart.js' %}"></script>
+
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -30,8 +35,7 @@
     <!-- Theme style -->
     <link rel="stylesheet" href="{% static 'css/adminlte.min.css' %}">
 
-    <!--chart -->
-    <script src="{% static 'plugins/chart.js/chart.css' %}"></script>
+    
 
     <!-- Summernote -->
     <link rel="stylesheet" href="{% static 'plugins/summernote/summernote-bs4.min.css' %}">
@@ -51,6 +55,8 @@
 
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
 
 
 
@@ -433,8 +439,8 @@
     <script src="{% static 'plugins/flot/plugins/jquery.flot.resize.js' %}"></script>
     <script src="{% static 'plugins/flot/plugins/jquery.flot.pie.js' %}"></script>
 
-    <!--chart -->
-    <script src="{% static 'plugins/chart.js/chart.js' %}"></script>
+   
+    
 
     <!-- Notificação -->
     <script src="{% static 'plugins/toastr/toastr.min.js' %}"></script>
@@ -442,8 +448,7 @@
     <!-- AdminLTE for demo purposes -->
     <script src="{% static 'js/demo.js' %}"></script>
 
-    <!-- blocos de script-->
-    {% block extra_scripts %} {% endblock %}
+    
 
 
     <script>
@@ -590,6 +595,9 @@
         }
         
     </script>
+    
+    <!-- blocos de script-->
+    {% block extra_scripts %} {% endblock %}
 
 </body>
 </html>
