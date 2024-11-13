@@ -18,32 +18,32 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-body">
-                                
+        
+                                <!-- Primeira linha: Número do Pedido, Vendedor e Status -->
                                 <div class="row py-3">
-                                    <div class="col">
+                                    <div class="col-12 col-md-4 mb-2">
                                         <label for="numero_pedido" class="form-label">Número do Pedido:</label>
                                         <input type="text" id="numero_pedido" class="form-control" value="carregando..." readonly>
                                         <div id="mesa-info" data-mesa-id="{{ mesa.id }}"></div>
                                     </div>
-                                    <div class="col">
+                                    <div class="col-12 col-md-4 mb-2">
                                         <label for="vendedor" class="form-label">Vendedor:</label>
                                         <input type="hidden" id="vendedor" class="form-control" value="{{ user.id }}">
                                         <input type="hidden" id="venda_id" class="form-control" value="">
-
                                         <input type="text" id="nomeVendedor" class="form-control" value="{{ user.username }}" readonly>
                                     </div>
-                                    <div class="col">
-                                        <label for="satus" class="form-label">Satus:</label>    
+                                    <div class="col-12 col-md-4 mb-2">
+                                        <label for="status" class="form-label">Status:</label>
                                         <input type="text" id="status" class="form-control" value="carregando..." readonly>
                                     </div>
                                 </div>
-                                
+        
+                                <!-- Segunda linha: Listagem de Produtos e Caixa -->
                                 <div class="row">
-                                    
-                                    <div class="col-md-9">
+                                    <!-- Seção de Produtos -->
+                                    <div class="col-12 col-md-8 mb-4">
                                         <div class="card py-3">
                                             <div class="card-body d-flex flex-column background-card" style="height: 400px;">
-                                                
                                                 <div class="row py-2">
                                                     <div class="col">
                                                         <!-- Contêiner para listar produtos com rolagem -->
@@ -52,10 +52,9 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            
                                             </div>
                                         </div>
-                                        
+        
                                         <!-- Botão fixado na parte inferior -->
                                         <div class="mt-auto">
                                             <button class="btn btn-success w-100" onclick="listaProdutos();">
@@ -63,21 +62,21 @@
                                             </button>
                                         </div>
                                     </div>
-                                    
-                                    <div class="col-md-3">
+        
+                                    <!-- Seção de Resumo (Caixa) -->
+                                    <div class="col-12 col-md-4">
                                         <div class="card shadow-sm border-0">
                                             <div class="card-body">
                                                 <!-- Ícone de carrinho grande ao fundo -->
                                                 <div class="row py-2 position-relative">
                                                     <div id="empty-cart-icon" class="empty-cart-icon d-flex justify-content-center align-items-center w-100">
-                                                        <i class="fas fa-chair" style="font-size: 100px; color: #ddd;"></i>
-                                                       
+                                                        <i class="fas fa-chair" style="font-size: 80px; color: #ddd;"></i>
                                                     </div>
                                                 </div>
-                                    
+        
                                                 <!-- Título Resumo -->
                                                 <h3 class="text-center text-secondary my-3">COMANDA</h3>
-                                    
+        
                                                 <!-- Campo de Desconto -->
                                                 <div class="row mb-3">
                                                     <div class="col">
@@ -85,17 +84,17 @@
                                                         <input type="number" id="discount" class="form-control" value="0" min="0" oninput="calculateTotal()">
                                                     </div>
                                                 </div>
-                                    
+        
                                                 <!-- Total -->
                                                 <label for="total" class="form-label text-muted">Total:</label>
                                                 <div class="row mb-3">
                                                     <div class="col text-center">
                                                         <div class="bg-light p-3 rounded" style="border: 1px solid #ddd;">
-                                                            <h2 class="m-0" style="font-size: 45px; color: #e74c3c; font-weight: bold;">R$ <span id="total">0,00</span></h2>
+                                                            <h2 class="m-0" style="font-size: 35px; color: #e74c3c; font-weight: bold;">R$ <span id="total">0,00</span></h2>
                                                         </div>
                                                     </div>
                                                 </div>
-                                    
+        
                                                 <!-- Botão Finalizar -->
                                                 <div class="row mb-2">
                                                     <div class="col">
@@ -104,7 +103,7 @@
                                                         </button>
                                                     </div>
                                                 </div>
-                                    
+        
                                                 <!-- Botão Salvar -->
                                                 <div class="row">
                                                     <div class="col">
@@ -116,14 +115,15 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                </div>
+        
+                                </div> <!-- Fim da segunda linha -->
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+        
       </div>    
 </div>
 
