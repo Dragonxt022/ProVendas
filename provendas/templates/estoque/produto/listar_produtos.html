@@ -75,19 +75,19 @@
                                                 {% endif %}
                                             </td>
                                             <td class="text-center">
-                                                <button type="button" class="btn btn-sm btn-success" data-toggle="modal" 
-                                                    data-target="#editarModal" 
-                                                    data-id="{{ produto.id }}" 
-                                                    data-codigo-barras="{{ produto.codigo_barras }}"
-                                                    data-nome="{{ produto.nome }}" 
-                                                    data-descricao="{{ produto.descricao }}" 
-                                                    data-preco-venda="{{ produto.preco_de_venda }}" 
-                                                    data-preco-cursto="{{ produto.preco_de_cursto }}" 
-                                                    data-quantidade="{{ produto.quantidade_estoque }}" 
-                                                    data-categoria-id="{{ produto.categoria.id }}" 
-                                                    data-status="{{ produto.status }}">
+                                                <button type="button" class="btn btn-success btn-sm" data-target="#editarModal" data-toggle="modal"
+                                                        data-id="{{ produto.id }}"
+                                                        data-nome="{{ produto.nome }}"
+                                                        data-codigo-barras="{{ produto.codigo_barras }}"
+                                                        data-controle-estoque="{{ produto.controle_estoque }}"
+                                                        data-preco-venda="{{ produto.preco_venda }}"
+                                                        data-preco-cursto="{{ produto.preco_custo }}"
+                                                        data-quantidade="{{ produto.quantidade_estoque }}"
+                                                        data-categoria-id="{{ produto.categoria.id }}"
+                                                        data-status="{{ produto.status }}">
                                                     Editar
                                                 </button>
+
                                                 
                                                 <!-- Botão Excluir para abrir a modal de confirmação -->
                                                 <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" 
@@ -150,7 +150,15 @@
                         <input type="text" name="preco_de_cursto" id="preco_de_cursto" class="form-control" placeholder="Preço de custo" step="0.01">
                     </div>
                 
-                    <div class="form-group">
+                    <div class="form-group py-2">
+                        <div class="custom-control custom-checkbox">
+                            <input class="custom-control-input" name="controle_estoque" type="checkbox" id="customCheckbox1" onclick="toggleQuantidadeEstoque()">
+                            <label for="customCheckbox1" class="custom-control-label">Ativar controle de estoque?</label>
+                        </div>
+                    </div>
+                    
+            
+                    <div class="form-group" id="quantidadeEstoqueGroup" style="display: none;">
                         <label for="quantidade_estoque">Quantidade em Estoque</label>
                         <input type="number" name="quantidade_estoque" id="quantidade_estoque" class="form-control" placeholder="Quantidade em Estoque">
                     </div>
@@ -326,29 +334,38 @@
         $(document).ready(function () {
             $('button[data-target="#editarModal"]').on('click', function () {
                 var produtoId = $(this).data('id'); // Obtém o ID do produto do botão
-                var codigoBarras = $(this).data('codigo-barras');
                 var nome = $(this).data('nome');
-                var descricao = $(this).data('descricao');
+                var codigoBarras = $(this).data('codigo-barras');
                 var precoVenda = $(this).data('preco-venda');
                 var precoCusto = $(this).data('preco-cursto');
-                var quantidadeEstoque = $(this).data('quantidade'); // Altere para 'quantidade'
+                var quantidadeEstoque = $(this).data('quantidade');
                 var categoriaId = $(this).data('categoria-id');
                 var status = $(this).data('status');
+                var controleEstoque = $(this).data('controle-estoque');  // Obtém a opção de controle de estoque
         
                 // Atualiza os campos da modal com os dados do produto
                 $('#produto_id').val(produtoId);
                 $('#codigo_barras').val(codigoBarras);
                 $('#nome').val(nome);
-                $('#descricao').val(descricao);
                 $('#preco_de_venda').val(precoVenda);
-                $('#preco_de_cursto').val(precoCusto); // Altere para 'preco_de_cursto'
-                $('#quantidade_estoque').val(quantidadeEstoque); // Este deve ser 'quantidade_estoque'
+                $('#preco_de_cursto').val(precoCusto);
+                $('#quantidade_estoque').val(quantidadeEstoque);
                 $('#categoria').val(categoriaId);
                 $('#status').val(status);
+        
+                // Verifica se o controle de estoque está ativado e ajusta o checkbox
+                if (controleEstoque) {
+                    $('#customCheckbox1').prop('checked', true);  // Marca o checkbox se controle de estoque estiver ativado
+                    $('#quantidadeEstoqueGroup').show();  // Exibe o campo de quantidade em estoque
+                } else {
+                    $('#customCheckbox1').prop('checked', false);  // Desmarca o checkbox
+                    $('#quantidadeEstoqueGroup').hide();  // Oculta o campo de quantidade em estoque
+                }
         
                 // Atualiza o action do formulário
                 $('#editarForm').attr('action', "{% url 'editar_produto' 0 %}".replace('0', produtoId));
             });
+
             // Quando o botão de excluir for clicado
             $('button[data-target="#excluirModal"]').on('click', function () {
                 var produtoId = $(this).data('id');
