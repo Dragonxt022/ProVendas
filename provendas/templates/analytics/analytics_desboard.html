@@ -14,13 +14,31 @@
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1>Analytcs</h1>
-          </div>
-        </div>
-      </div><!-- /.container-fluid -->
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Analytics</h1>
+                </div>
+                 <!-- Formulário para Filtro de Mês e Ano -->
+                <div class="col-sm-6">
+                    <form method="get" action="{% url 'analytics_desboard' %}">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <select id="ano" name="ano" class="form-control">
+                                    {% for i in anos %}
+                                        <option value="{{ i }}" {% if i == ano %}selected{% endif %}>{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-primary w-100">Filtrar Gráfico</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+           
+            </div>
+        </div><!-- /.container-fluid -->
     </section>
 
 
@@ -66,7 +84,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> 
                 <div class="row">
                     <div class="col-md-6">
                         <div class="card card-success card-outline">
