@@ -1,0 +1,83 @@
+{% extends "template.html" %}
+
+{% block title %}
+    Analytic Avançado
+{% endblock %}
+
+{% block content %}
+
+<div class="wrapper">
+    {% include 'includes/sidebar.html' %}
+    {% include 'includes/navbar.html' %} 
+    
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Analytics Avançado</h1>
+                </div>
+           
+            </div>
+        </div><!-- /.container-fluid -->
+    </section>
+
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="container my-4">
+                    <h1 class="text-center">Relatório de Produtos</h1>
+                    <p class="text-center">Filtro: 
+                        {% if ano %}Ano: {{ ano }} {% endif %}
+                        {% if mes %}Mês: {{ mes }} {% endif %}
+                        {% if dia %}Dia: {{ dia }} {% endif %}
+                    </p>
+            
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nome do Produto</th>
+                                <th>Quantidade em Estoque</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for produto in produtos_dados %}
+                                <tr>
+                                    <td>{{ produto.nome }}</td>
+                                    <td>{{ produto.quantidade_estoque }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="2" class="text-center">Nenhum produto encontrado.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+            
+                    <button onclick="window.print()" class="btn btn-primary">Imprimir Relatório</button>
+                </div>
+            </div>
+        </div>
+
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+{% block extra_scripts %}
+
+
+
+
+
+{% endblock %}
+
+
+{% endblock %}
+
+

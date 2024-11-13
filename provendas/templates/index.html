@@ -94,7 +94,7 @@
                         <div class="card-header">
                             <h3 class="card-title">
                                 <i class="far fa-chart-bar"></i>
-                                Relatório de Venda por mês
+                                Produtos com estoque baixo
                             </h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -107,7 +107,7 @@
                             </div>
                             </div>
                         <div class="card-body">
-                        <div id="bar-chart" style="height: 300px;"></div>
+                            <canvas id="vendasHoraChart" style="height: 300px;"></canvas>
                     </div>
 
                     </div>
@@ -121,7 +121,7 @@
 
                             <h3 class="card-title">
                                 <i class="far fa-chart-bar"></i>
-                                Quantidade de Produtos Vendidos por Mês
+                                Produtos com estoque baixo
                             </h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -135,7 +135,7 @@
                         </div>
 
                         <div class="card-body">
-                            <div id="products-sold-chart" style="height: 300px;"></div>
+                            <canvas id="estoqueBaixoChart" style="height: 300px;"></canvas>
                         </div>
                     </div>
                 </div>
@@ -144,54 +144,63 @@
           </div>
         </div>
 
-        <div class="row">
-            <div class="col-12">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card card-success card-outline">
-                            <div class="card-header">
-                                <h3 class="card-title">Formas de  mais usadas</h3>
-                                <div class="card-tools">
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="polarAreaChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="card card-warning card-outline">
-                            <div class="card-header">
-                                <h3 class="card-title">Produtos Mais Vendidos</h3>
-                                <div class="card-tools">
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="topSoldProductsChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
         </div>
       </div>
     </section>
   </div>
 </div>
+
+{% block extra_scripts %}
+
+<!-- Gerenciar estoque baixo -->
+<script>
+    var ctx = document.getElementById('estoqueBaixoChart').getContext('2d');
+    var estoqueBaixoChart = new Chart(ctx, {
+        type: 'bar', // Tipo de gráfico: barra
+        data: {
+            labels: {{ nomes_produtos|safe }}, // Labels do eixo X
+            datasets: [{
+                label: 'Quantidade em Estoque',
+                data: {{ quantidades_estoque|safe }}, // Dados do eixo Y
+                backgroundColor: 'rgba(255, 99, 132, 0.2)', // Cor de fundo das barras
+                borderColor: 'rgba(255, 99, 132, 1)', // Cor da borda das barras
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true // Começar o eixo Y em 0
+                }
+            }
+        }
+    });
+</script>
+
+<script>
+    var ctx = document.getElementById('vendasHoraChart').getContext('2d');
+    var vendasHoraChart = new Chart(ctx, {
+        type: 'bar', // Tipo de gráfico
+        data: {
+            labels: Array.from({ length: 24 }, (_, i) => i + ":00"), // Labels de 0:00 a 23:00
+            datasets: [{
+                label: 'Vendas por Hora',
+                data: {{ horas|safe }}, // Dados de vendas
+                backgroundColor: 'rgba(75, 192, 192, 0.2)', // Cor de fundo
+                borderColor: 'rgba(75, 192, 192, 1)', // Cor da borda
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true // Começa o eixo Y no zero
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}
+
 {% endblock %}

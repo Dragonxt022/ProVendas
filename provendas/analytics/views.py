@@ -1,10 +1,39 @@
 from django.shortcuts import render
 from caixa.models import CaixaPdv, ProdutoCaixaPdv
+from estoque.models import Produto
 from django.db.models import Sum, Count, F
 from django.db.models.functions import ExtractHour
 from django.utils.timezone import now
 import calendar
 from datetime import datetime
+
+def filtro_relatorio_produtos(request):
+    # Obtendo os parâmetros de filtro da query string
+    ano = request.GET.get('ano')
+    mes = request.GET.get('mes')
+    dia = request.GET.get('dia')
+
+    # Base queryset para produtos ativos e que controlam o estoque
+    produtos = Produto.objects.filter(status='ativado', controle_estoque=True)
+
+    # Aplicando os filtros conforme a disponibilidade dos parâmetros
+    if ano:
+        produtos = produtos.filter(created_at__year=int(ano))
+    if mes:
+        produtos = produtos.filter(created_at__month=int(mes))
+    if dia:
+        produtos = produtos.filter(created_at__day=int(dia))
+
+    # Dados a serem exibidos na tabela
+    produtos_dados = produtos.values('nome', 'quantidade_estoque')
+
+    return render(request, 'analytics/analytics_avancado.html', {
+        'produtos_dados': produtos_dados,
+        'ano': ano,
+        'mes': mes,
+        'dia': dia,
+    })
+
 
 def analytics_desboard(request):
     # Pegando o ano e mês da query string ou usando os valores atuais
@@ -75,6 +104,19 @@ def analytics_desboard(request):
         valor_total=Sum(F('quantidade') * F('preco_unitario'))
     ).order_by('-quantidade_total')
 
+
+    # Ajustar a consulta para produtos com estoque baixo
+    produtos_estoque_baixo = Produto.objects.filter(
+        quantidade_estoque__lte=5,
+        controle_estoque=True,
+        status='ativado'
+    )
+
+    # Preparar os dados para o gráfico
+    nomes_produtos = [produto.nome for produto in produtos_estoque_baixo]
+    quantidades_estoque = [produto.quantidade_estoque for produto in produtos_estoque_baixo]
+
+
     # Convertendo os valores de Decimal para float
     produtos_nomes = [produto['produto__nome'] for produto in produtos_mais_vendidos]
     produtos_quantidades = [float(produto['quantidade_total']) for produto in produtos_mais_vendidos]
@@ -97,6 +139,8 @@ def analytics_desboard(request):
         'produtos_valores': produtos_valores,  # Valores totais dos produtos mais vendidos
         'ano': ano,  # Passando o ano para o template
         'mes': mes,  # Passando o mês para o template
+        'nomes_produtos': nomes_produtos,
+        'quantidades_estoque': quantidades_estoque,
     })
 
 
