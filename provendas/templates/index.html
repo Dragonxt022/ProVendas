@@ -32,7 +32,7 @@
             <div class="col-lg-3 col-6">
                 <div class="small-box bg-info">
                     <div class="inner">
-                        <h3 id="finalized-orders">0</h3>
+                        <h3>{{ pedidos_finalizados }}</h3>
                         <p>Pedidos Finalizados</p>
                     </div>
                     <div class="icon">
@@ -41,12 +41,12 @@
                     <a href="{% url 'analytics_desboard'%}" class="small-box-footer">Mais informações <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
-
+        
             <!-- Quadrado 2: Valor Total do Mês -->
             <div class="col-lg-3 col-6">
                 <div class="small-box bg-success">
                     <div class="inner">
-                        <h3 id="total-sales-month">R$ 0.00</h3>
+                        <h3>R$ {{ total_vendas_mes|floatformat:2 }}</h3>
                         <p>Valor Total do Mês</p>
                     </div>
                     <div class="icon">
@@ -55,12 +55,12 @@
                     <a href="{% url 'analytics_desboard'%}" class="small-box-footer">Mais informações <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
-
+        
             <!-- Quadrado 3: Número de Produtos Cadastrados -->
             <div class="col-lg-3 col-6">
                 <div class="small-box bg-warning">
                     <div class="inner">
-                        <h3 id="total-products">0</h3>
+                        <h3>{{ total_produtos }}</h3>
                         <p>Produtos Cadastrados</p>
                     </div>
                     <div class="icon">
@@ -69,12 +69,12 @@
                     <a href="{% url 'analytics_desboard'%}" class="small-box-footer">Mais informações <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
-
+        
             <!-- Quadrado 4: Valor Total do Ano -->
             <div class="col-lg-3 col-6">
                 <div class="small-box bg-danger">
                     <div class="inner">
-                        <h3 id="total-sales-year">R$ 0.00</h3>
+                        <h3>R$ {{ total_vendas_ano|floatformat:2 }}</h3>
                         <p>Valor Total do Ano</p>
                     </div>
                     <div class="icon">
@@ -83,7 +83,6 @@
                     <a href="{% url 'analytics_desboard'%}" class="small-box-footer">Mais informações <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
-
         </div>
 
         <div class="row">
