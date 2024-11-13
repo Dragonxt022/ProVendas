@@ -55,6 +55,8 @@
 
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <!-- Link para o CSS do Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 
 
@@ -465,6 +467,8 @@
     <script src="{% static 'plugins/flot/jquery.flot.js' %}"></script>
     <script src="{% static 'plugins/flot/plugins/jquery.flot.resize.js' %}"></script>
     <script src="{% static 'plugins/flot/plugins/jquery.flot.pie.js' %}"></script>
+    <!-- Link para o JS do Flatpickr -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
    
     
@@ -625,6 +629,14 @@
     
     <!-- blocos de script-->
     {% block extra_scripts %} {% endblock %}
+
+    <script>
+        // Inicializa o Flatpickr no campo de data
+        flatpickr("#dia", {
+            dateFormat: "Y-m-d", // Formato da data: Ano-Mês-Dia
+          
+        });
+    </script>
 
 </body>
 </html>
