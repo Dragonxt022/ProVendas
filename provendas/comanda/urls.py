@@ -1,9 +1,10 @@
 # comanda/urls.py
 from django.urls import path
 from . import views
+from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
-    path('', views.listar_mesas, name='listar_mesas'),
+    path('', (views.listar_mesas), name='listar_mesas'),
     path('cadastrar/', views.cadastrar_mesa, name='cadastrar_mesa'),
     path('excluir/<int:mesa_id>/', views.excluir_mesa, name='excluir_mesa'),
     path('abrir-ou-gerenciar-comanda/<int:mesa_id>/', views.abrir_ou_gerenciar_comanda, name='abrir_ou_gerenciar_comanda'),

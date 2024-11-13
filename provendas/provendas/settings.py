@@ -51,7 +51,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Adicione seu middleware global aqui
+    'provendas.middleware.AuthMiddleware',
 ]
+
+
 
 ROOT_URLCONF = 'provendas.urls'
 
@@ -138,7 +142,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_URL = 'login'  # Nome da sua URL de login
+LOGIN_URL = 'login'
 
 # Sistema de mensagem
 

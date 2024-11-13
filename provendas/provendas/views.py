@@ -29,7 +29,6 @@ def login_view(request):
     return render(request, 'login.html')
 
 
-@login_required
 def dashboard(request):
     # Pegando o ano e mês da query string ou usando os valores atuais
     ano = int(request.GET.get('ano', now().year))

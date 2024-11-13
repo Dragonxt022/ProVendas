@@ -7,7 +7,7 @@ from django.views.generic import TemplateView
 from django.conf.urls.static import static  # Importando para servir arquivos de mídia
 from .views import login_view
 from django.contrib.auth import views as auth_views
-from django.views.generic import RedirectView
+from django.contrib.auth.decorators import login_required
 
 # Define suas views personalizadas
 handler404 = TemplateView.as_view(template_name="404.html")
@@ -16,7 +16,6 @@ handler500 = TemplateView.as_view(template_name="500.html")
 
 urlpatterns = [
     
-    path('', RedirectView.as_view(url='login/', permanent=False)),  # Redireciona para a página de login
     path('login/', login_view, name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('admin/', admin.site.urls),

@@ -4,77 +4,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Login | PRO Vendas</title>
+    <title>Login | {{ nome_aplicacao }}</title>
 
     <!-- Importar a fonte Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Custom Theme Style -->
+    <!-- Favicon e estilo do tema -->
     <link rel="shortcut icon" href="{% static 'image/iconsistema.png' %}" type="image/x-icon">
     <link rel="stylesheet" href="{% static 'plugins/toastr/toastr.min.css' %}">
 
     <!-- Bootstrap -->
     <link href="{% static 'css/adminlte.min.css' %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
     <style>
         body {
-            font-family: 'Poppins', sans-serif; /* Aplicando a fonte Poppins */
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 700px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .login-card .form-left {
+            padding: 30px;
+        }
+        .login-card .form-right {
+            background-color: #007bff;
+            color: white;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+        .login-card .form-right i {
+            font-size: 80px;
+        }
+        .login-card .form-left h2 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .login-card .form-control {
+            border-radius: 30px;
+        }
+        .login-card .btn {
+            border-radius: 30px;
+            padding: 10px;
+        }
+
+        .btn-success{
+            background-color: {{ cor_primaria }} !important;
+            border-color: {{ cor_primaria }} !important;
+
+        }
+    
+        .bg-success{
+            background-color: {{ cor_primaria }} !important;
+            border-color: {{ cor_primaria }} !important;
+        }
+
+        .btn-success:hover{
+            background-color: {{ cor_primaria }} !important;
+            border-color: {{ cor_primaria }} !important;
         }
     </style>
 </head>
 <body>
-    <div class="login-page">
-        <div class="container py-5">
-            <div class="row">
-                <div class="col-lg-8 offset-lg-2">
-                    <h2 class="text-center py-4"> PRO | Vendas </h2>
-                    <div class="bg-white shadow rounded">
-                        <div class="row">
-                            <div class="col-md-7 pe-0">
-                                <div class="form-left h-100 py-5 px-5">
-                                    <form method="post" action="{% url 'login' %}">
-                                        {% csrf_token %}
-                                        <div class="row g-4">
-                                            <div class="col-12">
-                                                <label for="username">Usuário<span class="text-danger">*</span></label>
-                                                <div class="input-group">
-                                                    <div class="input-group-text"><i class="fa fa-user"></i></div>
-                                                    <input type="text" class="form-control" id="username" name="username" placeholder="Digite o seu usuário" required>
-                                                </div>
-                                            </div>
-    
-                                            <div class="col-12">
-                                                <label for="password">Senha<span class="text-danger">*</span></label>
-                                                <div class="input-group">
-                                                    <div class="input-group-text"><i class="fa fa-lock"></i></div>
-                                                    <input type="password" class="form-control" id="password" name="password" placeholder="Digite sua senha" required>
-                                                </div>
-                                            </div>
-    
-                                            <div class="col-sm-6">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="remember_me" name="remember_me">
-                                                    <label class="form-check-label" for="remember_me">Relembrar-me</label>
-                                                </div>
-                                            </div>
-    
-                                            <div class="col-12">
-                                                <button type="submit" class="btn btn-primary px-4 w-100 mt-4">Entrar</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                            <div class="col-md-5 ps-0 d-none d-md-block">
-                                <div class="form-right h-100 bg-primary text-white text-center pt-5">
-                                    <i class="bi bi-bootstrap" style="font-size: 100px;"></i>
-                                    <h2 class="fs-1">Bem-vindo!</h2>
-                                </div>
+    <div class="py-5 login d-flex justify-content-center align-items-center">
+        <div class="login-card bg-white">
+            <div class="row no-gutters">
+                <div class="col-md-7 form-left">
+                    <h2>{{ nome_aplicacao }}</h2>
+                    <form method="post" action="{% url 'login' %}">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="username" class="form-label">Usuário <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa fa-user"></i></span>
+                                <input type="text" class="form-control" id="username" name="username" placeholder="Digite o seu usuário" required>
                             </div>
                         </div>
-                    </div>
+    
+                        <div class="mb-4">
+                            <label for="password" class="form-label">Senha <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Digite sua senha" required>
+                            </div>
+                        </div>
+    
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="remember_me" name="remember_me">
+                            <label class="form-check-label" for="remember_me">Relembrar-me</label>
+                        </div>
+    
+                        <button type="submit" class="btn btn-success w-100">Entrar</button>
+                    </form>
+                </div>
+                <div class="col-md-5 form-right text-center bg-success">
+                    
+                    <h2>Bem-vindo!</h2>
                 </div>
             </div>
         </div>
@@ -84,8 +125,8 @@
     <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
     <script src="{% static 'plugins/toastr/toastr.min.js' %}"></script>
 
-    <!-- Bootstrap -->
-    <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom Theme Scripts -->
     <script src="{% static 'js/adminlte.min.js' %}"></script>
 </body>

@@ -7,8 +7,6 @@ from django.contrib import messages
 from django.http import HttpResponse
 import csv 
 
-
-
 # Importador e exportador
 def importar_produtos(request):
     if request.method == 'POST' and request.FILES['csv_file']:
