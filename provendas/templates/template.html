@@ -68,7 +68,34 @@
 
 <body class="hold-transition sidebar-mini sidebar-collapse">
     <style>
-
+        .payment-method-block {
+            cursor: pointer;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+    
+        .payment-method-block img {
+            max-width: 50px;
+            margin-bottom: 10px;
+        }
+    
+        .payment-method-block p {
+            font-weight: bold;
+            color: #555;
+        }
+    
+        .payment-method-block:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+    
+        .payment-method-block.selected {
+            border-color: #28a745;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
         /* Estilo para o campo de pesquisa */
         #cliente {
             width: 100%;

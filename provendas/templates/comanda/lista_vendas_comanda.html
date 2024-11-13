@@ -113,7 +113,7 @@
                                                 <td>{{ venda.vendedor.username }}</td>
                                                 <td>{{ venda.cliente.nome }}</td>
                                                 <td>R$ {{ venda.total|floatformat:2 }}</td>
-                                                <td>{{ venda.status }}</td>
+                                                <td > <span class="badge badge-danger">{{ venda.status }}</span> </td>
                                                 <td>
                                                     <a href="{% url 'gerar_cupom_fiscal_comanda' venda.id %}"  target="_blank" class="btn btn-sm btn-primary">Gerar Cupom</a>
                                                     <button class="btn btn-sm btn-success" onclick="verDetalhes({{ venda.id }})">Detalhes</button>

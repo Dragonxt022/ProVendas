@@ -752,6 +752,21 @@
         }
 
         // Evento para exibir/ocultar o campo de valor recebido com base na forma de pagamento
+        function toggleCashInput() {
+            // Obtém o valor selecionado da forma de pagamento
+            var paymentMethod = document.getElementById('payment_method').value;
+            
+            // Verifica se a opção selecionada é "Dinheiro"
+            if (paymentMethod === 'Dinheiro') {
+                // Exibe o campo de entrada para o valor em dinheiro
+                document.getElementById('cash-input').style.display = 'block';
+            } else {
+                // Oculta o campo de entrada para o valor em dinheiro
+                document.getElementById('cash-input').style.display = 'none';
+            }
+        }
+
+        // Evento para exibir/ocultar o campo de valor recebido com base na forma de pagamento
         document.getElementById('payment_method').addEventListener('change', function() {
             const paymentMethod = this.value;
             const cashInput = document.getElementById('cash-input');
@@ -841,6 +856,8 @@
                 },
                 body: JSON.stringify(saleData)
             })
+            
+
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Erro na requisição: ' + response.statusText);

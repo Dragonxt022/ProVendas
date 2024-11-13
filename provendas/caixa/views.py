@@ -33,7 +33,6 @@ def gerar_cupom_fiscal(request, pedido_id):
         'produtos': produtos,
         'cliente': cliente,
         'empresa': empresa,
-        'total_com_desconto': total_com_desconto,  # Adiciona o total com desconto ao contexto
     }
     
     # Renderiza o template de cupom fiscal
