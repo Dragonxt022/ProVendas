@@ -6,11 +6,12 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-xu4^66$qjsm86acg5()+&t5g&)9ulpey@8%cvyv3e-_p9%q@aa'
+
+# settings.py
+LICENSE_SECRET_KEY = 'TEST-e913c0fd-99a3-423d-ad0b-89629b170b28'
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -33,6 +34,7 @@ INSTALLED_APPS = [
     # Apps do Projeto
     'configuracoes',
     'analytics',
+    'licencas',
     'empresas',
     'clientes',
     'estoque',

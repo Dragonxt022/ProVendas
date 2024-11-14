@@ -28,6 +28,7 @@ urlpatterns = [
     path('comanda/', include('comanda.urls')),
     path('configuracoes/', include('configuracoes.urls')),
     path('analytics/', include('analytics.urls')),
+    path('licencas/', include('licencas.urls')),
 ]
 
 # Adicione o suporte para arquivos de mídia

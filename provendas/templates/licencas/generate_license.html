@@ -1,0 +1,130 @@
+{% extends "template.html" %}
+
+{% load static %}
+{% block title %}
+    Histórico de Vendas
+{% endblock %}
+
+{% block content %}
+
+<div class="wrapper">
+    {% include 'includes/sidebar.html' %}
+    {% include 'includes/navbar.html' %} 
+
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-4">
+                    <div class="col-sm-7 d-flex align-items-center">
+                        <h1 class="mr-3">Controle de Chaves</h1> <!-- Adicionei a classe mr-3 -->
+                        
+                        <!-- Link para abrir o modal -->
+                        <button class="btn btn-warning" data-toggle="modal" data-target="#licenseModal">Adicionar Chave</button>
+
+                    </div>
+                </div>
+            </div><!-- /.container-fluid -->
+        </section>
+        
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Chaves</h3> 
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-bordered text-center">
+                                    <thead class="bg-success">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Chave</th>
+                                            <th>Status</th>
+                                            <th>Expiração</th>
+                                            <th>Dias Restantes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for license in licenses %}
+                                            <tr> 
+                                                
+                                            
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ license.key }}</td>
+                                                <td>{{ license.status }}</td>
+                                                <td>{{ license.expiration_date }}</td>
+                                                <td>
+                                                    {% if license.status == 'ATIVADO' %}
+                                                        {% if license.days_remaining > 0 %}
+                                                            {{ license.days_remaining }} dias
+                                                        {% else %}
+                                                            Expirada
+                                                        {% endif %}
+                                                    {% else %}
+                                                        Expirada
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div> 
+</div>
+
+<!-- Modal para Adicionar Chave de Licença -->
+<div class="modal fade" id="licenseModal" tabindex="-1" role="dialog" aria-labelledby="licenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title" id="licenseModalLabel">Adicionar Chave de Licença</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="image d-flex justify-content-center align-items-center">
+                    <img src="{% static 'image/iconsistema.png' %}" alt="Logo da empresa" class="brand-image img-circle elevation-3" style="opacity: .8; max-width: 150px; max-height: 150px;">
+                </div>
+                <p class="py-3 text-center"><strong>Pissinet sistemas</strong>. <br> Suporte: pissinatti2019@gmail.com</p>
+
+                <!-- Formulário para enviar a data de expiração e a chave -->
+                <form method="POST" action="{% url 'add_license_key' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="expiration_date"><strong>Data de Expiração:</strong></label>
+                        <input type="date" class="form-control" id="expiration_date" name="expiration_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="license_key"><strong>Chave de Licença:</strong></label>
+                        <input type="text" class="form-control" id="license_key" name="license_key" required>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100">Ativar Licença</button>
+                </form>
+            
+                <hr>
+                <p class="text-center py-3"><strong>Não tem uma chave?</strong> Clique aqui para comprar uma chave online:</p>
+                <a href="https://mpago.la/162W1Fb" class="btn btn-primary w-100" target="_blank">Pagar Agora</a>
+                <p class="mt-2 text-center py-2"><strong>Após o pagamento, envie o comprovante</strong> para receber a chave de ativação.</p>
+                <a href="https://wa.me/69984791753" target="_blank" class="btn btn-info w-100">Enviar comprovante</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% block extra_scripts %}
+
+
+{% endblock %}
+
+{% endblock %}
