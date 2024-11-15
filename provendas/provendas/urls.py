@@ -7,19 +7,23 @@ from django.views.generic import TemplateView
 from django.conf.urls.static import static  # Importando para servir arquivos de mídia
 from .views import login_view
 from django.contrib.auth import views as auth_views
-from django.contrib.auth.decorators import login_required
+
+
+
 
 # Define suas views personalizadas
 handler404 = TemplateView.as_view(template_name="404.html")
 handler403 = TemplateView.as_view(template_name="403.html")
 handler500 = TemplateView.as_view(template_name="500.html")
 
+
 urlpatterns = [
     
+    path('', views.home_redirect, name='home'),
     path('login/', login_view, name='login'),
-    path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
+    path('logout/', views.custom_logout, name='logout'),
     path('admin/', admin.site.urls),
-    path('dashboard/', views.dashboard, name='dashboard'),  # Adicione a URL para o painel
+    path('dashboard/', views.dashboard, name='dashboard'),
     path('estoque/', include('estoque.urls')),
     path('empresas/', include('empresas.urls')),
     path('usuarios/', include('usuarios.urls')),

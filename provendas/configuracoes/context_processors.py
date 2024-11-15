@@ -6,18 +6,19 @@ from licencas.models import LicenseKey
 
 def license_days_remaining(request):
     days_remaining = 0
-    if request.user.is_authenticated:
-        # Buscar a chave ativa mais recente do usuário
-        active_license = LicenseKey.objects.filter(user=request.user, status='ATIVADO').order_by('-created_at').first()
-        
-        # Verificar se a chave existe e está ativa
-        if active_license and active_license.expiration_date > timezone.now():
-            # Calcular os dias restantes até a expiração
+    # Buscar qualquer chave ativa, independentemente do usuário
+    active_license = LicenseKey.objects.filter(status='ATIVADO').order_by('-created_at').first()
+
+    if active_license:
+        print(f"Expiration Date: {active_license.expiration_date}")
+        print(f"Current Date and Time: {timezone.now()}")
+        if active_license.expiration_date > timezone.now():
             days_remaining = (active_license.expiration_date - timezone.now()).days
-        elif active_license and active_license.expiration_date <= timezone.now():
-            # Caso a chave esteja expirada, definir dias restantes como 0
-            days_remaining = -1  # Licença expirada
+        else:
+            days_remaining = -1  # Caso a licença tenha expirado
+
     return {'days_remaining': days_remaining}
+
 
 
 def configuracoes(request):

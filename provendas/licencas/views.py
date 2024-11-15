@@ -15,20 +15,22 @@ from django.http import JsonResponse
 
 
 def verificar_licenca(request):
-    if request.user.is_authenticated:
-        # Buscar a chave ativa mais recente do usuário
-        active_license = LicenseKey.objects.filter(user=request.user, status='ATIVADO').order_by('-created_at').first()
+    # Buscar qualquer chave ativa sem vinculação de usuário
+    active_license = LicenseKey.objects.filter(status='ATIVADO').order_by('-created_at').first()
 
-        # Verificar se a licença está expirada
-        if active_license and active_license.expiration_date <= timezone.now():
-            return JsonResponse({'licenca_expirada': True})
+    # Verificar se a licença está expirada
+    if active_license and active_license.expiration_date <= timezone.now():
+        return JsonResponse({'licenca_expirada': True})
     
     return JsonResponse({'licenca_expirada': False})
 
+
+
 def generate_license_key(request):
-    # Buscar apenas as chaves de licença ATIVADAS associadas ao usuário logado
-    licenses = LicenseKey.objects.filter(user=request.user, status='ATIVADO').order_by('-created_at')
+    # Aqui, não deve haver filtro usando 'user' após a remoção do campo.
+    licenses = LicenseKey.objects.filter(status='ATIVADO').order_by('-created_at')
     return render(request, 'licencas/generate_license.html', {'licenses': licenses})
+
 
 # Função para validar a chave de licença
 def is_valid_license_key(license_key, expiration_date):
@@ -73,8 +75,8 @@ def add_license_key(request):
             messages.error(request, "Chave de acesso inválida!")
             return redirect('generate_license_key')
 
-        # Expire todas as chaves anteriores do usuário
-        LicenseKey.objects.filter(user=request.user, status='ATIVADO').update(status='VENCIDA')
+        # Expire todas as chaves ATIVADO, se houver alguma existente
+        LicenseKey.objects.filter(status='ATIVADO').update(status='VENCIDA')
 
         # Criar e salvar a nova chave com status "ATIVADO"
         LicenseKey.objects.create(
@@ -82,7 +84,6 @@ def add_license_key(request):
             status='ATIVADO',
             expiration_date=expiration_date,  # Aqui você usa a data recebida
             created_at=timezone.now(),
-            user=request.user,  # Atribui automaticamente o usuário logado
         )
 
         messages.success(request, "Chave ativada com sucesso!")
@@ -90,4 +91,3 @@ def add_license_key(request):
 
     # Renderize a página de geração de licença
     return render(request, 'licencas/generate_license.html')
-   

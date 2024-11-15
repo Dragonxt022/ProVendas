@@ -59,7 +59,7 @@
             {% elif days_remaining > 0 %}
                 <span style="color: #ff0000;">Válidade: {{ days_remaining }} dias</span>  <!-- Vermelho para 3 dias ou menos -->
             {% elif days_remaining == 0 %}
-                <span style="color: #ff0000;">Licença Vencida Hoje</span>  <!-- Caso a licença expire no dia de hoje -->
+                <span style="color: #ff0000;">Licença ira vencer Hoje</span>  <!-- Caso a licença expire no dia de hoje -->
             {% else %}
                 <span style="color: #ff0000;">Licença Expirada</span>  <!-- Vermelho se a licença já expirou -->
             {% endif %}

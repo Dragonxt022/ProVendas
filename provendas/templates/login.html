@@ -65,7 +65,7 @@
         }
 
         .btn-success{
-            background-color: {{ cor_primaria }} !important;
+            background-color: {{ cor_primaria }} !important; 
             border-color: {{ cor_primaria }} !important;
 
         }
@@ -89,45 +89,129 @@
                     <h2>{{ nome_aplicacao }}</h2>
                     <form method="post" action="{% url 'login' %}">
                         {% csrf_token %}
+                        
                         <div class="mb-4">
                             <label for="username" class="form-label">Usuário <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-user"></i></span>
                                 <input type="text" class="form-control" id="username" name="username" placeholder="Digite o seu usuário" required>
                             </div>
+                            {% if errors.username %}
+                                <span class="text-danger">{{ errors.username }}</span>
+                            {% endif %}
                         </div>
-    
+                    
                         <div class="mb-4">
                             <label for="password" class="form-label">Senha <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-lock"></i></span>
                                 <input type="password" class="form-control" id="password" name="password" placeholder="Digite sua senha" required>
                             </div>
+                            {% if errors.password %}
+                                <span class="text-danger">{{ errors.password }}</span>
+                            {% endif %}
                         </div>
-    
+                    
                         <div class="form-check mb-4">
                             <input class="form-check-input" type="checkbox" id="remember_me" name="remember_me">
                             <label class="form-check-label" for="remember_me">Relembrar-me</label>
                         </div>
-    
+                    
+                        {% if errors.general %}
+                            <span class="text-danger d-block mb-2">{{ errors.general }}</span>
+                        {% endif %}
+                    
                         <button type="submit" class="btn btn-success w-100">Entrar</button>
                     </form>
+                    <div  class="text-center py-3">
+                        <a href="#" data-toggle="modal" data-target="#licenseModal"> Validar sistema </a>
+                    </div>
                 </div>
                 <div class="col-md-5 form-right text-center bg-success">
                     
                     <h2>Bem-vindo!</h2>
                 </div>
             </div>
+        
         </div>
     </div>
+
+    <!-- Modal para Adicionar Chave de Licença -->
+    <div class="modal fade" id="licenseModal" tabindex="-1" role="dialog" aria-labelledby="licenseModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-success">
+                    <h5 class="modal-title" id="licenseModalLabel">Adicionar Chave de Licença</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="image d-flex justify-content-center align-items-center">
+                        <img src="{% static 'image/iconsistema.png' %}" alt="Logo da empresa" class="brand-image img-circle elevation-3" style="opacity: .8; max-width: 150px; max-height: 150px;">
+                    </div>
+                    <p class="py-3 text-center"><strong>Pissinet sistemas</strong>. <br> Suporte: pissinatti2019@gmail.com</p>
+
+                    <!-- Formulário para enviar a data de expiração e a chave -->
+                    <form method="POST" action="{% url 'add_license_key' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="expiration_date"><strong>Data de Expiração:</strong></label>
+                            <input type="date" class="form-control" id="expiration_date" name="expiration_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="license_key"><strong>Chave de Licença:</strong></label>
+                            <input type="text" class="form-control" id="license_key" name="license_key" required>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Ativar Licença</button>
+                    </form>
+                
+                    <hr>
+                    <p class="text-center py-3"><strong>Não tem uma chave?</strong> Clique aqui para comprar uma chave online:</p>
+                    <a href="https://mpago.la/162W1Fb" class="btn btn-primary w-100" target="_blank">Pagar Agora</a>
+                    <p class="mt-2 text-center py-2"><strong>Após o pagamento, envie o comprovante</strong> para receber a chave de ativação.</p>
+                    <a href="https://wa.me/69984791753" target="_blank" class="btn btn-info w-100">Enviar comprovante</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
 
     <!-- jQuery -->
     <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
     <script src="{% static 'plugins/toastr/toastr.min.js' %}"></script>
 
-    <!-- Bootstrap JS -->
+    <!-- Bootstrap 4 -->
+    <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom Theme Scripts -->
     <script src="{% static 'js/adminlte.min.js' %}"></script>
+
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                toastr["{{ message.tags }}"]("{{ message }}");
+            {% endfor %}
+        {% endif %}
+
+        // Configuração do Toastr (opcional)
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": true,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+    </script>
 </body>
 </html>

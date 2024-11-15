@@ -59,14 +59,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     
 
-
-
-
-
     <link rel="stylesheet" href="{% static 'plugins/toastr/toastr.min.css' %}">
 
 </head>
-
 
 
 <body class="hold-transition sidebar-mini sidebar-collapse">
@@ -428,8 +423,6 @@
 
 
         {% block content %}{% endblock %}
-        {% comment %} {% include 'includes/footer.html' %}  {% endcomment %}
-
     
     <!-- Bootstrap 4 -->
     <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
@@ -659,21 +652,23 @@
             verificarLicenca();
         </script>
 
-        <!-- Modal de aviso de licença expirada -->
+       <!-- Modal de aviso de licença expirada -->
         <div id="licenseModal" class="modal" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
+                    <div class="modal-header bg-warning">
                         <h5 class="modal-title">Licença Expirada</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body text-center">
+                        <!-- Ícone centralizado -->
+                        <i class="fas fa-exclamation-circle fa-4x text-warning mb-3"></i>
                         <p>Sua licença está expirada. Por favor, renove sua licença para continuar usando o sistema.</p>
                     </div>
                     <div class="modal-footer">
-                        <a href="{% url 'generate_license_key' %}" class="btn btn-primary">Gerenciar Licenças</a>
+                        <a href="{% url 'generate_license_key' %}" class="btn btn-warning w-100">Gerenciar Licenças</a>
                     </div>
                 </div>
             </div>

@@ -8,21 +8,54 @@ from django.db.models import Sum, Count
 from django.db.models.functions import ExtractHour
 from datetime import datetime
 from django.utils.timezone import now
+from django.shortcuts import redirect
+from django.contrib.auth import logout
+from licencas.models import LicenseKey
+from django.utils import timezone
+
+
+
+
+
+def home_redirect(request):
+    return redirect('login')
+
+def custom_logout(request):
+    logout(request)  # Encerra a sessão do usuário
+    return redirect('login') 
+
 
 def login_view(request):
     # Verifica se o usuário já está autenticado
     if request.user.is_authenticated:
-        return redirect('dashboard')  # Redireciona para o dashboard
+        return redirect('dashboard')  # Redireciona para o dashboard se o usuário já estiver autenticado
 
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        
+
+        # Autentica o usuário
         user = authenticate(request, username=username, password=password)
-        
+
         if user is not None:
+            # Verifica a licença antes de logar
+            active_license = LicenseKey.objects.filter(status='ATIVADO').order_by('-created_at').first()
+
+            # Se não houver licença ativa ou a licença estiver expirada
+            if not active_license or active_license.expiration_date < timezone.now():
+                if active_license:
+                    days_since_expired = (timezone.now() - active_license.expiration_date).days
+                else:
+                    days_since_expired = 0
+                # Se a licença expirou há 3 dias ou mais
+                if days_since_expired >= 3:
+                    messages.error(request, "Sua licença expirou há mais de 3 dias. Não é possível acessar o sistema.")
+                    return render(request, 'login.html')
+
+            # Caso a licença esteja válida ou dentro do limite de expiração
             login(request, user)
-            return redirect('dashboard')  # Redireciona para a página inicial após o login
+            return redirect('dashboard')  # Redireciona para o painel principal
+
         else:
             messages.error(request, 'Usuário ou senha inválidos.')
 
