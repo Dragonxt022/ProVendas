@@ -11,5 +11,8 @@ urlpatterns = [
     path('buscar/venda/<int:id>/', views.get_venda_details, name='admin.caixa.idVenda'),
     path('excluir_venda/', views.excluir_venda, name='excluir_venda'),
     path('cupom_fiscal/<int:pedido_id>/', views.gerar_cupom_fiscal, name='gerar_cupom_fiscal'),
+    path('listar-pedidos-ajax/', views.listar_pedidos_ajax, name='listar_pedidos_ajax'),
+
+    
 
 ]

@@ -1,6 +1,5 @@
 # caixa/views.py
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
 from django.contrib import messages
 from django.contrib.auth.models import User
 from clientes.models import Cliente
@@ -9,34 +8,10 @@ from .models import CaixaPdv, ProdutoCaixaPdv
 from empresas.models import Empresa 
 from configuracoes.models import Configuracao
 import json
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+from django.db.models import Q 
 
-
-# def gerar_cupom_fiscal(request, pedido_id):
-#     # Busca o pedido (CaixaPdv) pelo ID
-#     pedido = get_object_or_404(CaixaPdv, id=pedido_id)
-    
-#     # Busca todos os produtos associados ao pedido
-#     produtos = ProdutoCaixaPdv.objects.filter(caixa_pdv=pedido)
-    
-#     # Busca o cliente, caso exista
-#     cliente = pedido.cliente
-    
-#     # Busca os dados da empresa para o cabeçalho
-#     empresa = Empresa.objects.first()  # ou o método que você usar para pegar os dados da empresa
-
-#     # Calcula o total com o desconto
-#     total_com_desconto = pedido.total - pedido.desconto
-
-#     # Passa os dados necessários para o template, incluindo o total com desconto
-#     context = {
-#         'sale': pedido,
-#         'produtos': produtos,
-#         'cliente': cliente,
-#         'empresa': empresa,
-#     }
-    
-#     # Renderiza o template de cupom fiscal
-#     return render(request, 'caixa/cupom_fiscal.html', context)
 
 def gerar_cupom_fiscal(request, pedido_id):
     # Busca o pedido (CaixaPdv) pelo ID
@@ -218,10 +193,8 @@ def search_products(request):
 
         return JsonResponse({'products': results, 'categories': categories})
 
-# caixa/views.py
 def listar_caixa(request):
     # Busca todos os pedidos do CaixaPdv
-    
     pedidos = CaixaPdv.objects.all()  # Todos os pedidos
     clientes = Cliente.objects.all()  # Todos os clientes
     produtos = Produto.objects.all()   # Todos os produtos
@@ -238,6 +211,61 @@ def listar_caixa(request):
         'categorias': categorias,
         'cliente_padrao': cliente_padrao,
     })
+
+def listar_pedidos_ajax(request):
+    # Recebe os parâmetros de filtro da requisição
+    search_term = request.GET.get('search', '')  # Termo de pesquisa
+    status_filter = request.GET.get('status', '')  # Filtro de status
+    vendedor_filter = request.GET.get('vendedor', '')  # Filtro de vendedor
+    cliente_filter = request.GET.get('cliente', '')  # Filtro de cliente
+
+    # Consulta base dos pedidos
+    pedidos_list = CaixaPdv.objects.all().order_by('status', 'created_at')  # Ordenar por status e data
+
+    # Aplicar filtros, se os filtros forem fornecidos
+    if search_term:
+        pedidos_list = pedidos_list.filter(
+            Q(numero_pedido__icontains=search_term) | 
+            Q(vendedor__username__icontains=search_term) | 
+            Q(cliente__nome__icontains=search_term)
+        )
+
+    if status_filter:
+        pedidos_list = pedidos_list.filter(status__icontains=status_filter)
+
+    if vendedor_filter:
+        pedidos_list = pedidos_list.filter(vendedor__username__icontains=vendedor_filter)
+
+    if cliente_filter:
+        pedidos_list = pedidos_list.filter(cliente__nome__icontains=cliente_filter)
+
+    # Paginação
+    paginator = Paginator(pedidos_list, 3)  # 3 pedidos por página (você pode ajustar esse número)
+    page_number = request.GET.get('page', 1)  # Página padrão é 1
+    page_obj = paginator.get_page(page_number)
+
+    pedidos_data = []
+    for pedido in page_obj:
+        pedidos_data.append({
+            'id': pedido.id,
+            'numero_pedido': pedido.numero_pedido,
+            'data': pedido.created_at.strftime('%d/%m/%Y %H:%M'),
+            'vendedor': pedido.vendedor.username,
+            'cliente': pedido.cliente.nome,
+            'total': pedido.total,
+            'status': pedido.status
+        })
+
+    # Retornar os dados filtrados e paginados
+    return JsonResponse({
+        'pedidos': pedidos_data,
+        'has_next': page_obj.has_next(),
+        'has_previous': page_obj.has_previous(),
+        'next_page_number': page_obj.next_page_number() if page_obj.has_next() else None,
+        'previous_page_number': page_obj.previous_page_number() if page_obj.has_previous() else None,
+    
+    })
+
 
 def abrir_caixa_pdv(request):
     # Busca todos os pedidos do CaixaPdv

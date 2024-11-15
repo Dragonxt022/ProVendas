@@ -563,28 +563,9 @@
                 "stateSave": true // Ativa o armazenamento do estado para a tabela example2
             });
 
-            // Função Inicializa nas tabelas de pedidos
-            $(function () {
-                // Inicializa a tabela de pedidos em aberto com ordenação crescente
-                if (!$.fn.dataTable.isDataTable('#open-orders')) {
-                    $("#open-orders").DataTable({
-                        "responsive": true,
-                        "language": portugueseTranslation,
-                        "order": [[1, "asc"]], // Altere o índice da coluna para aquela que representa o pedido
-                    });
-                }
-
-                // Inicializa a tabela de pedidos finalizados com ordenação decrescente
-                if (!$.fn.dataTable.isDataTable('#completed-orders')) {
-                    $("#completed-orders").DataTable({
-                        "responsive": true,
-                        "language": portugueseTranslation,
-                        "order": [[1, "desc"]], // Altere o índice da coluna para aquela que representa o pedido
-                    });
-                }
-            });
+            
         });
-
+ 
 
         // Mascaras
         $(document).ready(function() {
