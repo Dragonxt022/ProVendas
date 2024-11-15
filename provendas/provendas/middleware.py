@@ -1,4 +1,4 @@
-# middleware.py
+# provendas/middleware.py
 from django.shortcuts import redirect
 from django.urls import reverse
 

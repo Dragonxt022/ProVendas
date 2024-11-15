@@ -1,6 +1,24 @@
 # configuracoes/context_processors.py
 
 from .models import Configuracao
+from django.utils import timezone
+from licencas.models import LicenseKey
+
+def license_days_remaining(request):
+    days_remaining = 0
+    if request.user.is_authenticated:
+        # Buscar a chave ativa mais recente do usuário
+        active_license = LicenseKey.objects.filter(user=request.user, status='ATIVADO').order_by('-created_at').first()
+        
+        # Verificar se a chave existe e está ativa
+        if active_license and active_license.expiration_date > timezone.now():
+            # Calcular os dias restantes até a expiração
+            days_remaining = (active_license.expiration_date - timezone.now()).days
+        elif active_license and active_license.expiration_date <= timezone.now():
+            # Caso a chave esteja expirada, definir dias restantes como 0
+            days_remaining = -1  # Licença expirada
+    return {'days_remaining': days_remaining}
+
 
 def configuracoes(request):
     # Aqui você recupera as configurações para serem usadas em todos os templates

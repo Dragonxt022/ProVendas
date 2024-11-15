@@ -11,6 +11,33 @@ from configuracoes.models import Configuracao
 import json
 
 
+# def gerar_cupom_fiscal(request, pedido_id):
+#     # Busca o pedido (CaixaPdv) pelo ID
+#     pedido = get_object_or_404(CaixaPdv, id=pedido_id)
+    
+#     # Busca todos os produtos associados ao pedido
+#     produtos = ProdutoCaixaPdv.objects.filter(caixa_pdv=pedido)
+    
+#     # Busca o cliente, caso exista
+#     cliente = pedido.cliente
+    
+#     # Busca os dados da empresa para o cabeçalho
+#     empresa = Empresa.objects.first()  # ou o método que você usar para pegar os dados da empresa
+
+#     # Calcula o total com o desconto
+#     total_com_desconto = pedido.total - pedido.desconto
+
+#     # Passa os dados necessários para o template, incluindo o total com desconto
+#     context = {
+#         'sale': pedido,
+#         'produtos': produtos,
+#         'cliente': cliente,
+#         'empresa': empresa,
+#     }
+    
+#     # Renderiza o template de cupom fiscal
+#     return render(request, 'caixa/cupom_fiscal.html', context)
+
 def gerar_cupom_fiscal(request, pedido_id):
     # Busca o pedido (CaixaPdv) pelo ID
     pedido = get_object_or_404(CaixaPdv, id=pedido_id)
@@ -24,19 +51,26 @@ def gerar_cupom_fiscal(request, pedido_id):
     # Busca os dados da empresa para o cabeçalho
     empresa = Empresa.objects.first()  # ou o método que você usar para pegar os dados da empresa
 
-    # Calcula o total com o desconto
-    total_com_desconto = pedido.total - pedido.desconto
+    # Calcula o subtotal (total + desconto)
+    subtotal = pedido.total + pedido.desconto
 
-    # Passa os dados necessários para o template, incluindo o total com desconto
+    # Calcula o total com o desconto (total após o desconto)
+    total_com_desconto = pedido.total
+
+    # Passa os dados necessários para o template, incluindo o subtotal, desconto e total com desconto
     context = {
         'sale': pedido,
         'produtos': produtos,
         'cliente': cliente,
         'empresa': empresa,
+        'subtotal': subtotal,  # Subtotal (total + desconto)
+        'desconto': pedido.desconto,  # Valor do desconto
+        'total_com_desconto': total_com_desconto,  # Total após o desconto
     }
     
     # Renderiza o template de cupom fiscal
     return render(request, 'caixa/cupom_fiscal.html', context)
+
 
 def finalizar_venda(request):
     if request.method == 'POST':

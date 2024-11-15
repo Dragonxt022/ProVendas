@@ -41,9 +41,7 @@
                                         <tr>
                                             <th>#</th>
                                             <th>Chave</th>
-                                            <th>Status</th>
                                             <th>Expiração</th>
-                                            <th>Dias Restantes</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -53,19 +51,8 @@
                                             
                                                 <td>{{ forloop.counter }}</td>
                                                 <td>{{ license.key }}</td>
-                                                <td>{{ license.status }}</td>
                                                 <td>{{ license.expiration_date }}</td>
-                                                <td>
-                                                    {% if license.status == 'ATIVADO' %}
-                                                        {% if license.days_remaining > 0 %}
-                                                            {{ license.days_remaining }} dias
-                                                        {% else %}
-                                                            Expirada
-                                                        {% endif %}
-                                                    {% else %}
-                                                        Expirada
-                                                    {% endif %}
-                                                </td>
+                                               
                                             </tr>
                                         {% endfor %}
                                     </tbody>

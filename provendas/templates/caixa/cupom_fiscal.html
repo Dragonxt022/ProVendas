@@ -115,8 +115,8 @@
         <p><strong>Pedido:</strong> {{ sale.numero_pedido }}</p>
         <p><strong>Cliente:</strong> {% if cliente %}{{ cliente.nome }}{% else %}N/A{% endif %}</p>
         <p><strong>Forma de Pagamento:</strong> {{ sale.payment_method }}</p>
-        <p><strong>Subtotal:</strong> {{ sale.total|floatformat:2 }}</p>
-        <p><strong>Desconto:</strong> {{ sale.desconto|floatformat:2 }}</p>
+        <p><strong>Subtotal:</strong> {{ subtotal|floatformat:2 }}</p>
+        <p><strong>Desconto:</strong> {{ desconto|floatformat:2 }}</p>
         <p><strong>Total:</strong> {{ total_com_desconto|floatformat:2 }}</p>
 
         <div class="footer">

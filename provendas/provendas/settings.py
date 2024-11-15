@@ -74,6 +74,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
           
                 'configuracoes.context_processors.configuracoes',
+                'configuracoes.context_processors.license_days_remaining',
             ],
         },
     },

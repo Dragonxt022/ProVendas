@@ -10,13 +10,25 @@ import hmac
 import hashlib
 import base64
 
+from django.http import JsonResponse
+
+
+
+def verificar_licenca(request):
+    if request.user.is_authenticated:
+        # Buscar a chave ativa mais recente do usuário
+        active_license = LicenseKey.objects.filter(user=request.user, status='ATIVADO').order_by('-created_at').first()
+
+        # Verificar se a licença está expirada
+        if active_license and active_license.expiration_date <= timezone.now():
+            return JsonResponse({'licenca_expirada': True})
+    
+    return JsonResponse({'licenca_expirada': False})
 
 def generate_license_key(request):
     # Buscar apenas as chaves de licença ATIVADAS associadas ao usuário logado
     licenses = LicenseKey.objects.filter(user=request.user, status='ATIVADO').order_by('-created_at')
     return render(request, 'licencas/generate_license.html', {'licenses': licenses})
-
-
 
 # Função para validar a chave de licença
 def is_valid_license_key(license_key, expiration_date):
