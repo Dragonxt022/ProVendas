@@ -1,3 +1,6 @@
+
+![Logo da Empresa](media/iconsistema.png)
+
 # Gerenciamento de Microempresa
 
 Este aplicativo foi desenvolvido para facilitar o gerenciamento de uma microempresa, integrando diversos processos essenciais em um único sistema. Com ele, é possível administrar clientes, controlar estoques de produtos, gerar relatórios detalhados e realizar vendas tanto via PDV (Ponto de Venda) quanto por comandas.
@@ -32,7 +35,7 @@ Siga estas instruções para configurar o projeto em outro computador.
      ```
    - Navegue até a pasta do projeto:
      ```bash
-     cd caminho/para/sua/pasta/provendas
+     cd ProVendas
      ```
 
 2. **Criar o Ambiente Virtual**
@@ -68,6 +71,11 @@ Siga estas instruções para configurar o projeto em outro computador.
      - Siga as instruções e defina a senha (sugestão padrão: `12345678`).
 
 5. **Executar o Servidor de Desenvolvimento**
+
+    - Navegue até a pasta do projeto:
+     ```bash
+     cd provendas
+     ```
    - Inicie o servidor:
      ```bash
      python manage.py runserver
