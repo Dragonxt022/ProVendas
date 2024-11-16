@@ -16,16 +16,16 @@ Este aplicativo foi desenvolvido para facilitar o gerenciamento de uma microempr
 > Este sistema foi desenvolvido com foco em simplicidade, eficiência e facilidade de uso, oferecendo tudo o que você precisa para gerenciar sua microempresa de forma integrada e eficiente.
 
 ---
-
+ 
 ## Imagens do Projeto
 
-![imagens do projeto](media/image1.png.png)
-![imagens do projeto](media/image2.png.png)
-![imagens do projeto](media/image3.png.png)
-![imagens do projeto](media/image4.png.png)
-![imagens do projeto](media/image5.png.png)
-![imagens do projeto](media/image6.png.png)
-![imagens do projeto](media/image7.png.png)
+![imagens do projeto](media/image1.png)
+![imagens do projeto](media/image2.png)
+![imagens do projeto](media/image3.png)
+![imagens do projeto](media/image4.png)
+![imagens do projeto](media/image5.png)
+![imagens do projeto](media/image6.png)
+![imagens do projeto](media/image7.png)
 
 ---
 
