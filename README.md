@@ -28,7 +28,7 @@ Siga estas instruções para configurar o projeto em outro computador.
 1. **Baixar e Configurar o Projeto**
    - Clone o repositório ou transfira os arquivos do projeto para o computador desejado:
      ```bash
-     git clone <URL_DO_REPOSITORIO>
+     git clone https://github.com/Dragonxt022/ProVendas.git
      ```
    - Navegue até a pasta do projeto:
      ```bash
