@@ -216,10 +216,25 @@
                         var statusText = pedido.status == 'Em aberto' ? 'Em aberto' : 'Finalizado';
                         row += '<td><span class="badge ' + statusClass + '">' + statusText + '</span></td>';
                         
-                        row += '<td class="d-flex justify-content-center flex-wrap">';
-                        row += '<a href="#" class="btn btn-sm btn-success mb-2 me-2">Editar</a>';
-                        row += '<button type="button" class="btn btn-sm btn-danger mb-2" onclick="excluirVenda(' + pedido.id + ')">Excluir</button>';
+                        row += '<td class="d-flex justify-content-center flex-wrap">';  // Flexbox para os botões
+
+                        // Verifica se o status do pedido é "Em aberto" e se o ID do pedido existe
+                        if (pedido.status === 'Em aberto' && pedido.id) {
+                            row += '<a href="{% url 'abrir_caixa_pdv' %}?id=' + pedido.id + '" class="btn btn-sm btn-success mb-2 me-3">Editar</a>';  // Redireciona para abrir-caixa passando o ID
+                        }
+                        
+                        // Verifica se o status do pedido é "Finalizado" e se o ID do pedido existe
+                        if (pedido.status === 'Finalizado' && pedido.id) {
+                            const cupomFiscalUrl = '/caixa/cupom_fiscal/' + pedido.id + '/';
+                            row += '<a href="' + cupomFiscalUrl + '" class="btn btn-sm btn-primary mb-2 ms-3">Cupom</a>';
+                        }
+                        
+                        // Botão de excluir, sempre aparece
+                        row += '<button type="button" class="btn btn-sm btn-danger mb-2 ms-3" onclick="excluirVenda(' + pedido.id + ')">Excluir</button>';
+                        
                         row += '</td></tr>';
+                            
+                            
                         
                         tbody.append(row);  // Adicionar a linha na tabela
                     });

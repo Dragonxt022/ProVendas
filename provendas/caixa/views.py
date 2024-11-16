@@ -14,7 +14,6 @@ from django.db.models import Q
 
 
 def gerar_cupom_fiscal(request, pedido_id):
-    # Busca o pedido (CaixaPdv) pelo ID
     pedido = get_object_or_404(CaixaPdv, id=pedido_id)
     
     # Busca todos os produtos associados ao pedido
@@ -45,7 +44,6 @@ def gerar_cupom_fiscal(request, pedido_id):
     
     # Renderiza o template de cupom fiscal
     return render(request, 'caixa/cupom_fiscal.html', context)
-
 
 def finalizar_venda(request):
     if request.method == 'POST':
@@ -240,7 +238,7 @@ def listar_pedidos_ajax(request):
         pedidos_list = pedidos_list.filter(cliente__nome__icontains=cliente_filter)
 
     # Paginação
-    paginator = Paginator(pedidos_list, 3)  # 3 pedidos por página (você pode ajustar esse número)
+    paginator = Paginator(pedidos_list, 10)  # 3 pedidos por página (você pode ajustar esse número)
     page_number = request.GET.get('page', 1)  # Página padrão é 1
     page_obj = paginator.get_page(page_number)
 
@@ -265,7 +263,6 @@ def listar_pedidos_ajax(request):
         'previous_page_number': page_obj.previous_page_number() if page_obj.has_previous() else None,
     
     })
-
 
 def abrir_caixa_pdv(request):
     # Busca todos os pedidos do CaixaPdv
