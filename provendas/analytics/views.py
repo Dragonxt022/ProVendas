@@ -75,12 +75,12 @@ def filtro_relatorio_produtos(request):
         # Filtro para vendas: buscando dados de vendas com soma de quantidade total vendida
         produtos_dados = ProdutoCaixaPdv.objects.filter(produto__in=produtos).values(
             'produto__nome',
-            'produto__preco_de_cursto',
+            'produto__preco_de_custo',
             'produto__preco_de_venda'  # Incluindo o preço unitário
         ).annotate(
             quantidade_total=Sum('quantidade'),
             valor_total=Sum(F('quantidade') * F('preco_unitario')),
-            valor_bruto=Sum(F('quantidade') * (F('produto__preco_de_venda') - F('produto__preco_de_cursto')))
+            valor_bruto=Sum(F('quantidade') * (F('produto__preco_de_venda') - F('produto__preco_de_custo')))
         ).order_by('-quantidade_total')
 
         # Calculando os totais

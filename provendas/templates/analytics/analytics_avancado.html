@@ -100,7 +100,7 @@
                                             <tr>
                                                 <td>{{ produto.produto__nome }}</td>
                                                 <td>{{ produto.quantidade_total }}</td>
-                                                <td>{{ produto.produto__preco_de_cursto }}</td>
+                                                <td>{{ produto.produto__preco_de_custo }}</td>
                                                 <td>{{ produto.produto__preco_de_venda }}</td>
                                                 <td>{{ produto.valor_total }}</td>
                                                 <td>{{ produto.valor_bruto }}</td>
@@ -165,7 +165,7 @@
                 label: 'Preço de Custo',
                 data: [
                     {% for produto in produtos_dados %}
-                        {{ produto.produto__preco_de_cursto }},
+                        {{ produto.produto__preco_de_custo }},
                     {% endfor %}
                 ],  // Preço de custo de cada produto
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',

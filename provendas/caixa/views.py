@@ -173,7 +173,7 @@ def search_products(request):
             'nome': product.nome,
             'codigoBarras': product.codigo_barras,
             'preco': product.preco_de_venda,
-            'precoCusto': product.preco_de_cursto,
+            'precoCusto': product.preco_de_custo,
             'file': product.file.url if product.file else None,
             'categoria': {
                 'id': product.categoria.id,
