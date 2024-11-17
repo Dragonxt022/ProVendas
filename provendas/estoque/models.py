@@ -25,7 +25,7 @@ class Produto(models.Model):
     codigo_barras = models.CharField(max_length=50, null=True, blank=True)
     categoria = models.ForeignKey(CategoriaProduto, on_delete=models.CASCADE, related_name='produtos')
     preco_de_venda = models.DecimalField(max_digits=8, decimal_places=2)
-    preco_de_cursto = models.DecimalField(max_digits=8, decimal_places=2)
+    preco_de_custo = models.DecimalField(max_digits=8, decimal_places=2)
     quantidade_estoque = models.IntegerField(null=True, blank=True)
     file = models.ImageField(upload_to=caminho_upload, null=True, blank=True)
     status = models.CharField(max_length=10, choices=[('ativado', 'Ativado'), ('desativado', 'Desativado')], default='ativado')

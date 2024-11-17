@@ -61,7 +61,7 @@
                                             <td class="text-center">{{ forloop.counter }}</td>
                                             <td>{{ produto.nome }}</td>
                                             <td class="text-center">{{ produto.preco_de_venda }}</td>
-                                            <td class="text-center">{{ produto.preco_de_cursto }}</td>
+                                            <td class="text-center">{{ produto.preco_de_custo }}</td>
                                             <td class="text-center">{{ produto.codigo_barras }}</td>
                                             <td class="text-center">{{ produto.categoria.nome }}</td>
                                             <td class="text-center">{{ produto.quantidade_estoque }}</td>
@@ -80,9 +80,10 @@
                                                         data-nome="{{ produto.nome }}"
                                                         data-codigo-barras="{{ produto.codigo_barras }}"
                                                         data-controle-estoque="{{ produto.controle_estoque }}"
-                                                        data-preco-venda="{{ produto.preco_venda }}"
-                                                        data-preco-cursto="{{ produto.preco_custo }}"
-                                                        data-quantidade="{{ produto.quantidade_estoque }}"
+                                                        data-preco-de-venda="{{ produto.preco_de_venda|floatformat:2 }}"
+                                                        data-preco-de-custo="{{ produto.preco_de_custo|floatformat:2 }}"
+                                                        data-descricao="{{ produto.descricao }}"
+                                                        data-quantidade-estoque="{{ produto.quantidade_estoque }}"
                                                         data-categoria-id="{{ produto.categoria.id }}"
                                                         data-status="{{ produto.status }}">
                                                     Editar
@@ -111,174 +112,279 @@
 
 <!-- Modal para edição de Produto -->
 <div class="modal fade" id="editarModal" tabindex="-1" role="dialog" aria-labelledby="editarModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title text-light" id="editarModalLabel">Editar Produto</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form method="post" id="editarForm" action="{% url 'editar_produto' 0 %}" enctype="multipart/form-data"> <!-- Inicializa com 0 -->
-                    {% csrf_token %}
-                    
-                    <input type="hidden" name="produto_id" id="produto_id"> <!-- Campo escondido para ID do produto -->
-
-                    <div class="form-group">
-                        <label for="codigo_barras">Código de Barras</label>
-                        <input type="text" name="codigo_barras" id="codigo_barras" class="form-control" placeholder="Código de barras">
-                    </div>
-                
-                    <div class="form-group">
-                        <label for="nome">Nome <span class="text-danger">*</span></label>
-                        <input type="text" name="nome" id="nome" class="form-control" placeholder="Nome do Produto" required>
-                    </div>
-                
-                    <div class="form-group">
-                        <label for="descricao">Descrição</label>
-                        <textarea name="descricao" id="descricao" class="form-control" placeholder="Descrição do Produto" rows="3"></textarea>
-                    </div>
-                
-                    <div class="form-group">
-                        <label for="preco_de_venda">Preço de Venda <span class="text-danger">*</span></label>
-                        <input type="text" name="preco_de_venda" id="preco_de_venda" class="form-control" placeholder="Preço de venda" step="0.01" required>
-                    </div>
-                
-                    <div class="form-group">
-                        <label for="preco_de_cursto">Preço de Custo</label>
-                        <input type="text" name="preco_de_cursto" id="preco_de_cursto" class="form-control" placeholder="Preço de custo" step="0.01">
-                    </div>
-                
-                    <div class="form-group py-2">
-                        <div class="custom-control custom-checkbox">
-                            <input class="custom-control-input" name="controle_estoque" type="checkbox" id="customCheckbox1" onclick="toggleQuantidadeEstoque()">
-                            <label for="customCheckbox1" class="custom-control-label">Ativar controle de estoque?</label>
-                        </div>
-                    </div>
-                    
-            
-                    <div class="form-group" id="quantidadeEstoqueGroup" style="display: none;">
-                        <label for="quantidade_estoque">Quantidade em Estoque</label>
-                        <input type="number" name="quantidade_estoque" id="quantidade_estoque" class="form-control" placeholder="Quantidade em Estoque">
-                    </div>
-                
-                    <div class="form-group">
-                        <label for="categoria">Categoria <span class="text-danger">*</span></label>
-                        <select name="categoria" id="categoria" class="form-control" required>
-                            {% for categoria in categorias %}
-                                <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                
-                    <div class="form-group">
-                        <label for="file">Imagem do Produto</label>
-                        <input type="file" name="file" id="file" class="form-control">
-                    </div>
-                
-                    <div class="form-group">
-                        <label for="status">Status</label>
-                        <select name="status" id="status" class="form-control">
-                            <option value="ativado">Ativado</option>
-                            <option value="desativado">Desativado</option>
-                        </select>
-                    </div>
-                
-                    <button type="submit" class="btn btn-warning w-100">Atualizar produto</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal para Adicionar Produto -->
-<div class="modal fade" id="adicionarModal" tabindex="-1" role="dialog" aria-labelledby="adicionarModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bg-success">
-                <h5 class="modal-title text-light" id="adicionarModalLabel">Adicionar Produto</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <h5 class="modal-title text-light" id="editarModalLabel">
+                    <i class="fas fa-plus-circle"></i> Adicionar Produto
+                </h5>
+                <button type="button" class="close text-light" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <form method="post" action="{% url 'listar_produtos' %}" enctype="multipart/form-data">
                     {% csrf_token %}
-                
-                    <div class="form-group">
-                        <label for="codigo_barras">Código de Barras</label>
-                        <div class="input-group">
-                            <input type="text" name="codigo_barras" id="codigo_barras2" class="form-control" placeholder="Código de barras">
-                            <div class="input-group-append">
-                                <button type="button" class="btn btn-secondary" onclick="gerarCodigoDeBarras()">Gerar Código</button>
+                    
+                    <input type="hidden" name="produto_id" id="produto_id"> 
+                    
+                    <div class="row">
+                        <!-- Primeira Coluna -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="codigo_barras">
+                                    <i class="fas fa-barcode"></i> Código de Barras
+                                </label>
+                                <div class="input-group">
+                                    <input type="text" name="codigo_barras" id="codigo_barras" class="form-control" placeholder="Código de barras">
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="nome">
+                                    <i class="fas fa-tag"></i> Nome <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="nome" id="nome" class="form-control" placeholder="Nome do Produto" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="preco_de_venda">
+                                    <i class="fas fa-dollar-sign"></i> Preço de Venda <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" name="preco_de_venda" id="preco_de_venda" class="form-control" placeholder="Preço de venda" step="0.01" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="preco_de_custo">
+                                    <i class="fas fa-coins"></i> Preço de Custo
+                                </label>
+                                <input type="number" name="preco_de_custo" id="preco_de_custo" class="form-control" placeholder="Preço de custo" step="0.01">
+                            </div>
+                            
+                            <!-- Select de Categoria -->
+                            <div class="form-group">
+                                <label for="categoria">
+                                    <i class="fas fa-list"></i> Categoria <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <select name="categoria" id="categoria_ajax" class="form-control" required>
+                                        {% for categoria in categorias %}
+                                            <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#abrirModalCategoria">
+                                            Adicionar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Segunda Coluna -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="descricao">
+                                    <i class="fas fa-align-left"></i> Descrição
+                                </label>
+                                <textarea name="descricao" id="descricao" class="form-control" placeholder="Descrição do Produto" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="file">
+                                    <i class="fas fa-image"></i> Imagem do Produto
+                                </label>
+                                <input type="file" name="file" id="file" class="form-control">
+                            </div>
+                            
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input" name="controle_estoque" type="checkbox" id="customCheckbox1" onclick="toggleQuantidadeEstoque()">
+                                    <label for="customCheckbox1" class="custom-control-label">
+                                        <i class="fas fa-warehouse"></i> Ativar controle de estoque?
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" id="quantidadeEstoqueGroup" style="display: none;">
+                                <label for="quantidade_estoque">
+                                    <i class="fas fa-box"></i> Quantidade em Estoque</label>
+                                <input type="number" name="quantidade_estoque" id="quantidade_estoque" class="form-control" placeholder="Quantidade em Estoque">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="status">
+                                    <i class="fas fa-toggle-on"></i> Status
+                                </label>
+                                <select name="status" id="status" class="form-control">
+                                    <option value="ativado" select>Ativado</option>
+                                    <option value="desativado">Desativado</option>
+                                </select>
                             </div>
                         </div>
                     </div>
-                
-                    <div class="form-group">
-                        <label for="nome">Nome <span class="text-danger">*</span></label>
-                        <input type="text" name="nome" id="nome" class="form-control" placeholder="Nome do Produto" required>
-                    </div>
-                
-                    <div class="form-group">
-                        <label for="descricao">Descrição</label>
-                        <textarea name="descricao" id="descricao" class="form-control" placeholder="Descrição do Produto" rows="3"></textarea>
-                    </div>
-                
-                    <div class="form-group">
-                        <label for="preco_de_venda">Preço de Venda <span class="text-danger">*</span></label>
-                        <input type="number" name="preco_de_venda" id="preco_de_venda" class="form-control" placeholder="Preço de venda" step="0.01" required>
-                    </div>
-                
-                    <div class="form-group py-2">
-                        <label for="preco_de_cursto">Preço de Custo</label>
-                        <input type="number" name="preco_de_cursto" id="preco_de_cursto" class="form-control" placeholder="Preço de custo" step="0.01">
-                    </div>
 
-                    <div class="form-group py-2">
-                        <div class="custom-control custom-checkbox">
-                            <input class="custom-control-input" name="controle_estoque" type="checkbox" id="customCheckbox1" onclick="toggleQuantidadeEstoque()">
-                            <label for="customCheckbox1" class="custom-control-label">Ativar controle de estoque?</label>
-                        </div>
-                    </div>
-                    
-            
-                    <div class="form-group" id="quantidadeEstoqueGroup" style="display: none;">
-                        <label for="quantidade_estoque">Quantidade em Estoque</label>
-                        <input type="number" name="quantidade_estoque" id="quantidade_estoque" class="form-control" placeholder="Quantidade em Estoque">
-                    </div>
-                
-                    <div class="form-group">
-                        <label for="categoria">Categoria <span class="text-danger">*</span></label>
-                        <select name="categoria" id="categoria" class="form-control" required>
-                            {% for categoria in categorias %}
-                                <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                
-                    <div class="form-group">
-                        <label for="file">Imagem do Produto</label>
-                        <input type="file" name="file" id="file" class="form-control">
-                    </div>
-                
-                    <div class="form-group">
-                        <label for="status">Status</label>
-                        <select name="status" id="status" class="form-control">
-                            <option value="ativado" select>Ativado</option>
-                            <option value="desativado">Desativado</option>
-                        </select>
-                    </div>
-                
-                    <button type="submit" class="btn btn-success w-100">Cadastrar produto</button>
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-save"></i> Atualizar produto
+                    </button>
                 </form>
-                
             </div>
         </div>
     </div>
 </div>
 
+
+<!-- Modal para Adicionar Produto -->
+<div class="modal fade" id="adicionarModal" tabindex="-1" role="dialog" aria-labelledby="adicionarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title text-light" id="adicionarModalLabel">
+                    <i class="fas fa-plus-circle"></i> Adicionar Produto
+                </h5>
+                <button type="button" class="close text-light" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'listar_produtos' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <!-- Primeira Coluna -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="codigo_barras">
+                                    <i class="fas fa-barcode"></i> Código de Barras
+                                </label>
+                                <div class="input-group">
+                                    <input type="text" name="codigo_barras" id="codigo_barras2" class="form-control" placeholder="Código de barras">
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="nome">
+                                    <i class="fas fa-tag"></i> Nome <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="nome" id="nome" class="form-control" placeholder="Nome do Produto" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="preco_de_venda">
+                                    <i class="fas fa-dollar-sign"></i> Preço de Venda <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" name="preco_de_venda" id="preco_de_venda" class="form-control" placeholder="Preço de venda" step="0.01" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="preco_de_custo">
+                                    <i class="fas fa-coins"></i> Preço de Custo
+                                </label>
+                                <input type="number" name="preco_de_custo" id="preco_de_custo" class="form-control" placeholder="Preço de custo" step="0.01">
+                            </div>
+                            
+                            <!-- Select de Categoria -->
+                            <div class="form-group">
+                                <label for="categoria">
+                                    <i class="fas fa-list"></i> Categoria <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <select name="categoria" id="categoria_ajax2" class="form-control" required>
+                                        {% for categoria in categorias %}
+                                            <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#abrirModalCategoria">
+                                            Adicionar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Segunda Coluna -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="descricao">
+                                    <i class="fas fa-align-left"></i> Descrição
+                                </label>
+                                <textarea name="descricao" id="descricao" class="form-control" placeholder="Descrição do Produto" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="file">
+                                    <i class="fas fa-image"></i> Imagem do Produto
+                                </label>
+                                <input type="file" name="file" id="file" class="form-control">
+                            </div>
+                            
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input" name="controle_estoque" type="checkbox" id="customCheckbox2" onclick="adicionarQuantidadeEstoque()">
+                                    <label for="customCheckbox2" class="custom-control-label">
+                                        <i class="fas fa-warehouse"></i> Ativar controle de estoque?
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" id="quantidadeEstoqueGroup2" style="display: none;">
+                                <label for="quantidade_estoque">
+                                    <i class="fas fa-box"></i> Quantidade em Estoque
+                                </label>
+                                <input type="number" name="quantidade_estoque" id="quantidade_estoque" class="form-control" placeholder="Quantidade em Estoque">
+                            </div>
+                            
+                            
+                            <div class="form-group">
+                                <label for="status">
+                                    <i class="fas fa-toggle-on"></i> Status
+                                </label>
+                                <select name="status" id="status" class="form-control">
+                                    <option value="ativado" select>Ativado</option>
+                                    <option value="desativado">Desativado</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-save"></i> Cadastrar produto
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Adicionar Categoria -->
+<div class="modal fade" id="abrirModalCategoria" tabindex="-1" role="dialog" aria-labelledby="abrirModalCategoriaLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title text-light" id="abrirModalCategoriaLabel">Adicionar Categoria</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="adicionarForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <label class="py-2">Nome da Categoria:</label>
+                    <input type="text" name="nome" id="nomeCategoria" class="form-control py-2" required>
+
+                    <label class="py-2">Imagem:</label>
+                    <input type="file" name="file" id="file" class="form-control">
+
+                    <div class="py-2"></div>
+                    <button type="button" class="btn btn-success w-100" id="submitCategoria">Adicionar Categoria</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Modal para Excluir produto (apenas um, fora do loop) -->
 <div class="modal fade" id="excluirModal" tabindex="-1" role="dialog" aria-labelledby="excluirModalLabel" aria-hidden="true">
@@ -329,42 +435,104 @@
 
 
 {% block extra_scripts %}
+
     <script>
 
         $(document).ready(function () {
+            // Quando o botão de abrir a modal de categoria é clicado
+            $('#abrirModalCategoria').on('click', function () {
+                // Fecha a primeira modal
+                $('#adicionarModal').modal('hide');
+            });
+        
+            // Após a primeira modal ser completamente fechada, abre a segunda modal
+            $('#adicionarProdutoModal').on('hidden.bs.modal', function () {
+                $('#adicionarModal').modal('show');
+            });
+        
+            // Remova qualquer evento click anterior e adicione um novo evento
+            $('#submitCategoria').off('click').on('click', function () {
+                var formData = new FormData($('#adicionarForm')[0]);
+        
+                // Desabilitar o botão para evitar múltiplos envios
+                $(this).prop('disabled', true);
+        
+                $.ajax({
+                    url: "{% url 'cadastrar_categoria_ajax' %}",
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        // Adiciona a nova categoria ao select
+                        $('#categoria_ajax2').append(new Option(response.nome, response.id));
+        
+                        // Fecha o modal de categoria
+                        $('#abrirModalCategoria').modal('hide');
+            
+                        // Limpa o formulário
+                        $('#adicionarForm')[0].reset();
+        
+                        // Reabre o modal de adicionar produto
+                        $('#adicionarModal').modal('show');
+        
+                        // Habilita o botão novamente para possível novo envio
+                        $('#submitCategoria').prop('disabled', false);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Erro ao cadastrar categoria:", error);
+        
+                        // Habilita o botão novamente em caso de erro
+                        $('#submitCategoria').prop('disabled', false);
+                    }
+                });
+            });
+        });
+        
+    </script>
+
+    
+
+    <script>
+
+        $(document).ready(function () {
+            // Quando o botão de "Editar" é clicado
             $('button[data-target="#editarModal"]').on('click', function () {
-                var produtoId = $(this).data('id'); // Obtém o ID do produto do botão
+                var produtoId = $(this).data('id'); 
                 var nome = $(this).data('nome');
                 var codigoBarras = $(this).data('codigo-barras');
-                var precoVenda = $(this).data('preco-venda');
-                var precoCusto = $(this).data('preco-cursto');
-                var quantidadeEstoque = $(this).data('quantidade');
+                var precoVenda = $(this).data('preco-de-venda').replace(",", ".");
+                var precoCusto = $(this).data('preco-de-custo').replace(",", ".");
+                var quantidadeEstoque = $(this).data('quantidade-estoque');
+                var Descricao = $(this).data('descricao');
                 var categoriaId = $(this).data('categoria-id');
                 var status = $(this).data('status');
-                var controleEstoque = $(this).data('controle-estoque');  // Obtém a opção de controle de estoque
-        
+                var controleEstoque = $(this).data('controle-estoque'); 
+
                 // Atualiza os campos da modal com os dados do produto
                 $('#produto_id').val(produtoId);
-                $('#codigo_barras').val(codigoBarras);
+                $('#codigo_barras').val(codigoBarras); 
                 $('#nome').val(nome);
-                $('#preco_de_venda').val(precoVenda);
-                $('#preco_de_cursto').val(precoCusto);
+                $('#preco_de_venda').val(precoVenda); 
+                $('#preco_de_custo').val(precoCusto);
+                $('#descricao').val(Descricao);
                 $('#quantidade_estoque').val(quantidadeEstoque);
-                $('#categoria').val(categoriaId);
+                $('#categoria_ajax').val(categoriaId); 
                 $('#status').val(status);
-        
-                // Verifica se o controle de estoque está ativado e ajusta o checkbox
+
+                // Atualiza o controle de estoque
                 if (controleEstoque) {
-                    $('#customCheckbox1').prop('checked', true);  // Marca o checkbox se controle de estoque estiver ativado
-                    $('#quantidadeEstoqueGroup').show();  // Exibe o campo de quantidade em estoque
+                    $('#customCheckbox1').prop('checked', true);
+                    $('#quantidadeEstoqueGroup').show();
                 } else {
-                    $('#customCheckbox1').prop('checked', false);  // Desmarca o checkbox
-                    $('#quantidadeEstoqueGroup').hide();  // Oculta o campo de quantidade em estoque
+                    $('#customCheckbox1').prop('checked', false);
+                    $('#quantidadeEstoqueGroup').hide();
                 }
-        
+
                 // Atualiza o action do formulário
                 $('#editarForm').attr('action', "{% url 'editar_produto' 0 %}".replace('0', produtoId));
             });
+
 
             // Quando o botão de excluir for clicado
             $('button[data-target="#excluirModal"]').on('click', function () {
@@ -381,7 +549,6 @@
         });
 
         // Ativa ou desativa a gestão de quantidade de estoque
-
         function toggleQuantidadeEstoque() {
             var checkbox = document.getElementById('customCheckbox1');
             var quantidadeEstoqueGroup = document.getElementById('quantidadeEstoqueGroup');
@@ -392,29 +559,47 @@
                 quantidadeEstoqueGroup.style.display = 'none';
             }
         }
-    
-        // Chamar a função ao carregar a página para definir o estado inicial
-        document.addEventListener('DOMContentLoaded', toggleQuantidadeEstoque);
 
-       // Função para gerar um código de barras aleatório e inserir no campo de entrada
-        function gerarCodigoDeBarras() {
-            // Seleciona o elemento de input com o id 'codigo_barras'
-            const codigoBarrasInput = document.getElementById('codigo_barras2');
+        // Chama a função ao carregar a página para definir o estado inicial da exibição
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleQuantidadeEstoque();
+        });
+
+        // Função para exibir ou ocultar o campo de quantidade em estoque
+        function adicionarQuantidadeEstoque() {
+            var checkbox = document.getElementById('customCheckbox2');
+            var quantidadeEstoqueGroup2 = document.getElementById('quantidadeEstoqueGroup2');
             
-            // Verifica se o elemento foi selecionado corretamente
-            if (codigoBarrasInput) {
-                // Gera um número aleatório de 12 dígitos como código de barras
-                const randomCodigo = Math.floor(100000000000 + Math.random() * 900000000000);
-                
-                // Insere o código gerado diretamente no input
-                codigoBarrasInput.value = randomCodigo;
-                
-                // Exibe o código no console para confirmação
-                console.log("Código de barras inserido:", codigoBarrasInput.value);
+            // Verifica se a checkbox está marcada
+            if (checkbox.checked) {
+                quantidadeEstoqueGroup2.style.display = 'block';
             } else {
-                console.error("Elemento 'codigo_barras' não encontrado.");
+                quantidadeEstoqueGroup2.style.display = 'none';
             }
         }
+
+        let ativarGeracaoCodigo = true; // Declare apenas uma vez
+
+        function gerarCodigoDeBarras() {
+            if (ativarGeracaoCodigo) {
+                const codigoBarrasInput = document.querySelector('#codigo_barras2');
+                if (codigoBarrasInput) {
+                    const randomCodigo = Math.floor(100000000000 + Math.random() * 900000000000);
+                    codigoBarrasInput.value = randomCodigo;
+                    console.log("Código de barras inserido:", codigoBarrasInput.value);
+                } else {
+                    console.error("Elemento 'codigo_barras2' não encontrado.");
+                }
+            }
+        }
+
+        
+        // Quando a modal 'adicionarModal' for aberta, chama a função para gerar o código de barras
+        $('#adicionarModal').on('shown.bs.modal', function () {
+            gerarCodigoDeBarras();
+        });
+        
+
 
     </script>
 

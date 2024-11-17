@@ -542,7 +542,8 @@
                 "order": [[1, "desc"]],
                 {% comment %} "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"], {% endcomment %}
                 "language": portugueseTranslation,
-                "stateSave": true // Ativa o armazenamento do estado da tabela
+                "stateSave": true,
+                "order": [[1, "asc"]]
             }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
 
             // Garante que todas as linhas sejam afetadas ao desenhar a tabela novamente
@@ -560,7 +561,10 @@
                 "autoWidth": false,
                 "responsive": true,
                 "language": portugueseTranslation,
-                "stateSave": true // Ativa o armazenamento do estado para a tabela example2
+                "stateSave": true,
+                "order": [[1, "asc"]]
+                
+
             });
 
             

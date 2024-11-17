@@ -3,6 +3,8 @@ from . import views
 
 urlpatterns = [
     path('cadastrar_categoria/', views.cadastrar_categoria, name='cadastrar_categoria'),
+    path('cadastrar_categoria_ajax/', views.cadastrar_categoria_ajax, name='cadastrar_categoria_ajax'), 
+
     path('listar_categorias/', views.listar_categorias, name='listar_categorias'),
     path('excluir_categoria/<int:categoria_id>/', (views.excluir_categoria), name='excluir_categoria'),
 

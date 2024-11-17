@@ -6,6 +6,9 @@ from .models import CategoriaProduto, Produto
 from django.contrib import messages
 from django.http import HttpResponse
 import csv 
+from django.http import JsonResponse
+from django.utils.text import slugify
+
 
 # Importador e exportador
 def importar_produtos(request):
@@ -22,7 +25,7 @@ def importar_produtos(request):
                 nome = row[1]
                 codigo_barras = row[2]
                 preco_de_venda = row[3]
-                preco_de_cursto = row[4]
+                preco_de_custo = row[4]
                 quantidade_estoque = row[5]
                 categoria_nome = row[6]  # Nome da categoria na posição 6
                 status = row[7]  # Status (ativado/desativado) na posição 7
@@ -38,7 +41,7 @@ def importar_produtos(request):
                         'nome': nome,
                         'codigo_barras': codigo_barras,
                         'preco_de_venda': preco_de_venda,
-                        'preco_de_cursto': preco_de_cursto,
+                        'preco_de_custo': preco_de_custo,
                         'quantidade_estoque': quantidade_estoque,
                         'categoria': categoria,
                         'status': status,
@@ -73,7 +76,7 @@ def exportar_produtos(request):
             produto.nome,
             produto.codigo_barras,
             produto.preco_de_venda,
-            produto.preco_de_cursto,
+            produto.preco_de_custo,
             produto.quantidade_estoque,
             produto.categoria.nome,
             produto.status,
@@ -109,6 +112,29 @@ def cadastrar_categoria(request):
     form = CategoriaProdutoForm()
     return render(request, 'estoque/categoria/cadastrar_categoria.html', {'categorias': categorias, 'form': form})
 
+
+def cadastrar_categoria_ajax(request):
+    if request.method == 'POST':
+        nome_categoria = request.POST.get('nome')
+
+        # Verifica se a categoria já existe
+        if CategoriaProduto.objects.filter(nome=nome_categoria).exists():
+            return JsonResponse({"error": "Categoria já existe!"}, status=400)
+        
+        # Criação de uma nova categoria
+        form = CategoriaProdutoForm(request.POST, request.FILES)
+        if form.is_valid():
+            categoria_salva = form.save()
+            
+            # Retorna a mensagem de sucesso junto com os dados da categoria
+            return JsonResponse({
+                "id": categoria_salva.id,
+                "nome": categoria_salva.nome,
+                "message": "Categoria cadastrada com sucesso!"
+            }, status=200)
+        else:
+            return JsonResponse({"error": "Erro no formulário!"}, status=400)
+
 def excluir_categoria(request, categoria_id):
     print(f"ID da categoria recebida para exclusão: {categoria_id}")  # Adicione esta linha para verificar o ID
 
@@ -128,7 +154,7 @@ def listar_produtos(request):
         nome = request.POST.get('nome')
         descricao = request.POST.get('descricao')
         preco_de_venda = request.POST.get('preco_de_venda')
-        preco_de_cursto = request.POST.get('preco_de_cursto')
+        preco_de_custo = request.POST.get('preco_de_custo')
         quantidade_estoque = request.POST.get('quantidade_estoque')
         categoria_id = request.POST.get('categoria')
         status = request.POST.get('status')
@@ -138,7 +164,7 @@ def listar_produtos(request):
 
         # Conversão de valores sem validação
         preco_de_venda = float(preco_de_venda.replace(',', '.')) if preco_de_venda else 0.0  # Converter preço de venda para float
-        preco_de_cursto = float(preco_de_cursto.replace(',', '.')) if preco_de_cursto else 0.0  # Converter preço de custo para float
+        preco_de_custo = float(preco_de_custo.replace(',', '.')) if preco_de_custo else 0.0  # Converter preço de custo para float
         quantidade_estoque = int(quantidade_estoque) if quantidade_estoque else 0  # Converter quantidade em estoque para int
 
         # Criação de um novo produto
@@ -147,7 +173,7 @@ def listar_produtos(request):
             nome=nome,
             descricao=descricao,
             preco_de_venda=preco_de_venda,
-            preco_de_cursto=preco_de_cursto,
+            preco_de_custo=preco_de_custo,
             quantidade_estoque=quantidade_estoque,
             categoria_id=categoria_id,
             status=status,
@@ -173,12 +199,12 @@ def editar_produto(request, produto_id):  # Recebe o ID do produto na URL
         produto.nome = request.POST.get('nome')
         produto.descricao = request.POST.get('descricao')
 
-        # Converte o valor de `preco_de_venda` e `preco_de_cursto` para decimal
+        # Converte o valor de `preco_de_venda` e `preco_de_custo` para decimal
         preco_de_venda = request.POST.get('preco_de_venda').replace(',', '.') if request.POST.get('preco_de_venda') else '0'
         produto.preco_de_venda = float(preco_de_venda)
 
-        preco_de_cursto = request.POST.get('preco_de_cursto').replace(',', '.') if request.POST.get('preco_de_cursto') else '0'
-        produto.preco_de_cursto = float(preco_de_cursto)
+        preco_de_custo = request.POST.get('preco_de_custo').replace(',', '.') if request.POST.get('preco_de_custo') else '0'
+        produto.preco_de_custo = float(preco_de_custo)
 
         # Atualiza a quantidade em estoque, convertendo para int
         quantidade_estoque = request.POST.get('quantidade_estoque')
