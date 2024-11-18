@@ -36,6 +36,13 @@
                                         <input type="text" id="status" class="form-control" value="Em Aberto" readonly>
                                     </div>
                                 </div>
+                                <div class="row py-1">
+                                    <div class="col">
+                                        <div class="input-group mb-3">
+                                            <input type="text" id="filtrar_produto_code" class="form-control" placeholder="Adicione o código do produto..." aria-label="Adicione o código do produto">
+                                        </div>
+                                    </div>
+                                </div>
         
                                 <!-- Linha 2: Listagem de Produtos e Caixa -->
                                 <div class="row">
@@ -413,6 +420,9 @@
         // Atalhos de acesso rápido
         $(document).ready(function() {
 
+             // Foca no campo de texto ao carregar a página
+            $('#filtrar_produto_code').focus();
+
             // Atribui um número de pedido ao carregar a página
             $('#numero_pedido').val(generateOrderNumber());
             // Evento de atalho para finalizar a venda
@@ -727,8 +737,36 @@
                     }
                 }
             });
-        });
 
+            // Função para buscar um produto pelo código de barras
+            function buscarProdutoPorCodigoBarras(codigoBarras) {
+                // Simular uma chamada ao servidor ou buscar localmente na lista de produtos
+                const produto = allProducts.find(item => item.codigoBarras === codigoBarras);
+
+                if (produto) {
+                    addProduct(produto);  // Adiciona o produto ao carrinho
+
+                } else {
+                    toastr.error("Produto não encontrado. Verifique o código de barras e tente novamente.");
+                }
+            }
+
+            // Captura o campo de entrada pelo ID
+            const inputCodigoBarras = document.getElementById('filtrar_produto_code');
+
+            // Adiciona um evento de 'keyup' para verificar quando o usuário digita no campo
+            inputCodigoBarras.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {  // Verifica se a tecla pressionada é Enter
+                    const codigoBarras = inputCodigoBarras.value.trim();
+                    if (codigoBarras) {
+                        buscarProdutoPorCodigoBarras(codigoBarras);  // Chama a função de busca
+                        inputCodigoBarras.value = '';  // Limpa o campo de entrada
+                         // Foca no campo de texto ao carregar a página
+                        $('#filtrar_produto_code').focus();
+                    }
+                }
+            });
+        });
 
         // Variável global para armazenar o valor total recebido
         let totalCashReceived = 0;

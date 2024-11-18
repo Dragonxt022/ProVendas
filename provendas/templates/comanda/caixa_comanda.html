@@ -37,6 +37,13 @@
                                         <input type="text" id="status" class="form-control" value="carregando..." readonly>
                                     </div>
                                 </div>
+                                <div class="row py-1">
+                                    <div class="col">
+                                        <div class="input-group mb-3">
+                                            <input type="text" id="filtrar_produto_code" class="form-control" placeholder="Adicione o código do produto..." aria-label="Adicione o código do produto">
+                                        </div>
+                                    </div>
+                                </div>
         
                                 <!-- Segunda linha: Listagem de Produtos e Caixa -->
                                 <div class="row">
@@ -269,8 +276,11 @@
     <!--Sistema PDV Ajax -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            
             // Captura o saleId diretamente da URL
             const saleId = window.location.pathname.split('/')[3];  // Captura o ID da URL (posição 3)
+
+            $('#filtrar_produto_code').focus();
             
             // Verifica se o ID da venda é válido e maior que zero
             if (saleId && saleId > 0) {
@@ -719,6 +729,35 @@
                     }
                 }
             });
+
+            // Função para buscar um produto pelo código de barras
+            function buscarProdutoPorCodigoBarras(codigoBarras) {
+                // Simular uma chamada ao servidor ou buscar localmente na lista de produtos
+                const produto = allProducts.find(item => item.codigoBarras === codigoBarras);
+
+                if (produto) {
+                    addProduct(produto);  // Adiciona o produto ao carrinho
+
+                } else {
+                    toastr.error("Produto não encontrado. Verifique o código de barras e tente novamente.");
+                }
+            }
+
+            // Captura o campo de entrada pelo ID
+            const inputCodigoBarras = document.getElementById('filtrar_produto_code');
+
+            // Adiciona um evento de 'keyup' para verificar quando o usuário digita no campo
+            inputCodigoBarras.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {  // Verifica se a tecla pressionada é Enter
+                    const codigoBarras = inputCodigoBarras.value.trim();
+                    if (codigoBarras) {
+                        buscarProdutoPorCodigoBarras(codigoBarras);  // Chama a função de busca
+                        inputCodigoBarras.value = '';  // Limpa o campo de entrada
+                         // Foca no campo de texto ao carregar a página
+                        $('#filtrar_produto_code').focus();
+                    }
+                }
+            })
         });
 
 
