@@ -12,31 +12,36 @@ from django.utils.text import slugify
 
 # Importador e exportador
 def importar_produtos(request):
-    if request.method == 'POST' and request.FILES['csv_file']:
+    if request.method == 'POST' and request.FILES.get('csv_file'):
         arquivo = request.FILES['csv_file']
-        
-        # Lê o arquivo CSV
+
         try:
             csv_file = csv.reader(arquivo.read().decode('utf-8').splitlines())
             next(csv_file)  # Ignora o cabeçalho
 
             for row in csv_file:
-                produto_id = row[0]  # O ID do produto estará na primeira coluna
-                nome = row[1]
-                codigo_barras = row[2]
-                preco_de_venda = row[3]
-                preco_de_custo = row[4]
-                quantidade_estoque = row[5]
-                categoria_nome = row[6]  # Nome da categoria na posição 6
-                status = row[7]  # Status (ativado/desativado) na posição 7
-                controle_estoque = row[8].lower() == 'sim'  # Controle de Estoque na posição 8 (Sim/Não)
+                # Atribui os valores das colunas ou define padrões se estiverem ausentes
+                produto_id = row[0] or str(uuid.uuid4())  # Gera um ID automático se não houver
+                nome = row[1] or ''
+                codigo_barras = row[2] or ''
+                preco_de_venda = float(row[3]) if row[3] else 0.0  # Define 0.0 se estiver vazio
+                preco_de_custo = float(row[4]) if row[4] else 0.0  # Define 0.0 se estiver vazio
+                quantidade_estoque = int(row[5]) if row[5] else 0  # Define 0 se estiver vazio
+                categoria_nome = row[6] or ''  # Categoria deve ser fornecida
+                status = row[7].lower() if row[7] else 'ativado'  # Define como 'ativado' se estiver vazio
+                controle_estoque = row[8].lower() == 'sim' if row[8] else False  # Define como False se estiver vazio
+
+                # Verifica se o nome, categoria e preço de venda são fornecidos
+                if not nome or not categoria_nome or preco_de_venda <= 0:
+                    messages.warning(request, f'Dados insuficientes para o produto: {nome}.')
+                    continue  # Pula para o próximo produto se os dados obrigatórios estiverem ausentes
 
                 # Verifica se a categoria já existe, caso contrário cria uma nova
                 categoria, created = CategoriaProduto.objects.get_or_create(nome=categoria_nome)
-                
-                # Tenta encontrar o produto pelo ID. Se não encontrar, cria um novo
+
+                # Atualiza ou cria o produto
                 produto, created = Produto.objects.update_or_create(
-                    id=produto_id,  # Identifica o produto pelo ID
+                    id=produto_id,
                     defaults={
                         'nome': nome,
                         'codigo_barras': codigo_barras,
@@ -49,13 +54,14 @@ def importar_produtos(request):
                     }
                 )
 
-                # Mensagem opcional, se o produto foi atualizado
+                # Mensagem se o produto foi atualizado
                 if not created:
-                    messages.info(request, f'O produto {nome} foi atualizado.')
+                    messages.info(request, f'O produto "{nome}" foi atualizado.')
 
             messages.success(request, 'Produtos importados com sucesso!')
         except Exception as e:
             messages.error(request, f'Erro ao importar produtos: {e}')
+
         return redirect('listar_produtos')
 
     return render(request, 'estoque/produto/listar_produtos.html')
