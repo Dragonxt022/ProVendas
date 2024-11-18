@@ -1,6 +1,7 @@
 # caixa/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.utils import timezone
 from django.contrib.auth.models import User
 from clientes.models import Cliente
 from estoque.models import Produto, CategoriaProduto
@@ -11,6 +12,8 @@ import json
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.db.models import Q 
+import locale
+
 
 
 def gerar_cupom_fiscal(request, pedido_id):
@@ -136,6 +139,8 @@ def finalizar_venda(request):
                 caixa_pdv.status = 'Finalizado'
                 
                 caixa_pdv.save()
+                # Imprime a hora no log com o fuso horário configurado
+                print("Hora atual (fuso horário configurado):", timezone.localtime())
 
                 return JsonResponse({'success': True, 'message': 'Venda finalizada com sucesso!'})
 
@@ -244,10 +249,16 @@ def listar_pedidos_ajax(request):
 
     pedidos_data = []
     for pedido in page_obj:
+
+        # Converte 'created_at' para o horário local
+        locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
+
+        data_local = timezone.localtime(pedido.created_at)
+
         pedidos_data.append({
             'id': pedido.id,
             'numero_pedido': pedido.numero_pedido,
-            'data': pedido.created_at.strftime('%d/%m/%Y %H:%M'),
+            'data': data_local.strftime('%d de %B de %Y, %H:%M'),
             'vendedor': pedido.vendedor.username,
             'cliente': pedido.cliente.nome,
             'total': pedido.total,
@@ -263,6 +274,37 @@ def listar_pedidos_ajax(request):
         'previous_page_number': page_obj.previous_page_number() if page_obj.has_previous() else None,
     
     })
+
+def cupom_fiscal_ajax(request, pedido_id):
+    try:
+        # Busca o pedido específico
+        pedido = CaixaPdv.objects.get(id=pedido_id)
+        
+        # Busca os produtos vendidos no pedido
+        produtos = ProdutoCaixaPdv.objects.filter(caixa_pdv=pedido)
+        
+        # Cria uma lista de produtos com os detalhes
+        produtos_data = []
+        for produto in produtos:
+            produtos_data.append({
+                'quantidade': produto.quantidade,
+                'produto': {
+                    'nome': produto.produto.nome,
+                    'codigo_barras': produto.produto.codigo_barras
+                },
+                'preco_unitario': str(produto.preco_unitario),
+            })
+        
+        # Retorna os dados em formato JSON
+        return JsonResponse({
+            'numero_pedido': pedido.numero_pedido,
+            'cliente': pedido.cliente.nome if pedido.cliente else 'Não especificado',
+            'total': str(pedido.total),
+            'status': pedido.status,
+            'produtos': produtos_data
+        })
+    except CaixaPdv.DoesNotExist:
+        return JsonResponse({'error': 'Pedido não encontrado'}, status=404)
 
 def abrir_caixa_pdv(request):
     # Busca todos os pedidos do CaixaPdv

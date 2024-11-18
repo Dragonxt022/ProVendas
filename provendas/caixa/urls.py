@@ -12,6 +12,8 @@ urlpatterns = [
     path('excluir_venda/', views.excluir_venda, name='excluir_venda'),
     path('cupom_fiscal/<int:pedido_id>/', views.gerar_cupom_fiscal, name='gerar_cupom_fiscal'),
     path('listar-pedidos-ajax/', views.listar_pedidos_ajax, name='listar_pedidos_ajax'),
+    path('cupom_fiscal_ajax/<int:pedido_id>/', views.cupom_fiscal_ajax, name='cupom_fiscal_ajax'),
+
 
     
 

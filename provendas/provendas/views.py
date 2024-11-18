@@ -12,6 +12,7 @@ from django.shortcuts import redirect
 from django.contrib.auth import logout
 from licencas.models import LicenseKey
 from django.utils import timezone
+from django.db.models.functions import ExtractWeekDay
 
 
 
@@ -95,6 +96,9 @@ def dashboard(request):
         status='ativado'
     )
 
+    # Chamar a função para obter os dados de vendas por dia da semana
+    dias_semana, quantidade_vendas, valor_vendas = get_vendas_por_dia(ano, mes)
+
     # Preparar os dados para o gráfico
     nomes_produtos = [produto.nome for produto in produtos_estoque_baixo]
     quantidades_estoque = [produto.quantidade_estoque for produto in produtos_estoque_baixo]
@@ -118,7 +122,41 @@ def dashboard(request):
         'anos': anos,
         'ano': ano,
         'mes': mes,
+        'dias_semana': dias_semana,
+        'quantidade_vendas': quantidade_vendas,
+        'valor_vendas': valor_vendas,
         'nomes_produtos': nomes_produtos,
         'quantidades_estoque': quantidades_estoque,
         'horas': horas,
     })
+
+def get_vendas_por_dia(ano, mes):
+    # Consultar o número de vendas e o valor total por dia da semana
+    vendas_por_dia = (
+        CaixaPdv.objects.filter(
+            created_at__year=ano,
+            created_at__month=mes,
+            status='Finalizado'  # Considerando apenas vendas finalizadas
+        )
+        .annotate(dia_semana=ExtractWeekDay('created_at'))
+        .values('dia_semana')
+        .annotate(
+            total_vendas=Count('id'),
+            total_valor=Sum('total')
+        )
+        .order_by('dia_semana')
+    )
+
+    # Dias da semana em português
+    dias_semana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
+
+    # Organizar os dados para o gráfico
+    quantidade_vendas = [0] * 7
+    valor_vendas = [0] * 7
+
+    for venda in vendas_por_dia:
+        dia = venda['dia_semana'] - 1  # Ajusta o índice (0 = Domingo)
+        quantidade_vendas[dia] = venda['total_vendas']
+        valor_vendas[dia] = float(venda['total_valor']) if venda['total_valor'] else 0
+
+    return dias_semana, quantidade_vendas, valor_vendas
