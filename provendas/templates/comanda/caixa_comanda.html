@@ -21,20 +21,24 @@
         
                                 <!-- Primeira linha: Número do Pedido, Vendedor e Status -->
                                 <div class="row py-3">
-                                    <div class="col-12 col-md-4 mb-2">
+                                    <div class="col-12 col-md-3 mb-2">
                                         <label for="numero_pedido" class="form-label">Número do Pedido:</label>
                                         <input type="text" id="numero_pedido" class="form-control" value="carregando..." readonly>
                                         <div id="mesa-info" data-mesa-id="{{ mesa.id }}"></div>
                                     </div>
-                                    <div class="col-12 col-md-4 mb-2">
+                                    <div class="col-12 col-md-3 mb-2">
                                         <label for="vendedor" class="form-label">Vendedor:</label>
                                         <input type="hidden" id="vendedor" class="form-control" value="{{ user.id }}">
                                         <input type="hidden" id="venda_id" class="form-control" value="">
                                         <input type="text" id="nomeVendedor" class="form-control" value="{{ user.username }}" readonly>
                                     </div>
-                                    <div class="col-12 col-md-4 mb-2">
+                                    <div class="col-12 col-md-3 mb-2">
                                         <label for="status" class="form-label">Status:</label>
                                         <input type="text" id="status" class="form-control" value="carregando..." readonly>
+                                    </div>
+                                    <div class="col-12 col-md-3 mb-2">
+                                        <label for="numero_mesa" class="form-label">N° Mesa:</label>
+                                        <input type="text" id="mesa_nome" class="form-control" value="{{ mesa_nome }}" readonly>
                                     </div>
                                 </div>
                                 <div class="row py-1">
@@ -359,6 +363,7 @@
                     document.getElementById('numero_pedido').value = data.numero_pedido;
                     document.getElementById('vendedor').value = data.vendedor.id;
                     document.getElementById('status').value = data.status;
+
                     document.getElementById('discount').value = data.desconto;
                     document.getElementById('total').value = data.total;
         

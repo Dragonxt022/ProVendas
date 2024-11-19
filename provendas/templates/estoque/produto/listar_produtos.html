@@ -86,16 +86,16 @@
                                                         data-quantidade-estoque="{{ produto.quantidade_estoque }}"
                                                         data-categoria-id="{{ produto.categoria.id }}"
                                                         data-status="{{ produto.status }}">
-                                                    Editar
+                                                    <i class="fas fa-edit"></i>
                                                 </button>
 
                                                 
                                                 <!-- Botão Excluir para abrir a modal de confirmação -->
                                                 <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" 
-                                                    data-target="#excluirModal" 
-                                                    data-id="{{ produto.id }}" 
-                                                    data-nome="{{ produto.nome }}">
-                                                    Excluir
+                                                        data-target="#excluirModal" 
+                                                        data-id="{{ produto.id }}" 
+                                                        data-nome="{{ produto.nome }}">
+                                                    <i class="fas fa-trash"></i>
                                                 </button><!-- Adicione ações de edição e exclusão de produto aqui -->
                                             </td>
                                         </tr>
@@ -297,8 +297,8 @@
                                         {% endfor %}
                                     </select>
                                     <div class="input-group-append">
-                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#abrirModalCategoria">
-                                            Adicionar
+                                        <button type="button" class="btn btn-success btn-sm w-100 mr-1" data-toggle="modal" data-target="#abrirModalCategoria">
+                                            <i class="fas fa-plus-circle"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -350,7 +350,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-success w-100">
+                    <button type="submit" class="btn btn-success btn-sm w-100">
                         <i class="fas fa-save"></i> Cadastrar produto
                     </button>
                 </form>

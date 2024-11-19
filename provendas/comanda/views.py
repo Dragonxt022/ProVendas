@@ -46,83 +46,6 @@ def gerar_cupom_fiscal_comanda(request, comanda_id):
     # Renderiza o template de cupom fiscal
     return render(request, 'comanda/cupom_fiscal.html', context)
 
-# Fecha comanda se necessário
-# def fechar_comanda(request, mesa_id):
-#     if request.method == 'POST':
-#         try:
-#             # Capturar os dados da requisição
-#             data = json.loads(request.body)
-#             numero_pedido = data.get('numero_pedido')
-#             vendedor_id = data.get('vendedor_id')
-#             cliente_id = data.get('cliente_id')
-#             desconto = data.get('desconto', 0.0)
-#             total = data.get('total')
-#             payment_method = data.get('payment_method')
-#             produtos = data.get('produtos', [])
-
-#             # Buscar a mesa e a comanda aberta associada
-#             mesa = get_object_or_404(Mesa, id=mesa_id)
-#             comanda = get_object_or_404(Comanda, mesa=mesa, status='aberta')
-
-#             # Marcar a comanda como fechada e adicionar os dados finais
-#             comanda.status = 'fechada'
-#             comanda.numero_pedido = numero_pedido
-#             comanda.vendedor_id = vendedor_id
-#             comanda.cliente_id = cliente_id
-#             comanda.desconto = desconto
-#             comanda.total = total
-#             comanda.payment_method = payment_method
-#             comanda.save()
-
-#             # Gerenciar o estoque dos produtos
-#             for produto_data in produtos:
-#                 produto = Produto.objects.filter(id=produto_data.get('produto_id')).first()
-
-#                 if produto:
-#                     quantidade = produto_data['quantidade']
-
-#                     # Verificar se o controle de estoque está ativado
-#                     if produto.controle_estoque:
-#                         if produto.quantidade_estoque >= quantidade:
-#                             # Descontar do estoque se houver quantidade suficiente
-#                             produto.quantidade_estoque -= quantidade
-#                             produto.save()
-#                         else:
-#                             # Se não houver quantidade suficiente, retornar erro
-#                             return JsonResponse({'success': False, 'message': 'Estoque insuficiente para um dos produtos.'}, status=400)
-
-#                     # Verificar se o produto já existe na comanda
-#                     produto_comanda = ProdutoComanda.objects.filter(comanda=comanda, produto=produto).first()
-
-#                     if produto_comanda:
-#                         # Se já existir, apenas atualiza a quantidade (não somando novamente)
-#                         produto_comanda.quantidade = quantidade  # Atualiza a quantidade para o valor correto
-#                         produto_comanda.total = quantidade * produto_comanda.preco_unitario  # Atualiza o total
-#                         produto_comanda.save()
-#                     else:
-#                         # Se não existir, cria uma nova relação
-#                         ProdutoComanda.objects.create(
-#                             comanda=comanda,
-#                             produto=produto,
-#                             quantidade=quantidade,
-#                             preco_unitario=produto.preco_de_venda,
-#                             total=quantidade * produto.preco_de_venda
-#                         )
-
-#             # Liberar a mesa
-#             mesa.status = 'livre'
-#             mesa.save()
-
-#             # Retornar uma resposta de sucesso
-#             return JsonResponse({'success': True, 'message': 'Comanda fechada, mesa liberada e venda finalizada com sucesso!'})
-
-#         except Exception as e:
-#             # Se ocorrer algum erro, retornar uma mensagem de erro
-#             return JsonResponse({'success': False, 'message': str(e)})
-
-#     # Se não for uma requisição POST, redirecionar para a lista de mesas
-#     return redirect('listar_mesas')
-
 def fechar_comanda(request, mesa_id):
     if request.method == 'POST':
         try:
@@ -391,14 +314,6 @@ def cadastrar_mesa(request):
 def excluir_mesa(request, mesa_id):
     mesa = get_object_or_404(Mesa, id=mesa_id)  # Encontra a mesa ou retorna 404 se não existir
 
-    # Verifica se a mesa está ocupada
-    if mesa.status == 'ocupada':
-        # Se estiver ocupada, exibe uma mensagem informando que não pode excluir
-        messages.error(request, f"A mesa {mesa.nome} não pode ser excluída porque está ocupada.")
-        messages.info(request, f"Finalize ou cansele avenda para estar disponivel para exclusão.")
-
-        return redirect('listar_mesas')  # Redireciona para a página de listagem das mesas
-
     # Se a mesa estiver livre, exclui a mesa
     mesa.delete()
 
@@ -422,6 +337,7 @@ def abrir_ou_gerenciar_comanda(request, mesa_id):
         # Passa o ID da mesa e o cliente padrão para o template
         return render(request, 'comanda/caixa_comanda.html', {
             'mesa_id': mesa.id,
+            'mesa_nome': mesa.nome,
             'cliente_padrao': cliente_padrao
         })
     
@@ -444,6 +360,7 @@ def abrir_ou_gerenciar_comanda(request, mesa_id):
         # Redireciona para a página de gerenciamento da comanda, passando a comanda e o cliente padrão
         return render(request, 'comanda/caixa_comanda.html', {
             'comanda': comanda,
+            'mesa_nome': mesa.nome,
             'cliente_padrao': cliente_padrao
         })
 

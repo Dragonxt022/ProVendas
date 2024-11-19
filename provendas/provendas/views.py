@@ -14,10 +14,6 @@ from licencas.models import LicenseKey
 from django.utils import timezone
 from django.db.models.functions import ExtractWeekDay
 
-
-
-
-
 def home_redirect(request):
     return redirect('login')
 
@@ -84,7 +80,8 @@ def dashboard(request):
         created_at__month=mes,
         created_at__year=ano
     ).aggregate(Sum('total'))['total__sum'] or 0.00
-    total_produtos = ProdutoCaixaPdv.objects.count()
+    total_produtos = Produto.objects.count()
+
     total_vendas_ano = CaixaPdv.objects.filter(
         created_at__year=ano
     ).aggregate(Sum('total'))['total__sum'] or 0.00

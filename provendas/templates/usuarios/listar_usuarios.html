@@ -42,9 +42,11 @@
                 <div class="row mb-2">
                     <div class="col-sm-6 d-flex align-items-center">
                         <h1 class="mr-3"> Usuarios </h1> <!-- Adicionei a classe mr-3 -->
-                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#adicionarModal">
-                            Adicionar Usuario
+                        <!-- Botão para abrir a modal de adicionar usuário -->
+                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#adicionarModal" onclick="limparFormulario()">
+                            Adicionar Usuário
                         </button>
+
                     </div>
                 </div>
                 
@@ -80,7 +82,7 @@
                                                     {% if usuario.perfil.foto_perfil %}
                                                         <img src="{{ usuario.perfil.foto_perfil.url }}" alt="Foto de perfil" width="50" height="50">
                                                     {% else %}
-                                                        <img src="{% static 'images/default-avatar.jpg' %}" alt="Imagem padrão" width="50" height="50">
+                                                        <img src="{% static 'image/no_image.png' %}" alt="Imagem padrão" width="50" height="50">
                                                     {% endif %}
                                                 </td>
                                                 <td class="text-center">{{ usuario.username }}</td>
@@ -99,28 +101,22 @@
                                                     {% endfor %}
                                                 </td>
                                                 <td class="text-center">
-                                                    <button type="button" class="btn btn-sm btn-warning" 
-                                                            data-toggle="modal" 
-                                                            data-target="#editarModal" 
-                                                            data-id="{{ usuario.id }}" 
-                                                            data-username="{{ usuario.username }}" 
-                                                            data-email="{{ usuario.email }}" 
-                                                            data-first_name="{{ usuario.first_name }}" 
-                                                            data-last_name="{{ usuario.last_name }}" 
-                                                            data-is_active="{{ usuario.is_active }}"
-                                                            data-grupos="{{ usuario.groups|join:',' }}" 
-                                                            data-foto_perfil="{{ usuario.perfil.foto_perfil.url }}">
-                                                        Editar
+                                                   <!-- Exemplo de botão de edição na tabela de usuários -->
+                                                    <button class="btn btn-success btn-sm" onclick="abrirModalEditar({{ usuario.id }}, '{{ usuario.username }}', '{{ usuario.email }}', '{{ usuario.first_name }}', '{{ usuario.last_name }}', {{ usuario.is_active|yesno:'true,false' }}, [/* grupos */])">
+                                                        <i class="fas fa-edit"></i>
                                                     </button>
-                                                    <a href="{% url 'excluir_usuario' usuario.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir este usuário?');">Excluir</a>
+
+                                                    
+
+                                                    <a href="{% url 'excluir_usuario' usuario.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir este usuário?');">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
                                                 </td>
                                                 
                                             </tr>
                                         {% endfor %}
                                     </tbody>
-                                </table>
-                                
-                                
+                                </table>    
                             </div>
                         </div>
                     </div>
@@ -129,94 +125,72 @@
         </section>
     </div>           
 </div>
-
-
-<!-- Modal para Editar Usuario -->
-<div class="modal fade" id="editarModal" tabindex="-1" role="dialog" aria-labelledby="editarModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title text-dark" id="editarModalLabel">Editar Usuário</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <!-- Formulário de Edição -->
-                <form method="post" id="editarForm" action="/usuarios/usuarios/cadastra-atualiza-usuario/" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <input type="hidden" name="usuario_id" id="usuario_id" value="{{ usuario.id }}">
-            
-                    <div class="form-group">
-                        <label for="id_username">Usuário:</label>
-                        <input type="text" name="username" class="form-control" maxlength="150" required="" id="id_username">
-                    </div>
-            
-                    <div class="form-group">
-                        <label for="id_email">Endereço de email:</label>
-                        <input type="email" name="email" class="form-control" maxlength="254" id="id_email">
-                    </div>
-            
-                    <div class="form-group">
-                        <label for="id_first_name">Primeiro nome:</label>
-                        <input type="text" name="first_name" class="form-control" maxlength="150" id="id_first_name">
-                    </div>
-            
-                    <div class="form-group">
-                        <label for="id_last_name">Último nome:</label>
-                        <input type="text" name="last_name" class="form-control" maxlength="150" id="id_last_name">
-                    </div>
-            
-                    <div class="form-group">
-                        <label for="id_is_active">Ativo:</label>
-                        <input type="checkbox" name="is_active" class="form-check-input" id="id_is_active">
-                    </div>
-            
-                    <select id="id_grupos" name="grupos" class="form-control" multiple>
-                        {% for grupo in grupos %}
-                            <option value="{{ grupo.id }}" {% if grupo.id in grupos_selected %}selected{% endif %}>
-                                {{ grupo.name }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                    
-                    
-                    <div class="form-group">
-                        <label for="foto_perfil">Imagem de Perfil</label>
-                        <input type="file" name="foto_perfil" id="foto_perfil" class="form-control" accept="image/*">
-                        <img id="foto_perfil_preview" class="img-fluid mt-3" src="" alt="Imagem de Perfil" style="max-height: 150px; display: none;">
-                    </div>
-            
-                    <button type="submit" class="btn btn-warning w-100">Atualizar Usuário</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-
 <!-- Modal para Adicionar Usuário -->
 <div class="modal fade" id="adicionarModal" tabindex="-1" role="dialog" aria-labelledby="adicionarModalLabel" aria-hidden="true">
-    <div class="modal-dialog " role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bg-success">
-                <h5 class="modal-title text-light" id="adicionarModalLabel">Adicionar Usuário</h5>
+                <h5 class="modal-title text-light" id="adicionarModalLabel">
+                    <i class="fas fa-plus-circle"></i> Adicionar Usuário</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <!-- Formulário de Usuário -->
-                <form id="usuarioForm" method="post" action="{% url 'cadastrar_atualizar_usuario' %}" enctype="multipart/form-data">
+                <form id="formularioAdicionarUsuario" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    {{ form.as_p }} 
-                    <button type="submit" class="btn btn-success w-100">Cadastrar Usuário</button>
+                    <input type="text" id="id_usuario_id" name="usuario_id"> 
+                    <div class="row">
+                        <!-- Primeira Coluna -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_username"><i class="fas fa-user"></i> Usuário</label>
+                                {{ form.username }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_email"><i class="fas fa-envelope"></i> Email</label>
+                                {{ form.email }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_first_name"><i class="fas fa-user-tag"></i> Nome</label>
+                                {{ form.first_name }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_last_name"><i class="fas fa-user-tag"></i> Sobrenome</label>
+                                {{ form.last_name }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_nova_senha"><i class="fas fa-lock"></i> Nova Senha</label>
+                                {{ form.nova_senha }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_confirmar_senha"><i class="fas fa-lock"></i> Confirmar Senha</label>
+                                {{ form.confirmar_senha }}
+                            </div>
+                        </div>
+                        <!-- Segunda Coluna -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="id_grupos"><i class="fas fa-users"></i> Grupos</label>
+                                {{ form.grupos }}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_foto_perfil"><i class="fas fa-camera"></i> Foto de Perfil</label>
+                                {{ form.foto_perfil }}
+                            </div>
+                            <div class="form-check">
+                                <label for="id_is_active"><i class="fas fa-check-circle"></i> Ativo</label>
+                                {{ form.is_active }}
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-sm w-100"><i class="fas fa-save"></i> Salvar</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
-
 
 <!-- Modal para Excluir produto (apenas um, fora do loop) -->
 <div class="modal fade" id="excluirModal" tabindex="-1" role="dialog" aria-labelledby="excluirModalLabel" aria-hidden="true">
@@ -242,64 +216,57 @@
 
 
 {% block extra_scripts %}
-    <script>
-        $(document).ready(function () {
-            // Quando o botão de editar for clicado
-            $('#editarModal').on('show.bs.modal', function (event) {
-                // Botão que abriu o modal
-                var button = $(event.relatedTarget);
-            
-                // Recupera os dados dos atributos data-* do botão
-                var usuarioId = button.data('id');
-                var username = button.data('username');
-                var email = button.data('email');
-                var firstName = button.data('first_name');
-                var lastName = button.data('last_name');
-                var isActive = button.data('is_active') === true || button.data('is_active') === 'true'; // Converte para booleano
-                var grupos = button.data('grupos').split(','); // Converte os IDs dos grupos para array
-                var fotoPerfil = button.data('foto_perfil');
-            
-                // Preenche os campos do modal com os dados
-                $('#usuario_id').val(usuarioId);
-                $('#id_username').val(username);
-                $('#id_email').val(email);
-                $('#id_first_name').val(firstName);
-                $('#id_last_name').val(lastName);
-                
-                // Checkbox de ativo (marca ou desmarca)
-                $('#id_is_active').prop('checked', isActive);
-            
-                // Se houver foto de perfil, exibe a imagem
-                if (fotoPerfil) {
-                    $('#foto_perfil_preview').attr('src', fotoPerfil).show(); // Exibe a foto de perfil
-                } else {
-                    $('#foto_perfil_preview').hide(); // Caso não tenha foto, esconde a preview
-                }
-            
-                // Para os grupos, você pode marcar os grupos que o usuário já possui
-                $('#id_grupos').val(grupos); // Este método de jQuery seleciona os grupos corretos
-            });
-            
-            
-            
-            
-            // Quando o botão de excluir for clicado
-            $('button[data-target="#excluirModal"]').on('click', function () {
-                var produtoId = $(this).data('id');
-                var produtoNome = $(this).data('nome');
+<!--Modal de edição-->
+<script>
+    // Função para abrir a modal de edição e preencher com os dados do usuário
+    function abrirModalEditar(usuarioId, username, email, firstName, lastName, isActive, grupos) {
+        // Preenche os campos da modal com os dados do usuário
+        document.getElementById('id_usuario_id').value = usuarioId;
+        document.getElementById('id_username').value = username;
+        document.getElementById('id_email').value = email;
+        document.getElementById('id_first_name').value = firstName;
+        document.getElementById('id_last_name').value = lastName;
+        document.getElementById('id_is_active').checked = isActive;
 
-                // Atualiza o nome no modal de exclusão
-                $('#produtoNome').text(produtoNome);
 
-                // Define a URL de exclusão com o ID da produto no `action`
-                var excluirUrl = "{% url 'excluir_produto' 0 %}".replace('0', produtoId);
-                $('#excluirForm').attr('action', excluirUrl);
-            });
 
-           
+        // Manipule os grupos, se necessário, usando JavaScript
+        // Exemplo simples de como marcar os grupos do usuário
+        const gruposSelect = document.getElementById('id_grupos');
+        for (let option of gruposSelect.options) {
+            option.selected = grupos.includes(parseInt(option.value));
+        }
 
-        });
-    </script>
+        // Abre a modal de edição
+        $('#adicionarModal').modal('show');
+    }
+
+    function limparFormulario() {
+        // Reseta o formulário dentro da modal
+        document.getElementById('formularioAdicionarUsuario').reset();
+    }
+    
+
+</script>
+
+<!-- Modal que exclui -->
+<script>
+    $(document).ready(function () {
+        // Quando o botão de excluir for clicado
+        $('button[data-target="#excluirModal"]').on('click', function () {
+            var produtoId = $(this).data('id');
+            var produtoNome = $(this).data('nome');
+
+            // Atualiza o nome no modal de exclusão
+            $('#produtoNome').text(produtoNome);
+
+            // Define a URL de exclusão com o ID da produto no `action`
+            var excluirUrl = "{% url 'excluir_produto' 0 %}".replace('0', produtoId);
+            $('#excluirForm').attr('action', excluirUrl);
+        });       
+
+    });
+</script>
 {% endblock %}
 
 {% endblock %}
