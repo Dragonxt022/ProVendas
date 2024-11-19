@@ -13,6 +13,11 @@ urlpatterns = [
     path('cupom_fiscal/<int:pedido_id>/', views.gerar_cupom_fiscal, name='gerar_cupom_fiscal'),
     path('listar-pedidos-ajax/', views.listar_pedidos_ajax, name='listar_pedidos_ajax'),
     path('cupom_fiscal_ajax/<int:pedido_id>/', views.cupom_fiscal_ajax, name='cupom_fiscal_ajax'),
+    
+    path('abrir_caixa_ajax/', views.abrir_caixa_ajax, name='abrir_caixa_ajax'),
+    path('fechar_caixa_ajax/', views.fechar_caixa_ajax, name='fechar_caixa_ajax'),
+    path('verificar_caixa_aberto/', views.verificar_caixa_aberto, name='verificar_caixa_aberto'),
+
 
 
     

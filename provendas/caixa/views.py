@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from clientes.models import Cliente
 from estoque.models import Produto, CategoriaProduto
-from .models import CaixaPdv, ProdutoCaixaPdv
+from .models import CaixaPdv, ProdutoCaixaPdv, Caixa
 from empresas.models import Empresa 
 from configuracoes.models import Configuracao
 import json
@@ -15,6 +15,39 @@ from django.db.models import Q
 import locale
 
 
+def abrir_caixa_ajax(request):
+    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Verificar se já existe um caixa aberto
+        caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').first()
+        if caixa_aberto:
+            return JsonResponse({'success': False, 'message': "Você já tem um caixa aberto."})
+
+        saldo_inicial = float(request.POST.get('saldo_inicial', 0.00))
+        novo_caixa = Caixa.objects.create(usuario=request.user, saldo_inicial=saldo_inicial)
+        return JsonResponse({'success': True, 'message': "Caixa aberto com sucesso."})
+    return JsonResponse({'success': False, 'message': "Requisição inválida."})
+
+def fechar_caixa_ajax(request):
+    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').first()
+        if not caixa_aberto:
+            return JsonResponse({'success': False, 'message': "Não há caixa aberto para fechar."})
+
+        saldo_final = float(request.POST.get('saldo_final', 0.00))
+        caixa_aberto.saldo_final = saldo_final
+        caixa_aberto.status = 'Fechado'
+        caixa_aberto.fechado_em = timezone.now()
+        caixa_aberto.save()
+        return JsonResponse({'success': True, 'message': "Caixa fechado com sucesso."})
+    return JsonResponse({'success': False, 'message': "Requisição inválida."})
+
+def verificar_caixa_aberto(request):
+    caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').exists()
+    abrir_caixa_automatico = False  # Defina essa configuração conforme necessário
+    return JsonResponse({
+        'caixa_aberto': caixa_aberto,
+        'abrir_caixa_automatico': abrir_caixa_automatico
+    })
 
 def gerar_cupom_fiscal(request, pedido_id):
     pedido = get_object_or_404(CaixaPdv, id=pedido_id)
@@ -312,6 +345,15 @@ def abrir_caixa_pdv(request):
     clientes = Cliente.objects.all()  # Todos os clientes
     produtos = Produto.objects.all()   # Todos os produtos
     categorias = CategoriaProduto.objects.all()  # Todas as categorias de produtos
+    categorias = CategoriaProduto.objects.all()  # Todas as categorias de produtos
+    
+    # Busca o caixa aberto para o usuário atual
+    caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').first()
+
+    # Define se o caixa está aberto e passa mais informações se necessário
+    caixa_esta_aberto = caixa_aberto is not None
+    status_caixa = caixa_aberto.status if caixa_aberto else 'N/D'
+
 
     pedido = None
     pedido_id = request.GET.get('id')  # Obtém o ID do pedido da URL
@@ -334,6 +376,8 @@ def abrir_caixa_pdv(request):
         'pedido': pedido,  # Passa o pedido encontrado para o template
         'produtos_do_pedido': produtos_do_pedido,  # Passa os produtos do pedido para o template
         'cliente_padrao': cliente_padrao,  # Passa o cliente padrão para o template
+        'caixa_esta_aberto': caixa_esta_aberto,
+        'status_caixa': status_caixa,
     })
 
 def get_venda_details(request, id):

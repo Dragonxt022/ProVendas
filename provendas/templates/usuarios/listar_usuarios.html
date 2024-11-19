@@ -140,7 +140,7 @@
                 <!-- Formulário de Usuário -->
                 <form id="formularioAdicionarUsuario" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <input type="text" id="id_usuario_id" name="usuario_id"> 
+                    <input type="hidden" id="id_usuario_id" name="usuario_id"> 
                     <div class="row">
                         <!-- Primeira Coluna -->
                         <div class="col-md-6">

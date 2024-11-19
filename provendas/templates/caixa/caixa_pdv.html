@@ -21,20 +21,24 @@
         
                                 <!-- Linha 1: Número do Pedido, Vendedor, e Status -->
                                 <div class="row py-3">
-                                    <div class="col-12 col-md-4 mb-2">
+                                    <div class="col-12 col-md-3 mb-2">
                                         <label for="numero_pedido" class="form-label">Número do Pedido:</label>
                                         <input type="text" id="numero_pedido" class="form-control" value="" readonly>
                                     </div>
-                                    <div class="col-12 col-md-4 mb-2">
+                                    <div class="col-12 col-md-3 mb-2">
                                         <label for="vendedor" class="form-label">Vendedor:</label>
                                         <input type="hidden" id="vendedor" class="form-control" value="{{ user.id }}">
                                         <input type="hidden" id="venda_id" class="form-control" value="">
                                         <input type="text" id="nomeVendedor" class="form-control" value="{{ user.username }}" readonly>
                                     </div>
-                                    <div class="col-12 col-md-4 mb-2">
+                                    <div class="col-12 col-md-3 mb-2">
                                         <label for="status" class="form-label">Status:</label>
                                         <input type="text" id="status" class="form-control" value="Em Aberto" readonly>
                                     </div>
+                                    <div class="col-12 col-md-3 mb-2">
+                                        <label for="caixa" class="form-label">Caixa:</label>
+                                        <input type="text" id="caixa" class="form-control" value="{{ status_caixa }}" readonly>
+                                    </div>                      
                                 </div>
                                 <div class="row py-1">
                                     <div class="col">
@@ -270,6 +274,28 @@
     </div>
 </div>
 
+<!--Modal de abrir caixa-->
+<div class="modal fade" id="abrirCaixaModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-success">
+          <h5 class="modal-title">Abrir Caixa</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="abrirCaixaForm">
+            <div class="form-group">
+              <label for="saldoInicialInput">Saldo Inicial:</label>
+              <input type="number" step="0.01" id="saldoInicialInput" class="form-control" value="0.00" required>
+            </div>
+            <button type="submit" class="btn btn-success w-100 btn-sm">Abrir Caixa</button>
+          </form>
+        </div>
+      </div>
+    </div>
+</div>
 
 
 
@@ -988,6 +1014,57 @@
         
 
     </script>
+
+    <!--Sistema de caixa aberto-->
+    <script>
+        $(document).ready(function() {
+            // Variável para garantir que a verificação do caixa seja realizada apenas uma vez
+            if (window.verificacaoCaixaJaFeita) return;
+            window.verificacaoCaixaJaFeita = true;
+        
+            console.log("Verificando caixa..."); // Teste para ver se o script executa só uma vez
+            // Verificar se há um caixa aberto
+            $.ajax({
+                type: 'GET',
+                url: '/caixa/verificar_caixa_aberto/',
+                success: function(response) {
+                    if (!response.caixa_aberto && response.abrir_caixa_automatico) {
+                        $('#abrirCaixaModal').modal('show');
+                    }
+                }
+            });
+    
+            // Função para obter o CSRF Token de um cookie (caso seja necessário)
+            function getCSRFToken() {
+                let csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+                return csrfToken;
+            }
+    
+            // Abrir Caixa
+            $('#abrirCaixaForm').on('submit', function(e) {
+                e.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: '/caixa/abrir_caixa_ajax/',
+                    headers: {
+                        'X-CSRFToken': getCSRFToken()  // Inclui o CSRF Token no cabeçalho
+                    },
+                    data: {
+                        'saldo_inicial': $('#saldoInicialInput').val(),
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.message);
+                            location.reload();  // Recarregar a página ou redirecionar
+                        } else {
+                            alert(response.message);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+    
 
 {% endblock %}
 

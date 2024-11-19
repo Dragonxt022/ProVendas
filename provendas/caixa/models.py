@@ -37,3 +37,20 @@ class ProdutoCaixaPdv(models.Model):
 
     def __str__(self):
         return f"{self.quantidade} x {self.produto.nome} (Venda #{self.caixa_pdv.numero_pedido})"
+    
+    
+class Caixa(models.Model):
+    STATUS_CHOICES = [
+        ('Aberto', 'Aberto'),
+        ('Fechado', 'Fechado'),
+    ]
+
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    saldo_inicial = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    saldo_final = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Aberto')
+    aberto_em = models.DateTimeField(auto_now_add=True)
+    fechado_em = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Caixa #{self.id} - {self.status}"
