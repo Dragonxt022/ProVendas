@@ -136,7 +136,7 @@
 
 <!-- Modal Produtos -->
 <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header bg-success text-white"> <!-- Estilizando o cabeçalho -->
                 <h5 class="modal-title" id="detalhesModalLabel">Selecionar Produto</h5>
@@ -197,6 +197,27 @@
                             <option value="Cartão de Crédito">Cartão de Crédito</option>
                         </select>
                     </div>
+
+                    <!-- Checkbox para Dividir a Conta -->
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input class="custom-control-input" name="controle_estoque" type="checkbox" id="split-check" onchange="toggleSplitOptions()">
+                            <label for="split-check" class="custom-control-label">Dividir a conta?</label>
+                        </div>
+                    </div>
+
+                    <!-- Opção de dividir -->
+                    <div id="split-option" style="display: none;">
+                        <label for="num-pessoas" class="form-label">Número de Pessoas:</label>
+                        <input type="number" id="num-pessoas" class="form-control" value="1" onchange="updateSplitAmount()" min="1">
+                        
+                        <div id="split-amount-container" class="mt-3">
+                            <h3 id="split-amount" class="text-center" style="font-size: 28px; color: #e74c3c; font-weight: bold;">
+                                R$ 0,00
+                            </h3>
+                        </div>
+                    </div>
+
 
                     <!-- Valor Recebido e Botões de Troco Rápido -->
                     <div class="mb-3" id="cash-input" style="display: none;">
@@ -289,6 +310,35 @@
                 console.warn('ID da venda não está definido ou é inválido. Detalhes da venda serão ignorados.');
             }
         });
+
+        // Função para mostrar ou esconder a opção de dividir
+        function toggleSplitOptions() {
+            const splitOption = document.getElementById('split-option');
+            const isChecked = document.getElementById('split-check').checked;
+
+            if (isChecked) {
+                splitOption.style.display = 'block';  // Exibe a opção de dividir
+            } else {
+                splitOption.style.display = 'none';   // Esconde a opção de dividir
+            }
+        }
+
+        // Função para atualizar o valor dividido
+        function updateSplitAmount() {
+            const totalAmountText = document.getElementById('total').innerText;  // Pega o valor total da conta
+            const totalAmount = parseFloat(totalAmountText.replace('R$', '').replace(',', '.')); // Remove o 'R$' e transforma em número
+
+            const numPessoas = parseInt(document.getElementById('num-pessoas').value); // Pega o número de pessoas
+
+            if (numPessoas > 0) {
+                const amountPerPerson = totalAmount / numPessoas;  // Calcula o valor dividido por pessoa
+                document.getElementById('split-amount').innerText = `R$ ${amountPerPerson.toFixed(2)}`;  // Exibe o valor
+            } else {
+                document.getElementById('split-amount').innerText = `R$ 0,00`;  // Caso o número de pessoas seja menor que 1
+            }
+        }
+
+
         
         function fetchSaleDetails(saleId) {
             if (!saleId) {
