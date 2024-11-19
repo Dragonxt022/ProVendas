@@ -211,7 +211,6 @@ def listar_produtos(request):
     })
 
 
-
 def editar_produto(request, produto_id):  # Recebe o ID do produto na URL
     produto = get_object_or_404(Produto, id=produto_id)  # Obtém o produto pelo ID
 
