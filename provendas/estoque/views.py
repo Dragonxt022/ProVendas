@@ -8,6 +8,7 @@ from django.http import HttpResponse
 import csv 
 from django.http import JsonResponse
 from django.utils.text import slugify
+import uuid
 
 
 # Importador e exportador
@@ -152,49 +153,64 @@ def excluir_categoria(request, categoria_id):
 # View para gerenciar produtos
 def listar_produtos(request):
     produtos = Produto.objects.all()
-    categorias = CategoriaProduto.objects.all()  # Busca todas as categorias para o select
+    categorias = CategoriaProduto.objects.all()
 
     if request.method == 'POST':
         # Obter os dados do formulário
+        produto_id = request.POST.get('produto_id')  # Captura o ID do produto se existir
         codigo_barras = request.POST.get('codigo_barras')
         nome = request.POST.get('nome')
         descricao = request.POST.get('descricao')
-        preco_de_venda = request.POST.get('preco_de_venda')
-        preco_de_custo = request.POST.get('preco_de_custo')
-        quantidade_estoque = request.POST.get('quantidade_estoque')
+        preco_de_venda = float(request.POST.get('preco_de_venda').replace(',', '.')) if request.POST.get('preco_de_venda') else 0.0
+        preco_de_custo = float(request.POST.get('preco_de_custo').replace(',', '.')) if request.POST.get('preco_de_custo') else 0.0
+        quantidade_estoque = int(request.POST.get('quantidade_estoque')) if request.POST.get('quantidade_estoque') else 0
         categoria_id = request.POST.get('categoria')
         status = request.POST.get('status')
         file = request.FILES.get('file')
-        controle_estoque = 1 if request.POST.get('controle_estoque') == 'on' else 0  # Muda para 1 ou 0
+        controle_estoque = 1 if request.POST.get('controle_estoque') == 'on' else 0
 
+        # Tenta encontrar o produto pelo ID
+        produto = Produto.objects.filter(id=produto_id).first() if produto_id else None
 
-        # Conversão de valores sem validação
-        preco_de_venda = float(preco_de_venda.replace(',', '.')) if preco_de_venda else 0.0  # Converter preço de venda para float
-        preco_de_custo = float(preco_de_custo.replace(',', '.')) if preco_de_custo else 0.0  # Converter preço de custo para float
-        quantidade_estoque = int(quantidade_estoque) if quantidade_estoque else 0  # Converter quantidade em estoque para int
+        if produto:
+            # Se o produto existir, atualize os campos
+            produto.codigo_barras = codigo_barras
+            produto.nome = nome
+            produto.descricao = descricao
+            produto.preco_de_venda = preco_de_venda
+            produto.preco_de_custo = preco_de_custo
+            produto.quantidade_estoque = quantidade_estoque
+            produto.categoria_id = categoria_id
+            produto.status = status
+            if file:
+                produto.file = file
+            produto.controle_estoque = controle_estoque
+            messages.success(request, 'Produto atualizado com sucesso.')
+        else:
+            # Se o produto não existir, crie um novo
+            produto = Produto(
+                codigo_barras=codigo_barras,
+                nome=nome,
+                descricao=descricao,
+                preco_de_venda=preco_de_venda,
+                preco_de_custo=preco_de_custo,
+                quantidade_estoque=quantidade_estoque,
+                categoria_id=categoria_id,
+                status=status,
+                file=file,
+                controle_estoque=controle_estoque,
+            )
+            messages.success(request, 'Produto criado com sucesso.')
 
-        # Criação de um novo produto
-        produto = Produto(
-            codigo_barras=codigo_barras,
-            nome=nome,
-            descricao=descricao,
-            preco_de_venda=preco_de_venda,
-            preco_de_custo=preco_de_custo,
-            quantidade_estoque=quantidade_estoque,
-            categoria_id=categoria_id,
-            status=status,
-            file=file,
-            controle_estoque=controle_estoque,  # Adiciona o controle de estoque aqui
-
-        )
         produto.save()
-        messages.success(request, 'Produto criado com sucesso.')
         return redirect('listar_produtos')
 
     return render(request, 'estoque/produto/listar_produtos.html', {
         'produtos': produtos,
-        'categorias': categorias,  # Passa as categorias para o template
+        'categorias': categorias,
     })
+
+
 
 def editar_produto(request, produto_id):  # Recebe o ID do produto na URL
     produto = get_object_or_404(Produto, id=produto_id)  # Obtém o produto pelo ID
