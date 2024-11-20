@@ -30,12 +30,12 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">Lista de clientes</h3> 
+                                <h3 class="card-title">Lista de clientes</h3>
                             </div>
                             <div class="card-body">
                                 <form method="POST" enctype="multipart/form-data">
                                     {% csrf_token %}
-        
+                
                                     <div class="row">
                                         <!-- Primeira Coluna -->
                                         <div class="col-md-6">
@@ -45,20 +45,20 @@
                                                 <label for="id_nome_aplicacao" class="form-label">Nome da Aplicação</label>
                                                 {{ form.nome_aplicacao }}
                                             </div>
-        
+                
                                             <!-- Logo da Empresa -->
                                             <div class="form-group">
                                                 <label for="id_logo_empresa" class="form-label">Logo da Empresa</label>
                                                 {{ form.logo_empresa }}
                                             </div>
-        
+                
                                             <!-- Ícone da Aplicação -->
                                             <div class="form-group">
                                                 <label for="id_icone_aplicacao" class="form-label">Ícone da Aplicação</label>
                                                 {{ form.icone_aplicacao }}
                                             </div>
                                         </div>
-        
+                
                                         <!-- Segunda Coluna -->
                                         <div class="col-md-6">
                                             <!-- Cores -->
@@ -72,7 +72,7 @@
                                                 <label for="id_cor_secundaria" class="form-label">Cor Secundária</label>
                                                 {{ form.cor_secundaria }}
                                             </div>
-        
+                
                                             <!-- Cliente Padrão -->
                                             <div class="form-group">
                                                 <h3 class="py-3">Configurações Cliente</h3>
@@ -81,25 +81,39 @@
                                             </div>
                                         </div>
                                     </div>
-        
+                
                                     <!-- Outras Configurações em uma linha completa -->
                                     <div class="form-row">
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <h3 class="py-3">Comportamentos do estoque</h3>
                                                 <label for="id_gerar_codigo_barra_automatico">Gerar Código de Barra Automático</label>
-                                                {{ form.gerar_codigo_barra_automatico }}
+                                                <div class="custom-control custom-checkbox">
+                                                    {{ form.gerar_codigo_barra_automatico }}
+                                                    <label class="custom-control-label" for="id_gerar_codigo_barra_automatico">Ativar Geração Automática</label>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <h3 class="py-3">Caixa</h3>
                                                 <label for="id_gerenciar_abertura_fechamento_caixa">Gerenciar Abertura/Fechamento de Caixa</label>
-                                                {{ form.gerenciar_abertura_fechamento_caixa }}
+                                                <div class="custom-control custom-checkbox">
+                                                    {{ form.gerenciar_abertura_fechamento_caixa }}
+                                                    <label class="custom-control-label" for="id_gerenciar_abertura_fechamento_caixa">Ativar Gerenciamento</label>
+                                                </div>
+                                            </div>
+        
+                                            <div class="form-group">
+                                                <label for="id_modoLeitorCodigoDeBarra">Modo leitor de Código de Barras</label>
+                                                <div class="custom-control custom-checkbox">
+                                                    {{ form.modoLeitorCodigoDeBarra }}
+                                                    <label class="custom-control-label" for="id_modoLeitorCodigoDeBarra">Ativar Modo Leitor</label>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-        
+                
                                     <button type="submit" class="btn btn-success btn-sm w-100">Salvar Configurações Gerais</button>
                                 </form>
                             </div>
@@ -108,6 +122,7 @@
                 </div>
             </div>
         </section>
+        
         
         </div> 
             

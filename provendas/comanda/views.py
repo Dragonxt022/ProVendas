@@ -10,7 +10,7 @@ import logging
 import random
 
 # Imports dos modelos e forms do seu projeto
-from caixa.models import CaixaPdv, ProdutoCaixaPdv
+from caixa.models import CaixaPdv, ProdutoCaixaPdv, Caixa
 from .models import Mesa, Comanda, ProdutoComanda
 from .forms import MesaForm
 from clientes.models import Cliente
@@ -46,6 +46,85 @@ def gerar_cupom_fiscal_comanda(request, comanda_id):
     # Renderiza o template de cupom fiscal
     return render(request, 'comanda/cupom_fiscal.html', context)
 
+# def fechar_comanda(request, mesa_id):
+#     if request.method == 'POST':
+#         try:
+#             # Capturar os dados da requisição
+#             data = json.loads(request.body)
+#             numero_pedido = data.get('numero_pedido')
+#             vendedor_id = data.get('vendedor_id')
+#             cliente_id = data.get('cliente_id')
+#             desconto = data.get('desconto', 0.0)
+#             total = data.get('total')
+#             payment_method = data.get('payment_method')
+#             produtos = data.get('produtos', [])
+
+#             # Buscar a mesa e a comanda aberta associada
+#             mesa = get_object_or_404(Mesa, id=mesa_id)
+#             comanda = get_object_or_404(Comanda, mesa=mesa, status='aberta')
+
+#             # Verifica se a comanda já foi fechada e converte para uma venda
+#             cliente = Cliente.objects.filter(id=cliente_id).first()
+#             vendedor = User.objects.filter(id=vendedor_id).first()
+
+#             if not cliente or not vendedor:
+#                 return JsonResponse({'success': False, 'message': 'Cliente ou Vendedor não encontrado.'}, status=404)
+
+#             # Criando a venda (CaixaPdv)
+#             caixa_pdv = CaixaPdv.objects.create(
+#                 numero_pedido=numero_pedido,
+#                 vendedor=vendedor,
+#                 cliente=cliente,
+#                 desconto=desconto,
+#                 total=total,
+#                 status="Finalizado",  # Marcar como finalizado direto ao fechar a comanda
+#                 payment_method=payment_method
+#             )
+
+#             # Processar os produtos e salvar no CaixaPdv
+#             for produto_data in produtos:
+#                 produto = Produto.objects.filter(id=produto_data.get('produto_id')).first()
+
+#                 if produto:
+#                     quantidade = produto_data['quantidade']
+
+#                     # Verificar se o controle de estoque está ativado
+#                     if produto.controle_estoque:
+#                         if produto.quantidade_estoque >= quantidade:
+#                             # Descontar do estoque se houver quantidade suficiente
+#                             produto.quantidade_estoque -= quantidade
+#                             produto.save()
+#                         else:
+#                             # Se não houver quantidade suficiente, retornar erro
+#                             return JsonResponse({'success': False, 'message': 'Estoque insuficiente para um dos produtos.'}, status=400)
+
+#                     # Salvar os produtos na venda
+#                     ProdutoCaixaPdv.objects.create(
+#                         caixa_pdv=caixa_pdv,
+#                         produto=produto,
+#                         quantidade=quantidade,
+#                         preco_unitario=produto.preco_de_venda,
+#                         total=quantidade * produto.preco_de_venda
+#                     )
+
+#             # Liberar a mesa
+#             mesa.status = 'livre'
+#             mesa.save()
+
+#             # Marcar a comanda como fechada
+#             comanda.status = 'fechada'
+#             comanda.save()
+
+#             # Retornar uma resposta de sucesso
+#             return JsonResponse({'success': True, 'message': 'Comanda convertida para venda direta e finalizada com sucesso!'})
+
+#         except Exception as e:
+#             # Se ocorrer algum erro, retornar uma mensagem de erro
+#             return JsonResponse({'success': False, 'message': str(e)})
+
+#     # Se não for uma requisição POST, redirecionar para a lista de mesas
+#     return redirect('listar_mesas')
+
 def fechar_comanda(request, mesa_id):
     if request.method == 'POST':
         try:
@@ -63,15 +142,27 @@ def fechar_comanda(request, mesa_id):
             mesa = get_object_or_404(Mesa, id=mesa_id)
             comanda = get_object_or_404(Comanda, mesa=mesa, status='aberta')
 
-            # Verifica se a comanda já foi fechada e converte para uma venda
+            # Verificar se há um caixa aberto, considerando o gerenciamento de caixa
+            configuracao = Configuracao.objects.first()
+            gerenciar_caixa = configuracao.gerenciar_abertura_fechamento_caixa if configuracao else False
+
+            # Pega o caixa aberto para associar a venda, se o gerenciamento estiver ativado
+            caixa = None
+            if gerenciar_caixa:
+                caixa = Caixa.objects.filter(status='Aberto').first()
+                if not caixa:
+                    return JsonResponse({'success': False, 'message': 'Não há caixa aberto para registrar a venda.'}, status=400)
+
+            # Verifica se o cliente e o vendedor existem
             cliente = Cliente.objects.filter(id=cliente_id).first()
             vendedor = User.objects.filter(id=vendedor_id).first()
 
             if not cliente or not vendedor:
                 return JsonResponse({'success': False, 'message': 'Cliente ou Vendedor não encontrado.'}, status=404)
 
-            # Criando a venda (CaixaPdv)
+            # Criando a venda (CaixaPdv) e associando ao caixa se ele estiver aberto
             caixa_pdv = CaixaPdv.objects.create(
+                caixa=caixa,  # Associa ao caixa aberto, se existir
                 numero_pedido=numero_pedido,
                 vendedor=vendedor,
                 cliente=cliente,
@@ -124,6 +215,7 @@ def fechar_comanda(request, mesa_id):
 
     # Se não for uma requisição POST, redirecionar para a lista de mesas
     return redirect('listar_mesas')
+
 
 # Pagina de hístórico de vendas
 def historico_vendas(request):

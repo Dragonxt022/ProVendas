@@ -12,8 +12,9 @@ class ConfiguracaoForm(forms.ModelForm):
             'cor_secundaria',
             'logo_empresa',
             'icone_aplicacao',
-            'gerar_codigo_barra_automatico',  # Novo campo
-            'gerenciar_abertura_fechamento_caixa',  # Novo campo
+            'gerar_codigo_barra_automatico',  
+            'gerenciar_abertura_fechamento_caixa', 
+            'modoLeitorCodigoDeBarra',
         ]
         widgets = {
             'cliente_padrao': forms.Select(attrs={'class': 'form-control'}),
@@ -22,6 +23,8 @@ class ConfiguracaoForm(forms.ModelForm):
             'nome_aplicacao': forms.TextInput(attrs={'class': 'form-control'}),
             'logo_empresa': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'icone_aplicacao': forms.ClearableFileInput(attrs={'class': 'form-control'}),
-            'gerar_codigo_barra_automatico': forms.CheckboxInput(attrs={'class': 'form-check-input'}),  # Checkbox para geração automática
-            'gerenciar_abertura_fechamento_caixa': forms.CheckboxInput(attrs={'class': 'form-check-input'}),  # Checkbox para gerenciamento de caixa
+            # Usando o Bootstrap Custom Checkbox
+            'gerar_codigo_barra_automatico': forms.CheckboxInput(attrs={'class': 'custom-control-input'}),  
+            'gerenciar_abertura_fechamento_caixa': forms.CheckboxInput(attrs={'class': 'custom-control-input'}),
+            'modoLeitorCodigoDeBarra': forms.CheckboxInput(attrs={'class': 'custom-control-input'}),
         }

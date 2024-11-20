@@ -13,6 +13,7 @@ class Configuracao(models.Model):
     icone_aplicacao = models.ImageField(upload_to=caminho_upload, null=True, blank=True)
     gerar_codigo_barra_automatico = models.BooleanField(default=False)
     gerenciar_abertura_fechamento_caixa = models.BooleanField(default=False)
+    modoLeitorCodigoDeBarra = models.BooleanField(default=False)
 
     def __str__(self):
         return self.nome_aplicacao

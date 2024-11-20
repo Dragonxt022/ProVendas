@@ -21,33 +21,31 @@
         
                                 <!-- Linha 1: Número do Pedido, Vendedor, e Status -->
                                 <div class="row py-3">
-                                    <div class="col-12 col-md-3 mb-2">
+                                    <div class="col-12 col-md-4 mb-2">
                                         <label for="numero_pedido" class="form-label">Número do Pedido:</label>
                                         <input type="text" id="numero_pedido" class="form-control" value="" readonly>
                                     </div>
-                                    <div class="col-12 col-md-3 mb-2">
+                                    <div class="col-12 col-md-4 mb-2">
                                         <label for="vendedor" class="form-label">Vendedor:</label>
                                         <input type="hidden" id="vendedor" class="form-control" value="{{ user.id }}">
                                         <input type="hidden" id="venda_id" class="form-control" value="">
                                         <input type="text" id="nomeVendedor" class="form-control" value="{{ user.username }}" readonly>
                                     </div>
-                                    <div class="col-12 col-md-3 mb-2">
+                                    <div class="col-12 col-md-4 mb-2">
                                         <label for="status" class="form-label">Status:</label>
                                         <input type="text" id="status" class="form-control" value="Em Aberto" readonly>
                                     </div>
-                                    <div class="col-12 col-md-3 mb-2">
-                                        <label for="caixa" class="form-label">Caixa:</label>
-                                        <input type="text" id="caixa" class="form-control" value="{{ status_caixa }}" readonly>
-                                    </div>                      
+
                                 </div>
-                                <div class="row py-1">
+                                
+                                <div class="row py-1" {% if not modoLeitorCodigoDeBarra %} style="display:none;" {% endif %}>
                                     <div class="col">
                                         <div class="input-group mb-3">
                                             <input type="text" id="filtrar_produto_code" class="form-control" placeholder="Adicione o código do produto..." aria-label="Adicione o código do produto">
                                         </div>
                                     </div>
-                                </div>
-        
+                                </div>                                
+
                                 <!-- Linha 2: Listagem de Produtos e Caixa -->
                                 <div class="row">
                                     <!-- Seção de Produtos -->
@@ -86,9 +84,8 @@
         
                                                 <!-- Título Resumo -->
                                                 <h3 class="text-center text-secondary my-3">CAIXA</h3>
-        
                                                 <!-- Campo de Desconto -->
-                                                <div class="row mb-3">
+                                                <div class="row mb-2">
                                                     <div class="col">
                                                         <label for="discount" class="form-label text-muted">Desconto (R$):</label>
                                                         <input type="number" id="discount" class="form-control" value="0" min="0" oninput="calculateTotal()">
@@ -97,7 +94,7 @@
         
                                                 <!-- Total -->
                                                 <label for="total" class="form-label text-muted">Total:</label>
-                                                <div class="row mb-3">
+                                                <div class="row mb-2">
                                                     <div class="col text-center">
                                                         <div class="bg-light p-3 rounded" style="border: 1px solid #ddd;">
                                                             <h2 class="m-0" style="font-size: 35px; color: #e74c3c; font-weight: bold;">R$ <span id="total">0,00</span></h2>
@@ -300,6 +297,9 @@
 
 
 {% block extra_scripts %}
+
+    
+
     <!--Sistema PDV Ajax -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -789,6 +789,7 @@
                     $('#filtrar_produto_code').focus();
                 }
             });
+
         });
 
         // Variável global para armazenar o valor total recebido
@@ -901,7 +902,7 @@
                     $('#successModal').modal('show');
                     setTimeout(() => {
                         $('#successModal').modal('hide');
-                    }, 3000);
+                    }, 2000);
         
                     cart = [];
                     renderCart();
@@ -914,7 +915,7 @@
                     $('#errorModal').modal('show');
                     setTimeout(() => {
                         $('#errorModal').modal('hide');
-                    }, 3000);
+                    }, 2000);
                 }
             })
             .catch(error => {
@@ -922,7 +923,7 @@
                 $('#errorModal').modal('show');
                 setTimeout(() => {
                     $('#errorModal').modal('hide');
-                }, 3000);
+                }, 2000);
             })
             .finally(() => {
                 $('#paymentModal').modal('hide');
@@ -983,7 +984,7 @@
                     $('#successModal').modal('show');
                     setTimeout(() => {
                         $('#successModal').modal('hide');
-                    }, 3000);
+                    }, 2000);
         
                     cart = [];
                     renderCart();
@@ -994,7 +995,7 @@
                     $('#errorModal').modal('show');
                     setTimeout(() => {
                         $('#errorModal').modal('hide');
-                    }, 3000);
+                    }, 2000);
                 }
             })
             .catch(error => {
@@ -1002,7 +1003,7 @@
                 $('#errorModal').modal('show');
                 setTimeout(() => {
                     $('#errorModal').modal('hide');
-                }, 3000);
+                }, 2000);
             })
             .finally(() => {
                 $('#paymentModal').modal('hide');
@@ -1060,8 +1061,10 @@
                 });
             });
         });
+        
     </script>
     
+
 
 {% endblock %}
 

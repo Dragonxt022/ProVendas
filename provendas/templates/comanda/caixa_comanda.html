@@ -963,13 +963,13 @@
                         $('#successModal').modal('hide');
                         // Recarregar a página atual
                         window.location.href = "{% url 'listar_mesas' %}";
-                    }, 3000);
+                    }, 2000);
                 } else {
                     // Exibir mensagem de erro
                     $('#errorModal').modal('show');
                     setTimeout(() => {
                         $('#errorModal').modal('hide');
-                    }, 3000);
+                    }, 2000);
                 }
             })
             .catch(error => {
@@ -977,7 +977,7 @@
                 $('#errorModal').modal('show');
                 setTimeout(() => {
                     $('#errorModal').modal('hide');
-                }, 3000);
+                }, 2000);
             })
             .finally(() => {
                 $('#paymentModal').modal('hide');
@@ -1041,13 +1041,13 @@
                         $('#successModal').modal('hide');
                         // Recarregar a página atual após 3 segundos
                         window.location.href = "{% url 'listar_mesas' %}";
-                    }, 3000);
+                    }, 2000);
                 } else {
                     // Exibir mensagem de erro
                     $('#errorModal').modal('show');
                     setTimeout(() => {
                         $('#errorModal').modal('hide');
-                    }, 3000);
+                    }, 2000);
                 }
             })
             .catch(error => {
@@ -1055,7 +1055,7 @@
                 $('#errorModal').modal('show');
                 setTimeout(() => {
                     $('#errorModal').modal('hide');
-                }, 3000);
+                }, 2000);
             })
             .finally(() => {
                 $('#paymentModal').modal('hide');

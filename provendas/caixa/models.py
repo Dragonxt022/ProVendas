@@ -3,7 +3,7 @@
 from django.db import models
 from django.contrib.auth.models import User  # para relacionar com o vendedor
 from clientes.models import Cliente  # relacionamento com Cliente
-from estoque.models import Produto  # Para referenciar o modelo Produto
+from estoque.models import Produto
 
 
 class CaixaPdv(models.Model):
@@ -13,6 +13,7 @@ class CaixaPdv(models.Model):
         ('Em aberto', 'Em aberto'),
     ]
     
+    caixa = models.ForeignKey('Caixa', on_delete=models.CASCADE, null=True, blank=True)
     numero_pedido = models.CharField(max_length=100, unique=True)
     vendedor = models.ForeignKey(User, on_delete=models.CASCADE)
     cliente = models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.SET_NULL)
