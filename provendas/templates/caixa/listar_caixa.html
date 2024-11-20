@@ -249,88 +249,66 @@
 {% block extra_scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Função para carregar os pedidos com base nos filtros
         function loadOrders(page = 1, searchTerm = '', statusFilter = '', vendedorFilter = '', clienteFilter = '') {
             $.ajax({
-                url: '{% url "listar_pedidos_ajax" %}',  // URL da view AJAX
+                url: '{% url "listar_pedidos_ajax" %}', // URL da view AJAX
                 data: {
                     'page': page,
-                    'search': searchTerm,  // Termo de pesquisa
-                    'status': statusFilter,  // Filtro de status
-                    'vendedor': vendedorFilter,  // Filtro de vendedor
-                    'cliente': clienteFilter   // Filtro de cliente
+                    'search': searchTerm,
+                    'status': statusFilter,
+                    'vendedor': vendedorFilter,
+                    'cliente': clienteFilter
                 },
                 success: function(response) {
                     var pedidos = response.pedidos;
                     var tbody = $("#orders tbody");
-                    tbody.empty();  // Limpar os pedidos antigos
-    
-                    // Ordenar os pedidos no JavaScript
-                    pedidos.sort(function(a, b) {
-                        // Ordenar primeiro por status ("Em aberto" primeiro)
-                        if (a.status === 'Em aberto' && b.status !== 'Em aberto') return -1;
-                        if (a.status !== 'Em aberto' && b.status === 'Em aberto') return 1;
-    
-                        // Se ambos tiverem o mesmo status, ordenar pela ordem do ID (menor para maior)
-                        return b.id - a.id;  // Ordenação pela ordem dos IDs (menor para maior)
-                    });
+                    tbody.empty();
     
                     // Verifica se há pedidos para mostrar
                     if (pedidos.length === 0) {
                         tbody.append('<tr><td colspan="7" class="text-center">Nenhum pedido encontrado.</td></tr>');
-                        return;
+                    } else {
+                        pedidos.forEach(function(pedido) {
+                            var row = `
+                                <tr class="text-center">
+                                    <td>#${pedido.numero_pedido}</td>
+                                    <td>${pedido.data}</td>
+                                    <td>${pedido.vendedor}</td>
+                                    <td>${pedido.cliente}</td>
+                                    <td><strong>R$ ${parseFloat(pedido.total).toFixed(2)}</strong></td>
+                                    <td><span class="badge ${pedido.status === 'Em aberto' ? 'badge-warning' : 'badge-success'}">${pedido.status}</span></td>
+                                    <td>
+                                        <a href="{% url 'abrir_caixa_pdv' %}?id=${pedido.id}" class="btn btn-sm btn-success"><i class="fas fa-edit"></i></a>
+                                        <a href="javascript:void(0);" class="btn btn-sm btn-primary" onclick="abrirModalCupomFiscal(${pedido.id})"><i class="fas fa-eye"></i></a>
+                                        <button type="button" class="btn btn-sm btn-danger" onclick="excluirVenda(${pedido.id})"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>`;
+                            tbody.append(row);
+                        });
                     }
     
-                    // Preencher a tabela com os novos pedidos
-                    pedidos.forEach(function(pedido) {
-                        var row = '<tr class="text-center" id="pedido-' + pedido.id + '">';  // Usando o ID do pedido
-                        row += '<td>#' + pedido.numero_pedido + '</td>';
-                        row += '<td>' + pedido.data + '</td>';
-                        row += '<td>' + pedido.vendedor + '</td>';
-                        row += '<td>' + pedido.cliente + '</td>';
-                        row += '<td><strong>R$ ' + parseFloat(pedido.total).toFixed(2) + '</strong></td>';
-                        
-                        // Status Badge
-                        var statusClass = pedido.status == 'Em aberto' ? 'badge-warning' : 'badge-success';
-                        var statusText = pedido.status == 'Em aberto' ? 'Em aberto' : 'Finalizado';
-                        row += '<td><span class="badge ' + statusClass + '">' + statusText + '</span></td>';
-                        
-                        row += '<td class="d-flex">';
-                        // Verifica se o status do pedido é "Em aberto" e se o ID do pedido existe
-                        if (pedido.status === 'Em aberto' && pedido.id) {
-                            row += '<a href="{% url 'abrir_caixa_pdv' %}?id=' + pedido.id + '" class="btn btn-sm btn-success mb-2 mr-1">';  // Aumenta a distância à direita
-                            row += '<i class="fas fa-edit"></i>';  // Ícone de edição
-                            row += '</a>';
-                        }
-
-                        row += '<a href="javascript:void(0);" class="btn btn-sm btn-primary mb-2 me-3 mr-1" onclick="abrirModalCupomFiscal(' + pedido.id + ')">';  // Aumenta a distância entre o botão de editar e o de cupom fiscal
-                        row += '<i class="fas fa-eye"></i>';  // Ícone de cupom fiscal
-                        row += '</a>';
-
-                        // Botão de excluir
-                        row += '<button type="button" class="btn btn-sm btn-danger mb-2 ms-3" onclick="excluirVenda(' + pedido.id + ')">';  // Aumenta a distância à esquerda do botão de excluir
-                        row += '<i class="fas fa-trash"></i>';  // Ícone de lixeira
-                        row += '</button>';
-
-                        row += '</td></tr>';
-
-                        tbody.append(row);
-                    });
-
+                    // Atualizar paginação
+                    var paginationControls = $('#pagination-controls');
+                    paginationControls.html('');
     
-                    // Atualizar a paginação
-                    $('#pagination-controls').html('');
-                    if (response.has_previous) {
-                        $('#pagination-controls').prepend('<a href="javascript:void(0);" class="pagination-link btn mb-3 btn-success btn-sm" data-page="' + response.previous_page_number + '">Anterior</a>');
-                    }
-                    if (response.has_next) {
-                        $('#pagination-controls').append('<a href="javascript:void(0);" class="pagination-link btn mb-3 btn-warning btn-sm" data-page="' + response.next_page_number + '">Próxima</a>');
+                    if (response.current_page > 1) {
+                        paginationControls.append('<a href="javascript:void(0);" class="pagination-link btn btn-sm btn-success" data-page="1">Primeira Página</a>');
+                        paginationControls.append('<a href="javascript:void(0);" class="pagination-link btn btn-sm btn-success" data-page="' + response.previous_page_number + '">Anterior</a>');
                     }
     
-                    // Adiciona evento de clique nos links de paginação
+                    for (let i = 1; i <= response.total_pages; i++) {
+                        paginationControls.append('<a href="javascript:void(0);" class="pagination-link btn btn-sm ' + (i === response.current_page ? 'btn-primary' : 'btn-light') + '" data-page="' + i + '">' + i + '</a>');
+                    }
+    
+                    if (response.current_page < response.total_pages) {
+                        paginationControls.append('<a href="javascript:void(0);" class="pagination-link btn btn-sm btn-warning" data-page="' + response.next_page_number + '">Próxima</a>');
+                        paginationControls.append('<a href="javascript:void(0);" class="pagination-link btn btn-sm btn-warning" data-page="' + response.total_pages + '">Última Página</a>');
+                    }
+    
+                    // Adicionar eventos aos links de paginação
                     $('.pagination-link').click(function() {
                         var page = $(this).data('page');
-                        loadOrders(page, searchTerm, statusFilter, vendedorFilter, clienteFilter);  // Carregar os pedidos para a página correspondente
+                        loadOrders(page, searchTerm, statusFilter, vendedorFilter, clienteFilter);
                     });
                 },
                 error: function(xhr, status, error) {
@@ -340,20 +318,14 @@
             });
         }
     
-    
-    
-        // Função para capturar os filtros e realizar a pesquisa
+        // Eventos de busca e carregamento inicial
         $('#searchInput').on('input', function() {
-            var searchTerm = $(this).val();  // Pega o valor digitado no campo de pesquisa
-            var statusFilter = $('#statusFilter').val();  // Filtro de status
-            var vendedorFilter = $('#vendedorFilter').val();  // Filtro de vendedor
-            var clienteFilter = $('#clienteFilter').val();  // Filtro de cliente
-            loadOrders(1, searchTerm, statusFilter, vendedorFilter, clienteFilter);  // Carregar os pedidos com filtros
+            loadOrders(1, $(this).val(), $('#statusFilter').val(), $('#vendedorFilter').val(), $('#clienteFilter').val());
         });
     
-        // Carregar a primeira página de pedidos ao carregar a página
         loadOrders(1);
     });
+    
         
     // Função para excluir a venda
     window.excluirVenda = function(vendaId) {
@@ -524,10 +496,7 @@
     function getCsrfToken() {
         return document.querySelector('[name=csrfmiddlewaretoken]').value;
     }
-    
-
-    
-
+       
     
 </script>
 

@@ -284,20 +284,21 @@ def listar_caixa(request):
 
 def listar_pedidos_ajax(request):
     # Recebe os parâmetros de filtro da requisição
-    search_term = request.GET.get('search', '')  # Termo de pesquisa
-    status_filter = request.GET.get('status', '')  # Filtro de status
-    vendedor_filter = request.GET.get('vendedor', '')  # Filtro de vendedor
-    cliente_filter = request.GET.get('cliente', '')  # Filtro de cliente
+    search_term = request.GET.get('search', '')
+    status_filter = request.GET.get('status', '')
+    vendedor_filter = request.GET.get('vendedor', '')
+    cliente_filter = request.GET.get('cliente', '')
 
     # Consulta base dos pedidos
-    pedidos_list = CaixaPdv.objects.all().order_by('status', 'created_at')  # Ordenar por status e data
+    pedidos_list = CaixaPdv.objects.all().order_by('-id')  # Ordenar por ID (decrescente)
 
-    # Aplicar filtros, se os filtros forem fornecidos
+    # Aplicar filtros
     if search_term:
         pedidos_list = pedidos_list.filter(
-            Q(numero_pedido__icontains=search_term) | 
-            Q(vendedor__username__icontains=search_term) | 
-            Q(cliente__nome__icontains=search_term)
+            Q(numero_pedido__icontains=search_term) |
+            Q(vendedor__username__icontains=search_term) |
+            Q(cliente__nome__icontains=search_term) |
+            Q(total__icontains=search_term)  # Pesquisa pelo valor total
         )
 
     if status_filter:
@@ -310,16 +311,14 @@ def listar_pedidos_ajax(request):
         pedidos_list = pedidos_list.filter(cliente__nome__icontains=cliente_filter)
 
     # Paginação
-    paginator = Paginator(pedidos_list, 10)  # 3 pedidos por página (você pode ajustar esse número)
-    page_number = request.GET.get('page', 1)  # Página padrão é 1
+    paginator = Paginator(pedidos_list, 10)  # 3 pedidos por página
+    page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
 
     pedidos_data = []
     for pedido in page_obj:
-
         # Converte 'created_at' para o horário local
         locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
-
         data_local = timezone.localtime(pedido.created_at)
 
         pedidos_data.append({
@@ -332,14 +331,15 @@ def listar_pedidos_ajax(request):
             'status': pedido.status
         })
 
-    # Retornar os dados filtrados e paginados
+    # Retornar os dados filtrados e informações de paginação
     return JsonResponse({
         'pedidos': pedidos_data,
         'has_next': page_obj.has_next(),
         'has_previous': page_obj.has_previous(),
         'next_page_number': page_obj.next_page_number() if page_obj.has_next() else None,
         'previous_page_number': page_obj.previous_page_number() if page_obj.has_previous() else None,
-    
+        'current_page': page_obj.number,
+        'total_pages': paginator.num_pages,
     })
 
 def cupom_fiscal_ajax(request, pedido_id):
