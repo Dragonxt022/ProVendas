@@ -54,20 +54,18 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6 d-flex align-items-center">
-                        <h1 class="mr-3"> Controle de Venda </h1> <!-- Adicionei a classe mr-3 -->
+                        <h1 class="mr-3"> Controle de Venda </h1>
                         
                         <!-- Link para nova venda -->
                         <a href="{% url 'abrir_caixa_pdv' %}" class="btn btn-sm btn-success mr-2">
                             Nova Venda
                         </a>
-
+    
                         <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#fecharCaixaModal" {% if not caixa_esta_aberto %}disabled{% endif %}>
                             Fechar Caixa
                         </button>
-                        
                     </div>
                 </div>
-                
             </div><!-- /.container-fluid -->
         </section>
         
@@ -77,69 +75,84 @@
                     <div class="col-12">
                         <!-- Card de Pedidos -->
                         <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Pesquisa</h3>
-                            </div>
-                            <div class="card-body table-responsive">
-                                <div class="row mb-3">
-                                    <!-- Campo de pesquisa -->
-                                    <div class="col-12 col-sm-6 col-md-6">
-                                        <div class="mb-3">
-                                            <input type="text" id="searchInput" class="form-control" placeholder="Pesquisar por Pedido, Vendedor ou Cliente">
+                            <div class="card-body">
+                                <!-- Abas -->
+                                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                    <li class="nav-item mb-4" role="presentation">
+                                        <a class="nav-link active" id="vendas-tab" data-toggle="tab" href="#vendas" role="tab" aria-controls="vendas" aria-selected="true">Registro de Vendas</a>
+                                    </li>
+                                    <li class="nav-item mb-4" role="presentation">
+                                        <a class="nav-link" id="pedidos-tab" data-toggle="tab" href="#pedidos" role="tab" aria-controls="pedidos" aria-selected="false">Pedidos</a>
+                                    </li>
+                                    <li class="nav-item mb-4" role="presentation">
+                                        <a class="nav-link" id="relatorios-tab" data-toggle="tab" href="#relatorios" role="tab" aria-controls="relatorios" aria-selected="false">Relatórios</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="myTabContent ">
+                                    <!-- Aba de Registro de Vendas -->
+                                    <div class="tab-pane fade show active" id="vendas" role="tabpanel" aria-labelledby="vendas-tab">
+                                        <div class="row mb-3">
+                                            <div class="col-12 col-sm-6 col-md-6">
+                                                <div class="mb-3">
+                                                    <input type="text" id="searchInput" class="form-control" placeholder="Pesquisar por Pedido, Vendedor ou Cliente">
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm-6 col-md-3">
+                                                <div class="mb-3">
+                                                    <select id="statusFilter" class="form-control">
+                                                        <option value="">Filtrar por Status</option>
+                                                        <option value="Em aberto">Em aberto</option>
+                                                        <option value="Finalizado">Finalizado</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm-6 col-md-3">
+                                                <div class="mb-3">
+                                                    <input type="text" id="vendedorFilter" class="form-control" placeholder="Filtrar por Vendedor">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive py-3 text-center">
+                                            <table id="orders" class="table table-striped">
+                                                <thead>
+                                                    <tr class="bg-success">
+                                                        <th scope="col">Pedido</th>
+                                                        <th scope="col">Data/Hora</th>
+                                                        <th scope="col">Vendedor</th>
+                                                        <th scope="col">Cliente</th>
+                                                        <th scope="col">Total</th>
+                                                        <th scope="col">Status</th>
+                                                        <th scope="col">Ações</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <!-- As linhas de pedidos serão adicionadas aqui dinamicamente -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div id="pagination-controls" class="pagination text-center">
+                                            <!-- Links de paginação serão injetados aqui -->
                                         </div>
                                     </div>
-                                    
-                                    <!-- Filtro por Status -->
-                                    <div class="col-12 col-sm-6 col-md-3">
-                                        <div class="mb-3">
-                                            <select id="statusFilter" class="form-control">
-                                                <option value="">Filtrar por Status</option>
-                                                <option value="Em aberto">Em aberto</option>
-                                                <option value="Finalizado">Finalizado</option>
-                                            </select>
-                                        </div>
+    
+                                    <!-- Aba de Pedidos -->
+                                    <div class="tab-pane fade" id="pedidos" role="tabpanel" aria-labelledby="pedidos-tab">
+                                        <p>Aqui você pode ver os pedidos detalhados ou mais informações relacionadas a pedidos.</p>
                                     </div>
-                                    
-                                    <!-- Filtro por Vendedor -->
-                                    <div class="col-12 col-sm-6 col-md-3">
-                                        <div class="mb-3">
-                                            <input type="text" id="vendedorFilter" class="form-control" placeholder="Filtrar por Vendedor">
-                                        </div>
+    
+                                    <!-- Aba de Relatórios -->
+                                    <div class="tab-pane fade" id="relatorios" role="tabpanel" aria-labelledby="relatorios-tab">
+                                        <p>Aqui você pode visualizar relatórios relacionados ao seu negócio.</p>
                                     </div>
                                 </div>
-                                
-                                <div class="table-responsive py-3 text-center">
-                                    <table id="orders" class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">Pedido</th>
-                                                <th scope="col">Data/Hora</th>
-                                                <th scope="col">Vendedor</th>
-                                                <th scope="col">Cliente</th>
-                                                <th scope="col">Total</th>
-                                                <th scope="col">Status</th>
-                                                <th scope="col">Ações</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <!-- As linhas de pedidos serão adicionadas aqui dinamicamente -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                                
-                                <div id="pagination-controls" class="pagination text-center">
-                                    <!-- Links de paginação serão injetados aqui -->
-                                </div>
-                                
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-        
-        
-      </div> 
+    </div>
+    
          
 </div>
 
