@@ -61,9 +61,10 @@
                             Nova Venda
                         </a>
 
-                        <button id="fecharCaixaButton" class="btn btn-warning btn-sm" {% if not caixa_aberto %}disabled{% endif %}>
+                        <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#fecharCaixaModal" {% if not caixa_esta_aberto %}disabled{% endif %}>
                             Fechar Caixa
                         </button>
+                        
                     </div>
                 </div>
                 
@@ -234,9 +235,9 @@
           <form id="fecharCaixaForm">
             <div class="form-group">
               <label for="saldoFinalInput">Saldo Final:</label>
-              <input type="number" step="0.01" id="saldoFinalInput" class="form-control" required>
+              <input type="number" step="0.01" id="saldoFinalInput" class="form-control" value="0.00" required>
             </div>
-            <button type="submit" class="btn btn-primary">Fechar Caixa</button>
+            <button type="submit" class="btn btn-success btn-sm w-100">Fechar Caixa</button>
           </form>
         </div>
       </div>
@@ -488,35 +489,43 @@
         window.open(cupomFiscalUrl, '_blank');  // Abre em uma nova aba
     }
 
-    $(document).ready(function() {
-        $('#fecharCaixaButton').on('click', function() {
-            if (confirm("Tem certeza de que deseja fechar o caixa?")) {
-                $.ajax({
-                    type: 'POST',
-                    url: '/caixa/fechar_caixa_ajax/',
-                    headers: {
-                        'X-CSRFToken': getCSRFToken()  // Função para obter o CSRF Token
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            alert(response.message);
-                            location.reload();  // Recarrega a página para atualizar o status
-                        } else {
-                            alert(response.message);
-                        }
-                    },
-                    error: function() {
-                        alert("Ocorreu um erro ao tentar fechar o caixa.");
-                    }
-                });
-            }
-        });
+
+    document.getElementById('fecharCaixaForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Evita o envio padrão do formulário
     
-        // Função para obter o CSRF Token
-        function getCSRFToken() {
-            return document.querySelector('input[name="csrfmiddlewaretoken"]').value;
-        }
+        let saldoFinal = document.getElementById('saldoFinalInput').value;
+    
+        // Fazer a requisição AJAX para fechar o caixa
+        fetch('/caixa/fechar_caixa_ajax/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json', // Enviando como JSON
+                'X-CSRFToken': getCsrfToken() // Função para obter o CSRF token
+            },
+            body: JSON.stringify({ saldo_final: saldoFinal }) // Stringify os dados como JSON
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Caixa fechado com sucesso!');
+                // Atualizar a página ou redirecionar
+                location.reload();
+            } else {
+                alert('Erro ao fechar o caixa: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Ocorreu um erro ao tentar fechar o caixa.');
+        });
     });
+    
+    // Função para obter o CSRF token (Django)
+    function getCsrfToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+    
+
     
 
     

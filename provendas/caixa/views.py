@@ -29,17 +29,30 @@ def abrir_caixa_ajax(request):
 
 def fechar_caixa_ajax(request):
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').first()
-        if not caixa_aberto:
-            return JsonResponse({'success': False, 'message': "Não há caixa aberto para fechar."})
+        try:
+            # Carregar o corpo da requisição JSON
+            data = json.loads(request.body)
+            saldo_final = float(data.get('saldo_final', 0.00))
 
-        saldo_final = float(request.POST.get('saldo_final', 0.00))
-        caixa_aberto.saldo_final = saldo_final
-        caixa_aberto.status = 'Fechado'
-        caixa_aberto.fechado_em = timezone.now()
-        caixa_aberto.save()
-        return JsonResponse({'success': True, 'message': "Caixa fechado com sucesso."})
+            # Buscar o caixa aberto para o usuário
+            caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').first()
+            if not caixa_aberto:
+                return JsonResponse({'success': False, 'message': "Não há caixa aberto para fechar."})
+
+            # Atualizar o saldo final e status do caixa
+            caixa_aberto.saldo_final = saldo_final
+            caixa_aberto.status = 'Fechado'
+            caixa_aberto.fechado_em = timezone.now()
+            caixa_aberto.save()
+
+            return JsonResponse({'success': True, 'message': "Caixa fechado com sucesso."})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    
     return JsonResponse({'success': False, 'message': "Requisição inválida."})
+
+
+
 
 def verificar_caixa_aberto(request):
     caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').exists()
@@ -254,8 +267,6 @@ def finalizar_venda(request):
 
 #     return JsonResponse({'success': False, 'message': 'Método não permitido.'}, status=405)
 
-
-
 def gerar_cupom_fiscal(request, pedido_id):
     pedido = get_object_or_404(CaixaPdv, id=pedido_id)
     
@@ -287,7 +298,6 @@ def gerar_cupom_fiscal(request, pedido_id):
     
     # Renderiza o template de cupom fiscal
     return render(request, 'caixa/cupom_fiscal.html', context)
-
    
 def search_client(request):
     term = request.GET.get('q', '')
@@ -348,6 +358,10 @@ def listar_caixa(request):
     modoLeitorCodigoDeBarra = configuracao.modoLeitorCodigoDeBarra if configuracao else False
     gerenciar_abertura_fechamento_caixa = configuracao.gerenciar_abertura_fechamento_caixa if configuracao else False
 
+    # Busca o caixa aberto para o usuário atual
+    caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').first()
+    caixa_esta_aberto = caixa_aberto is not None
+
     return render(request, 'caixa/listar_caixa.html', {
         'pedidos': pedidos, 
         'clientes': clientes, 
@@ -356,6 +370,7 @@ def listar_caixa(request):
         'cliente_padrao': cliente_padrao,
         'modoLeitorCodigoDeBarra': modoLeitorCodigoDeBarra, 
         'gerenciar_abertura_fechamento_caixa': gerenciar_abertura_fechamento_caixa,
+        'caixa_esta_aberto': caixa_esta_aberto,
     })
 
 def listar_pedidos_ajax(request):
@@ -454,7 +469,6 @@ def abrir_caixa_pdv(request):
     pedidos = CaixaPdv.objects.all()  # Todos os pedidos
     clientes = Cliente.objects.all()  # Todos os clientes
     produtos = Produto.objects.all()   # Todos os produtos
-    categorias = CategoriaProduto.objects.all()  # Todas as categorias de produtos
     categorias = CategoriaProduto.objects.all()  # Todas as categorias de produtos
     
     # Busca o caixa aberto para o usuário atual
