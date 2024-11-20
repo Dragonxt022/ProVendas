@@ -578,7 +578,7 @@
             }
         }
 
-        let ativarGeracaoCodigo = false; // Declare apenas uma vez
+        let ativarGeracaoCodigo = {{ gerar_codigo_barra_automatico|yesno:"true,false"|lower }};
 
         function gerarCodigoDeBarras() {
             if (ativarGeracaoCodigo) {

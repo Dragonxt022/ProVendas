@@ -43,7 +43,11 @@ def fechar_caixa_ajax(request):
 
 def verificar_caixa_aberto(request):
     caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').exists()
-    abrir_caixa_automatico = False  # Defina essa configuração conforme necessário
+
+    # Pega a configuração do cliente padrão
+    configuracao = Configuracao.objects.first()
+    abrir_caixa_automatico = configuracao.gerenciar_abertura_fechamento_caixa if configuracao else False
+
     return JsonResponse({
         'caixa_aberto': caixa_aberto,
         'abrir_caixa_automatico': abrir_caixa_automatico

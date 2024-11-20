@@ -32,4 +32,6 @@ def configuracoes(request):
         'cor_secundaria': configuracao.cor_secundaria,
         'logo_empresa': configuracao.logo_empresa.url if configuracao.logo_empresa else None,
         'icone_aplicacao': configuracao.icone_aplicacao.url if configuracao.icone_aplicacao else None,
+        'gerar_codigo_barra_automatico': configuracao.gerar_codigo_barra_automatico,
+        'gerenciar_abertura_fechamento_caixa': configuracao.gerenciar_abertura_fechamento_caixa,
     }
