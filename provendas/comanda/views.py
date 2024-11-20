@@ -183,7 +183,7 @@ def fechar_comanda(request, mesa_id):
                 payment_method=payment_method
             )
 
-            # Processar os produtos e salvar no CaixaPdv
+           # Processar os produtos e salvar no CaixaPdv
             for produto_data in produtos:
                 produto = Produto.objects.filter(id=produto_data.get('produto_id')).first()
 
@@ -192,13 +192,11 @@ def fechar_comanda(request, mesa_id):
 
                     # Verificar se o controle de estoque está ativado
                     if produto.controle_estoque:
-                        if produto.quantidade_estoque >= quantidade:
-                            # Descontar do estoque se houver quantidade suficiente
-                            produto.quantidade_estoque -= quantidade
-                            produto.save()
-                        else:
-                            # Se não houver quantidade suficiente, retornar erro
-                            return JsonResponse({'success': False, 'message': 'Estoque insuficiente para um dos produtos.'}, status=400)
+                        # Permitir a venda mesmo com estoque zerado ou negativo
+                        produto.quantidade_estoque -= quantidade  # Ajuste do estoque, permitindo números negativos
+                        produto.save()
+                    # Caso o produto não seja gerenciável, não altera o estoque e apenas realiza a venda
+                    # Nenhuma ação é necessária aqui, o estoque não será alterado.
 
                     # Salvar os produtos na venda
                     ProdutoCaixaPdv.objects.create(
@@ -219,6 +217,7 @@ def fechar_comanda(request, mesa_id):
 
             # Retornar uma resposta de sucesso
             return JsonResponse({'success': True, 'message': 'Comanda convertida para venda direta e finalizada com sucesso!'})
+
 
         except Exception as e:
             # Se ocorrer algum erro, retornar uma mensagem de erro

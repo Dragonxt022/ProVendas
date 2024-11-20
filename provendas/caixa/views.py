@@ -13,6 +13,8 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.db.models import Q 
 import locale
+import logging
+logger = logging.getLogger(__name__)
 
 #  Abre o caixa
 def abrir_caixa_ajax(request):
@@ -33,23 +35,40 @@ def fechar_caixa_ajax(request):
         try:
             # Carregar o corpo da requisição JSON
             data = json.loads(request.body)
-            saldo_final = float(data.get('saldo_final', 0.00))
+            saldo_final = data.get('saldo_final')
+
+            # Log para verificar o valor recebido
+            logger.debug(f"Dados recebidos: {data}")
+            logger.debug(f"Saldo final: {saldo_final}")
+
+            # Verificar se o saldo final foi fornecido
+            if not saldo_final:
+                logger.error("Saldo final não foi fornecido")
+                return JsonResponse({'success': False, 'message': "Saldo final não fornecido."})
+
+            saldo_final = float(saldo_final)  # Garantir que é um número float
 
             # Buscar o caixa aberto para o usuário
             caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').first()
+
             if not caixa_aberto:
+                logger.error(f"Nenhum caixa aberto encontrado para o usuário {request.user.id}")
                 return JsonResponse({'success': False, 'message': "Não há caixa aberto para fechar."})
 
             # Atualizar o saldo final e status do caixa
             caixa_aberto.saldo_final = saldo_final
             caixa_aberto.status = 'Fechado'
-            caixa_aberto.fechado_em = timezone.now()
+            caixa_aberto.fechado_em = timezone.now()  # Registrar a data de fechamento
             caixa_aberto.save()
+
+            logger.info(f"Caixa {caixa_aberto.id} fechado com sucesso")
 
             return JsonResponse({'success': True, 'message': "Caixa fechado com sucesso."})
         except Exception as e:
-            return JsonResponse({'success': False, 'message': str(e)})
+            logger.error(f"Erro ao tentar fechar o caixa: {str(e)}")
+            return JsonResponse({'success': False, 'message': f"Erro ao fechar o caixa: {str(e)}"})
     
+    logger.error("Requisição inválida: método não POST ou não AJAX")
     return JsonResponse({'success': False, 'message': "Requisição inválida."})
 
 # Verifica se tem algum caixa aberto
@@ -66,119 +85,6 @@ def verificar_caixa_aberto(request):
     })
 
 #  FInaliza a venda via Ajax
-# def finalizar_venda(request):
-#     if request.method == 'POST':
-#         try:
-#             # Carrega as configurações do cliente
-#             configuracao = Configuracao.objects.first()
-#             gerenciar_abertura_fechamento_caixa = configuracao.gerenciar_abertura_fechamento_caixa if configuracao else False
-
-#             data = json.loads(request.body)
-
-#             venda_id = data.get('venda_id')
-#             numero_pedido = data.get('numero_pedido')
-#             vendedor_id = data.get('vendedor_id')
-#             cliente_id = data.get('cliente_id')
-#             desconto = float(data.get('desconto', 0))
-#             total = float(data.get('total', '0'))
-#             status = data.get('status', 'Em aberto')
-#             payment_method = data.get('payment_method')
-#             produtos = data.get('produtos', [])
-
-#             # Verifica se a venda já existe para atualizar, caso contrário, cria uma nova
-#             if venda_id:
-#                 caixa_pdv = CaixaPdv.objects.filter(id=venda_id).first()
-#                 if not caixa_pdv:
-#                     return JsonResponse({'success': False, 'message': 'Venda não encontrada.'}, status=404)
-#             else:
-#                 # Criando nova venda
-#                 cliente = Cliente.objects.filter(id=cliente_id).first()
-#                 vendedor = User.objects.filter(id=vendedor_id).first()
-
-#                 if not cliente:
-#                     return JsonResponse({'success': False, 'message': 'Cliente não encontrado.'}, status=404)
-#                 if not vendedor:
-#                     return JsonResponse({'success': False, 'message': 'Vendedor não encontrado.'}, status=404)
-
-#                 caixa_pdv = CaixaPdv.objects.create(
-#                     numero_pedido=numero_pedido,
-#                     vendedor=vendedor,
-#                     cliente=cliente,
-#                     desconto=desconto,
-#                     total=total,
-#                     status=status,
-#                     payment_method=payment_method
-#                 )
-
-#                 # Se a venda não estiver finalizada, não associa ao caixa
-#                 if status != 'Finalizado' and gerenciar_abertura_fechamento_caixa:
-#                     return JsonResponse({'success': True, 'message': 'Venda salva sem associação ao caixa.'})
-
-#             # Salva os produtos quando a venda está em aberto, sem ajuste de estoque
-#             if status == "Em aberto":
-#                 ProdutoCaixaPdv.objects.filter(caixa_pdv=caixa_pdv).delete()
-#                 for produto_data in produtos:
-#                     try:
-#                         produto = Produto.objects.filter(id=produto_data.get('produto_id')).first()
-#                         if produto:
-#                             ProdutoCaixaPdv.objects.create(
-#                                 caixa_pdv=caixa_pdv,
-#                                 produto=produto,
-#                                 quantidade=produto_data.get('quantidade'),
-#                                 preco_unitario=produto_data.get('preco_unitario'),
-#                                 total=produto_data['quantidade'] * produto_data['preco_unitario']
-#                             )
-#                         else:
-#                             print(f"Produto não encontrado: ID {produto_data.get('produto_id')}")
-#                     except Exception as e:
-#                         print(f"Erro ao processar produto: {e}")
-
-#             # Caso contrário, se for "Finalizado", processa como finalização de venda
-#             else:
-#                 ProdutoCaixaPdv.objects.filter(caixa_pdv=caixa_pdv).delete()
-#                 for produto_data in produtos:
-#                     produto = Produto.objects.filter(id=produto_data.get('produto_id')).first()
-
-#                     if produto:
-#                         quantidade = produto_data['quantidade']
-
-#                         # Verifica se o produto é gerenciável (controle_estoque é True) antes de aplicar o ajuste de estoque
-#                         if produto.controle_estoque:
-#                             produto.quantidade_estoque -= quantidade  # Ajuste do estoque
-#                             produto.save()
-
-#                         # Cria o registro da venda no CaixaPdv
-#                         ProdutoCaixaPdv.objects.create(
-#                             caixa_pdv=caixa_pdv,
-#                             produto=produto,
-#                             quantidade=quantidade,
-#                             preco_unitario=produto_data['preco_unitario'],
-#                             total=quantidade * produto_data['preco_unitario']
-#                         )
-
-#                 # Se o gerenciamento de caixa estiver ativado, associa a venda ao caixa
-#                 if gerenciar_abertura_fechamento_caixa:
-#                     # Obtém o caixa aberto para o usuário
-#                     caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').first()
-#                     if not caixa_aberto:
-#                         return JsonResponse({'success': False, 'message': 'Não há caixa aberto para associar a venda.'}, status=400)
-
-#                     # Associa a venda ao caixa
-#                     caixa_pdv.caixa = caixa_aberto
-#                     caixa_pdv.status = 'Finalizado'
-#                     caixa_pdv.save()
-
-#                 # Log da hora com o fuso horário configurado
-#                 print("Hora atual (fuso horário configurado):", timezone.localtime())
-
-#                 return JsonResponse({'success': True, 'message': 'Venda finalizada com sucesso!'})
-
-#         except Exception as e:
-#             print("Erro ao processar a venda:", e)
-#             return JsonResponse({'success': False, 'message': f'Erro ao salvar a venda: {str(e)}'}, status=500)
-
-#     return JsonResponse({'success': False, 'message': 'Método não permitido.'}, status=405)
-
 def salvar_produtos_na_venda(caixa_pdv, produtos):
     try:
         # Limpa os produtos anteriores associados à venda
@@ -198,7 +104,6 @@ def salvar_produtos_na_venda(caixa_pdv, produtos):
                 print(f"Produto não encontrado: ID {produto_data.get('produto_id')}")
     except Exception as e:
         print(f"Erro ao salvar produtos: {e}")
-
 
 def finalizar_venda(request):
     if request.method == 'POST':  # Certifique-se de que a requisição é POST
@@ -262,10 +167,13 @@ def finalizar_venda(request):
                     if produto:
                         quantidade = produto_data['quantidade']
 
-                        # Verifica se o produto é gerenciável (controle_estoque é True) antes de aplicar o ajuste de estoque
+                        # Verifica se o produto é gerenciável (controle_estoque é True)
                         if produto.controle_estoque:
-                            produto.quantidade_estoque -= quantidade  # Ajuste do estoque
+                            # Permite a venda mesmo com estoque 0 e ajusta o estoque, permitindo números negativos
+                            produto.quantidade_estoque -= quantidade  # Subtrai a quantidade da venda
                             produto.save()
+                        # Caso o produto não seja gerenciável, não altera o estoque e apenas realiza a venda
+                        # Nenhuma ação é necessária aqui, o estoque não será alterado.
 
                 # Se o gerenciamento de caixa estiver ativado, associa a venda ao caixa
                 if gerenciar_abertura_fechamento_caixa:
@@ -280,6 +188,7 @@ def finalizar_venda(request):
                 return JsonResponse({'success': True, 'message': 'Venda finalizada com sucesso!'})
 
             return JsonResponse({'success': True, 'message': 'Venda finalizada com sucesso!'})
+
         except Exception as e:
             return JsonResponse({'success': False, 'message': f'Erro ao salvar a venda: {str(e)}'}, status=500)
     else:

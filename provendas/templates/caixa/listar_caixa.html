@@ -239,13 +239,15 @@
           </button>
         </div>
         <div class="modal-body">
-          <form id="fecharCaixaForm">
-            <div class="form-group">
-              <label for="saldoFinalInput">Saldo Final:</label>
-              <input type="number" step="0.01" id="saldoFinalInput" class="form-control" value="0.00" required>
-            </div>
-            <button type="submit" class="btn btn-success btn-sm w-100">Fechar Caixa</button>
-          </form>
+            <form id="fecharCaixaForm">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="saldoFinalInput">Saldo Final:</label>
+                    <input type="number" step="0.01" id="saldoFinalInput" class="form-control" value="0.00" required>
+                </div>
+                <button type="submit" class="btn btn-success btn-sm w-100">Fechar Caixa</button>
+            </form>
+            
         </div>
       </div>
     </div>
@@ -479,12 +481,15 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json', // Enviando como JSON
-                'X-CSRFToken': getCsrfToken() // Função para obter o CSRF token
+                'X-CSRFToken': getCsrfToken(), // Função para obter o CSRF token
+                'X-Requested-With': 'XMLHttpRequest' // Garantir que o cabeçalho AJAX esteja presente
             },
             body: JSON.stringify({ saldo_final: saldoFinal }) // Stringify os dados como JSON
         })
         .then(response => response.json())
         .then(data => {
+            console.log(data);  // Adiciona um log para ver o que vem na resposta
+    
             if (data.success) {
                 alert('Caixa fechado com sucesso!');
                 // Atualizar a página ou redirecionar
@@ -498,7 +503,7 @@
             alert('Ocorreu um erro ao tentar fechar o caixa.');
         });
     });
-    
+        
     // Função para obter o CSRF token (Django)
     function getCsrfToken() {
         return document.querySelector('[name=csrfmiddlewaretoken]').value;
