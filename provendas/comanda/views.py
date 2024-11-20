@@ -63,15 +63,27 @@ def gerar_cupom_fiscal_comanda(request, comanda_id):
 #             mesa = get_object_or_404(Mesa, id=mesa_id)
 #             comanda = get_object_or_404(Comanda, mesa=mesa, status='aberta')
 
-#             # Verifica se a comanda já foi fechada e converte para uma venda
+#             # Verificar se há um caixa aberto, considerando o gerenciamento de caixa
+#             configuracao = Configuracao.objects.first()
+#             gerenciar_caixa = configuracao.gerenciar_abertura_fechamento_caixa if configuracao else False
+
+#             # Pega o caixa aberto para associar a venda, se o gerenciamento estiver ativado
+#             caixa = None
+#             if gerenciar_caixa:
+#                 caixa = Caixa.objects.filter(status='Aberto').first()
+#                 if not caixa:
+#                     return JsonResponse({'success': False, 'message': 'Não há caixa aberto para registrar a venda.'}, status=400)
+
+#             # Verifica se o cliente e o vendedor existem
 #             cliente = Cliente.objects.filter(id=cliente_id).first()
 #             vendedor = User.objects.filter(id=vendedor_id).first()
 
 #             if not cliente or not vendedor:
 #                 return JsonResponse({'success': False, 'message': 'Cliente ou Vendedor não encontrado.'}, status=404)
 
-#             # Criando a venda (CaixaPdv)
+#             # Criando a venda (CaixaPdv) e associando ao caixa se ele estiver aberto
 #             caixa_pdv = CaixaPdv.objects.create(
+#                 caixa=caixa,  # Associa ao caixa aberto, se existir
 #                 numero_pedido=numero_pedido,
 #                 vendedor=vendedor,
 #                 cliente=cliente,
@@ -124,7 +136,6 @@ def gerar_cupom_fiscal_comanda(request, comanda_id):
 
 #     # Se não for uma requisição POST, redirecionar para a lista de mesas
 #     return redirect('listar_mesas')
-
 def fechar_comanda(request, mesa_id):
     if request.method == 'POST':
         try:

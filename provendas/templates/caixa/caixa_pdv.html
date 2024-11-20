@@ -880,7 +880,7 @@
                 total: totalInDollars.toFixed(2),
                 payment_method: 'N/D',
                 status: status,
-                produtos: produtos
+                produtos: produtos,
             };
         
             fetch('/caixa/finalizar_venda/', {
@@ -902,7 +902,7 @@
                     $('#successModal').modal('show');
                     setTimeout(() => {
                         $('#successModal').modal('hide');
-                    }, 2000);
+                    }, 3000);
         
                     cart = [];
                     renderCart();
@@ -915,7 +915,7 @@
                     $('#errorModal').modal('show');
                     setTimeout(() => {
                         $('#errorModal').modal('hide');
-                    }, 2000);
+                    }, 3000);
                 }
             })
             .catch(error => {
@@ -923,7 +923,7 @@
                 $('#errorModal').modal('show');
                 setTimeout(() => {
                     $('#errorModal').modal('hide');
-                }, 2000);
+                }, 3000);
             })
             .finally(() => {
                 $('#paymentModal').modal('hide');
