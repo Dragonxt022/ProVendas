@@ -58,7 +58,7 @@
                                                         data-target="#editarModal" 
                                                         data-id="{{ categoria.id }}" 
                                                         data-nome="{{ categoria.nome }}">
-                                                        Editar
+                                                        <i class="fas fa-edit"></i>
                                                     </button>
          
                                                     <!-- Botão Excluir -->
@@ -66,7 +66,7 @@
                                                         data-target="#excluirModal" 
                                                         data-id="{{ categoria.id }}" 
                                                         data-nome="{{ categoria.nome }}">
-                                                        Excluir
+                                                        <i class="fas fa-trash"></i>
                                                     </button>
                                                 </td>
                                             </tr>
@@ -81,10 +81,16 @@
                                                             </button>
                                                         </div>
                                                         <div class="modal-body">
-                                                            <form method="post" id="editarForm" action="{% url 'cadastrar_categoria' %}">
+                                                            <form method="post" id="editarForm" action="{% url 'cadastrar_categoria' %}" enctype="multipart/form-data">
                                                                 {% csrf_token %}
                                                                 <input type="hidden" name="categoria_id" id="categoria_id">
-                                                                <input type="text" name="nome" id="nome" class="form-control" required>
+
+                                                                <label class="py-2">Nome da Categoria:</label>
+                                                                <input type="text" name="nome" id="nome" class="form-control py-2" required>
+
+                                                                <label class="py-2">Imagem:</label>
+                                                                <input type="file" name="file" id="file" class="form-control">
+
                                                                 <div class="py-2 "></div>
                                                                 <button type="submit" class="btn btn-warning w-100">Atualizar Categoria</button>
                                                             </form>
