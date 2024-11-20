@@ -23,9 +23,10 @@ def custom_logout(request):
 
 
 def login_view(request):
-    # Verifica se o usuário já está autenticado
+
+     # Verifica se o usuário já está autenticado
     if request.user.is_authenticated:
-        return redirect('dashboard')  # Redireciona para o dashboard se o usuário já estiver autenticado
+        return redirect('dashboard')
 
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -40,13 +41,16 @@ def login_view(request):
 
             # Se não houver licença ativa ou a licença estiver expirada
             if not active_license or active_license.expiration_date < timezone.now():
+                days_since_expired = 0
                 if active_license:
                     days_since_expired = (timezone.now() - active_license.expiration_date).days
-                else:
-                    days_since_expired = 0
+
                 # Se a licença expirou há 3 dias ou mais
                 if days_since_expired >= 3:
-                    messages.error(request, "Sua licença expirou há mais de 3 dias. Não é possível acessar o sistema.")
+                    messages.error(
+                        request,
+                        "Sua licença expirou há mais de 3 dias. Não é possível acessar o sistema."
+                    )
                     return render(request, 'login.html')
 
             # Caso a licença esteja válida ou dentro do limite de expiração
@@ -57,7 +61,6 @@ def login_view(request):
             messages.error(request, 'Usuário ou senha inválidos.')
 
     return render(request, 'login.html')
-
 
 def dashboard(request):
     # Pegando o ano e mês da query string ou usando os valores atuais

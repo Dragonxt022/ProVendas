@@ -27,13 +27,13 @@
             <a href="{% url 'abrir_caixa_pdv' %}" class="nav-link"><i class="fas fa-shopping-cart"></i> Caixa</a>
         </li>
 
-        <li class="nav-item d-none d-md-inline-block">
+        <li class="nav-item d-none d-md-inline-block" {% if not gerenciar_abertura_fechamento_caixa %} style="display:none;" {% endif %}>
           <a class="nav-link">Status Caixa: <span class="badge bg-success">{{ status_caixa }}</span></a>
       </li>
     </ul>
 
     <!-- Right navbar links -->
-    <ul class="navbar-nav ml-auto">
+    <ul class="navbar-nav nav-mobile ml-auto">
         <!-- Status Caixa -->
         
 

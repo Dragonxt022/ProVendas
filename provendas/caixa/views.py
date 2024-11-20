@@ -51,9 +51,6 @@ def fechar_caixa_ajax(request):
     
     return JsonResponse({'success': False, 'message': "Requisição inválida."})
 
-
-
-
 def verificar_caixa_aberto(request):
     caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').exists()
 
@@ -118,16 +115,21 @@ def finalizar_venda(request):
             if status == "Em aberto":
                 ProdutoCaixaPdv.objects.filter(caixa_pdv=caixa_pdv).delete()
                 for produto_data in produtos:
-                    produto = Produto.objects.filter(id=produto_data.get('produto_id')).first()
-                    if produto:
-                        ProdutoCaixaPdv.objects.create(
-                            caixa_pdv=caixa_pdv,
-                            produto=produto,
-                            quantidade=produto_data.get('quantidade'),
-                            preco_unitario=produto_data.get('preco_unitario'),
-                            total=produto_data['quantidade'] * produto_data['preco_unitario']
-                        )
-                return JsonResponse({'success': True, 'message': 'Venda salva com sucesso!'})
+                    try:
+                        produto = Produto.objects.filter(id=produto_data.get('produto_id')).first()
+                        if produto:
+                            ProdutoCaixaPdv.objects.create(
+                                caixa_pdv=caixa_pdv,
+                                produto=produto,
+                                quantidade=produto_data.get('quantidade'),
+                                preco_unitario=produto_data.get('preco_unitario'),
+                                total=produto_data['quantidade'] * produto_data['preco_unitario']
+                            )
+                        else:
+                            print(f"Produto não encontrado: ID {produto_data.get('produto_id')}")
+                    except Exception as e:
+                        print(f"Erro ao processar produto: {e}")
+
 
             # Caso contrário, se for "Finalizado", processa como finalização de venda
             else:

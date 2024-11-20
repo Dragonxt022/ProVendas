@@ -1,7 +1,6 @@
-# configuracoes/context_processors.py
-
 from .models import Configuracao
 from django.utils import timezone
+from django.utils.timezone import now
 from licencas.models import LicenseKey
 from caixa.models import Caixa
 
@@ -20,20 +19,20 @@ def license_days_remaining(request):
 
     return {'days_remaining': days_remaining}
 
-
-
 def configuracoes(request):
     # Aqui você recupera as configurações para serem usadas em todos os templates
     configuracao, created = Configuracao.objects.get_or_create(id=1)
 
-    # Busca o caixa aberto para o usuário atual
-    caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').first()
+    # Verifica se o usuário está autenticado antes de buscar o caixa
+    if request.user.is_authenticated:
+        caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').first()
+        caixa_esta_aberto = caixa_aberto is not None
+        status_caixa = caixa_aberto.status if caixa_aberto else 'N/D'
+    else:
+        caixa_aberto = None
+        caixa_esta_aberto = False
+        status_caixa = 'N/D'
 
-    # Define se o caixa está aberto e passa mais informações se necessário
-    caixa_esta_aberto = caixa_aberto is not None
-    status_caixa = caixa_aberto.status if caixa_aberto else 'N/D'
-
-    
     return {
         'nome_aplicacao': configuracao.nome_aplicacao,
         'cliente_padrao': configuracao.cliente_padrao,
