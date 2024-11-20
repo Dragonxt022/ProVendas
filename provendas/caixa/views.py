@@ -63,6 +63,119 @@ def verificar_caixa_aberto(request):
         'abrir_caixa_automatico': abrir_caixa_automatico
     })
 
+# def finalizar_venda(request):
+#     if request.method == 'POST':
+#         try:
+#             # Carrega as configurações do cliente
+#             configuracao = Configuracao.objects.first()
+#             gerenciar_abertura_fechamento_caixa = configuracao.gerenciar_abertura_fechamento_caixa if configuracao else False
+
+#             data = json.loads(request.body)
+
+#             venda_id = data.get('venda_id')
+#             numero_pedido = data.get('numero_pedido')
+#             vendedor_id = data.get('vendedor_id')
+#             cliente_id = data.get('cliente_id')
+#             desconto = float(data.get('desconto', 0))
+#             total = float(data.get('total', '0'))
+#             status = data.get('status', 'Em aberto')
+#             payment_method = data.get('payment_method')
+#             produtos = data.get('produtos', [])
+
+#             # Verifica se a venda já existe para atualizar, caso contrário, cria uma nova
+#             if venda_id:
+#                 caixa_pdv = CaixaPdv.objects.filter(id=venda_id).first()
+#                 if not caixa_pdv:
+#                     return JsonResponse({'success': False, 'message': 'Venda não encontrada.'}, status=404)
+#             else:
+#                 # Criando nova venda
+#                 cliente = Cliente.objects.filter(id=cliente_id).first()
+#                 vendedor = User.objects.filter(id=vendedor_id).first()
+
+#                 if not cliente:
+#                     return JsonResponse({'success': False, 'message': 'Cliente não encontrado.'}, status=404)
+#                 if not vendedor:
+#                     return JsonResponse({'success': False, 'message': 'Vendedor não encontrado.'}, status=404)
+
+#                 caixa_pdv = CaixaPdv.objects.create(
+#                     numero_pedido=numero_pedido,
+#                     vendedor=vendedor,
+#                     cliente=cliente,
+#                     desconto=desconto,
+#                     total=total,
+#                     status=status,
+#                     payment_method=payment_method
+#                 )
+
+#                 # Se a venda não estiver finalizada, não associa ao caixa
+#                 if status != 'Finalizado' and gerenciar_abertura_fechamento_caixa:
+#                     return JsonResponse({'success': True, 'message': 'Venda salva sem associação ao caixa.'})
+
+#             # Salva os produtos quando a venda está em aberto, sem ajuste de estoque
+#             if status == "Em aberto":
+#                 ProdutoCaixaPdv.objects.filter(caixa_pdv=caixa_pdv).delete()
+#                 for produto_data in produtos:
+#                     try:
+#                         produto = Produto.objects.filter(id=produto_data.get('produto_id')).first()
+#                         if produto:
+#                             ProdutoCaixaPdv.objects.create(
+#                                 caixa_pdv=caixa_pdv,
+#                                 produto=produto,
+#                                 quantidade=produto_data.get('quantidade'),
+#                                 preco_unitario=produto_data.get('preco_unitario'),
+#                                 total=produto_data['quantidade'] * produto_data['preco_unitario']
+#                             )
+#                         else:
+#                             print(f"Produto não encontrado: ID {produto_data.get('produto_id')}")
+#                     except Exception as e:
+#                         print(f"Erro ao processar produto: {e}")
+
+
+#             # Caso contrário, se for "Finalizado", processa como finalização de venda
+#             else:
+#                 ProdutoCaixaPdv.objects.filter(caixa_pdv=caixa_pdv).delete()
+#                 for produto_data in produtos:
+#                     produto = Produto.objects.filter(id=produto_data.get('produto_id')).first()
+
+#                     if produto:
+#                         quantidade = produto_data['quantidade']
+
+#                         # Permite finalizar a venda para produtos com quantidade_estoque zero ou negativo
+#                         produto.quantidade_estoque -= quantidade  # Ajuste do estoque, permitindo valores negativos
+#                         produto.save()
+
+#                         # Cria o registro da venda no CaixaPdv
+#                         ProdutoCaixaPdv.objects.create(
+#                             caixa_pdv=caixa_pdv,
+#                             produto=produto,
+#                             quantidade=quantidade,
+#                             preco_unitario=produto_data['preco_unitario'],
+#                             total=quantidade * produto_data['preco_unitario']
+#                         )
+
+#                 # Se o gerenciamento de caixa estiver ativado, associa a venda ao caixa
+#                 if gerenciar_abertura_fechamento_caixa:
+#                     # Obtém o caixa aberto para o usuário
+#                     caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').first()
+#                     if not caixa_aberto:
+#                         return JsonResponse({'success': False, 'message': 'Não há caixa aberto para associar a venda.'}, status=400)
+
+#                     # Associa a venda ao caixa
+#                     caixa_pdv.caixa = caixa_aberto
+#                     caixa_pdv.status = 'Finalizado'
+#                     caixa_pdv.save()
+
+#                 # Log da hora com o fuso horário configurado
+#                 print("Hora atual (fuso horário configurado):", timezone.localtime())
+
+#                 return JsonResponse({'success': True, 'message': 'Venda finalizada com sucesso!'})
+
+#         except Exception as e:
+#             print("Erro ao processar a venda:", e)
+#             return JsonResponse({'success': False, 'message': f'Erro ao salvar a venda: {str(e)}'}, status=500)
+
+#     return JsonResponse({'success': False, 'message': 'Método não permitido.'}, status=405)
+
 def finalizar_venda(request):
     if request.method == 'POST':
         try:
@@ -130,7 +243,6 @@ def finalizar_venda(request):
                     except Exception as e:
                         print(f"Erro ao processar produto: {e}")
 
-
             # Caso contrário, se for "Finalizado", processa como finalização de venda
             else:
                 ProdutoCaixaPdv.objects.filter(caixa_pdv=caixa_pdv).delete()
@@ -140,9 +252,10 @@ def finalizar_venda(request):
                     if produto:
                         quantidade = produto_data['quantidade']
 
-                        # Permite finalizar a venda para produtos com quantidade_estoque zero ou negativo
-                        produto.quantidade_estoque -= quantidade  # Ajuste do estoque, permitindo valores negativos
-                        produto.save()
+                        # Verifica se o produto é gerenciável (controle_estoque é True) antes de aplicar o ajuste de estoque
+                        if produto.controle_estoque:
+                            produto.quantidade_estoque -= quantidade  # Ajuste do estoque
+                            produto.save()
 
                         # Cria o registro da venda no CaixaPdv
                         ProdutoCaixaPdv.objects.create(
@@ -175,6 +288,8 @@ def finalizar_venda(request):
             return JsonResponse({'success': False, 'message': f'Erro ao salvar a venda: {str(e)}'}, status=500)
 
     return JsonResponse({'success': False, 'message': 'Método não permitido.'}, status=405)
+
+
 
 def gerar_cupom_fiscal(request, pedido_id):
     pedido = get_object_or_404(CaixaPdv, id=pedido_id)
