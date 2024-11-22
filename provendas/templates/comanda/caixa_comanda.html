@@ -41,7 +41,7 @@
                                         <input type="text" id="mesa_nome" class="form-control" value="{{ mesa_nome }}" readonly>
                                     </div>
                                 </div>
-                                <div class="row py-1">
+                                <div class="row py-1" {% if not modoLeitorCodigoDeBarra %} style="display:none;" {% endif %}>
                                     <div class="col">
                                         <div class="input-group mb-3">
                                             <input type="text" id="filtrar_produto_code" class="form-control" placeholder="Adicione o código do produto..." aria-label="Adicione o código do produto">
