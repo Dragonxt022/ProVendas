@@ -278,13 +278,16 @@
                         tbody.append('<tr><td colspan="7" class="text-center">Nenhum pedido encontrado.</td></tr>');
                     } else {
                         pedidos.forEach(function(pedido) {
+                            // Formata o total em formato monetário (BRL)
+                            var totalFormatado = parseFloat(pedido.total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                            
                             var row = `
                                 <tr class="text-center">
                                     <td>#${pedido.numero_pedido}</td>
                                     <td>${pedido.data}</td>
                                     <td>${pedido.vendedor}</td>
                                     <td>${pedido.cliente}</td>
-                                    <td><strong>R$ ${parseFloat(pedido.total).toFixed(2)}</strong></td>
+                                    <td><strong>${totalFormatado}</strong></td>
                                     <td><span class="badge ${pedido.status === 'Em aberto' ? 'badge-warning' : 'badge-success'}">${pedido.status}</span></td>
                                     <td>
                                         <a href="{% url 'abrir_caixa_pdv' %}?id=${pedido.id}" class="btn btn-sm btn-success"><i class="fas fa-edit"></i></a>
@@ -295,6 +298,7 @@
                             tbody.append(row);
                         });
                     }
+
     
                     // Atualizar paginação
                     var paginationControls = $('#pagination-controls');
