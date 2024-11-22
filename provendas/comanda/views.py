@@ -226,7 +226,6 @@ def fechar_comanda(request, mesa_id):
     # Se não for uma requisição POST, redirecionar para a lista de mesas
     return redirect('listar_mesas')
 
-
 # Pagina de hístórico de vendas
 def historico_vendas(request):
     vendas = Comanda.objects.filter(status='fechada').order_by('-created_at')  # Filtra apenas as comandas fechadas
@@ -430,17 +429,19 @@ def abrir_ou_gerenciar_comanda(request, mesa_id):
     # Pega a configuração do cliente padrão
     configuracao = Configuracao.objects.first()
     cliente_padrao = configuracao.cliente_padrao if configuracao else None
+    modoLeitorCodigoDeBarra = configuracao.modoLeitorCodigoDeBarra if configuracao else False
 
     # Verifica se já existe uma comanda associada à mesa
     comanda_existente = Comanda.objects.filter(mesa=mesa, status='aberta').first()
-
+ 
     if comanda_existente:
         # Se já existir uma comanda aberta, redireciona para a página de gerenciamento da comanda
         # Passa o ID da mesa e o cliente padrão para o template
         return render(request, 'comanda/caixa_comanda.html', {
             'mesa_id': mesa.id,
             'mesa_nome': mesa.nome,
-            'cliente_padrao': cliente_padrao
+            'cliente_padrao': cliente_padrao,
+            'modoLeitorCodigoDeBarra': modoLeitorCodigoDeBarra
         })
     
     if mesa.status == 'livre':
@@ -463,7 +464,8 @@ def abrir_ou_gerenciar_comanda(request, mesa_id):
         return render(request, 'comanda/caixa_comanda.html', {
             'comanda': comanda,
             'mesa_nome': mesa.nome,
-            'cliente_padrao': cliente_padrao
+            'cliente_padrao': cliente_padrao,
+            'modoLeitorCodigoDeBarra': modoLeitorCodigoDeBarra
         })
 
     # Se a mesa não estiver livre, redireciona para a lista de mesas
