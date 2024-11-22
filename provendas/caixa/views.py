@@ -158,34 +158,28 @@ def finalizar_venda(request):
 
             # Caso contrário, se for "Finalizado", processa como finalização de venda
             else:
-                salvar_produtos_na_venda(caixa_pdv, produtos)
-
-                # Ajuste de estoque e finalização de venda
-                for produto_data in produtos:
-                    produto = Produto.objects.filter(id=produto_data.get('produto_id')).first()
-
-                    if produto:
-                        quantidade = produto_data['quantidade']
-
-                        # Verifica se o produto é gerenciável (controle_estoque é True)
-                        if produto.controle_estoque:
-                            # Permite a venda mesmo com estoque 0 e ajusta o estoque, permitindo números negativos
-                            produto.quantidade_estoque -= quantidade  # Subtrai a quantidade da venda
-                            produto.save()
-                        # Caso o produto não seja gerenciável, não altera o estoque e apenas realiza a venda
-                        # Nenhuma ação é necessária aqui, o estoque não será alterado.
-
-                # Se o gerenciamento de caixa estiver ativado, associa a venda ao caixa
-                if gerenciar_abertura_fechamento_caixa:
-                    caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').first()
-                    if not caixa_aberto:
-                        return JsonResponse({'success': False, 'message': 'Não há caixa aberto para associar a venda.'}, status=400)
-
-                    caixa_pdv.caixa = caixa_aberto
+                # Se o status recebido for "Finalizado", atualiza o status do caixa_pdv
+                if status == "Finalizado":
                     caixa_pdv.status = 'Finalizado'
                     caixa_pdv.save()
 
-                return JsonResponse({'success': True, 'message': 'Venda finalizada com sucesso!'})
+                # Ajuste de estoque e outros processamentos (mantendo a lógica existente)
+                if status == "Finalizado":
+                    salvar_produtos_na_venda(caixa_pdv, produtos)
+                    for produto_data in produtos:
+                        produto = Produto.objects.filter(id=produto_data.get('produto_id')).first()
+                        if produto and produto.controle_estoque:
+                            produto.quantidade_estoque -= produto_data['quantidade']
+                            produto.save()
+
+                    # Associa ao caixa, se necessário
+                    if gerenciar_abertura_fechamento_caixa:
+                        caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').first()
+                        if not caixa_aberto:
+                            return JsonResponse({'success': False, 'message': 'Não há caixa aberto para associar a venda.'}, status=400)
+                        caixa_pdv.caixa = caixa_aberto
+                        caixa_pdv.save()
+
 
             return JsonResponse({'success': True, 'message': 'Venda finalizada com sucesso!'})
 
