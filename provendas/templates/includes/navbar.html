@@ -66,17 +66,41 @@
         <li class="nav-item dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#">
                 <i class="fas fa-bell"></i>
-                <span class="badge badge-warning">0</span>
+                <span class="badge badge-warning notification-badge {% if notificacoes %}shake-notification{% endif %}">
+                    {% if notificacoes %}
+                        {{ notificacoes|length }} <!-- Quantidade de notificações -->
+                    {% else %}
+                        0
+                    {% endif %}
+                </span>
             </a>
             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                 <span class="dropdown-item dropdown-header">Notificações</span>
                 <div class="dropdown-divider"></div>
-                <a href="#" class="dropdown-item text-muted">
-                    <i class="fas fa-exclamation-triangle mr-2" style="color: #FFD43B;"></i> Nada - Qt: 0
-                </a>
-                <div class="dropdown-divider"></div>
+
+                {% for notificacao in notificacoes %}
+                    <a href="#" class="dropdown-item">
+                        <div class="media">
+                            <i class="{{ notificacao.icone }} mr-3" style="color: {{ notificacao.cor }};"></i>
+                            <div class="media-body">
+                                <h6 class="mt-0 mb-1" style="font-size: 14px;">
+                                    {{ notificacao.mensagem }}
+                                </h6>
+                                <small class="text-muted" style="font-size: 12px;">
+                                    Atualização: {{ notificacao.data }}
+                                </small>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                {% endfor %}
+                
+                {% if not notificacoes %}
+                    <a href="#" class="dropdown-item text-muted">Sem notificações</a>
+                {% endif %}
             </div>
         </li>
+
 
         <!-- Fullscreen Toggle -->
         <li class="nav-item">

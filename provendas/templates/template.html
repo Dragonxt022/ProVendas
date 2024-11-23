@@ -5,7 +5,7 @@
 <html lang="pt-BR">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %} {{ nome_aplicacao }} {% endblock %}</title> <!-- Aqui o título é dinâmico -->
@@ -439,6 +439,32 @@
                 opacity: 1;
             }
         }
+
+       /* Definindo a animação de tremor */
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            10% { transform: translateX(-5px); }
+            20% { transform: translateX(5px); }
+            30% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            50% { transform: translateX(-5px); }
+            60% { transform: translateX(5px); }
+            70% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+            90% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* A classe de tremor será aplicada quando necessário */
+        .shake-notification {
+            animation: shake 1s ease-out; /* Tremor suave e rápido */
+        }
+
+        /* Badge de notificações, com transição suave */
+        .notification-badge {
+            transition: transform 1s ease-out;
+        }
+
     
         
             
@@ -679,8 +705,34 @@
         </div>
     {% endif %}
 
+    
     <!-- blocos de script-->
     {% block extra_scripts %} {% endblock %}
+
+    <script>
+        // Função para aplicar o efeito de tremor
+         function triggerShakeEffect() {
+             var notificationBadge = document.querySelector('.notification-badge');
+             
+             // Verifica se o badge de notificação está visível e tem notificações
+             if (notificationBadge && notificationBadge.textContent.trim() !== '0') {
+                 // Adiciona a classe de tremor
+                 notificationBadge.classList.add('shake-notification');
+                 
+                 // Remove a animação de tremor após o término da animação (1s)
+                 notificationBadge.addEventListener('animationend', function() {
+                     notificationBadge.classList.remove('shake-notification');
+                 });
+             }
+         }
+ 
+         // Chama a função de tremor a cada 2 minutos (120000ms)
+         setInterval(triggerShakeEffect, 120000); // 120000ms = 2 minutos
+ 
+ 
+ 
+     </script>
+ 
 
     
 
