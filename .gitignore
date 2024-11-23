@@ -61,6 +61,11 @@ cover/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+*.bak
+*.tmp
+.vscode/
+.env
+
 
 # Flask stuff:
 instance/
@@ -140,6 +145,9 @@ venv.bak/
 
 # mkdocs documentation
 /site
+/staticfiles/
+.staticfiles/
+
 
 # mypy
 .mypy_cache/
