@@ -396,11 +396,46 @@ def get_comanda_details(request, mesa_id):
 
     return JsonResponse(data)
 
+
 def listar_mesas(request):
     mesas = Mesa.objects.all()  # Obter todas as mesas
-    form = MesaForm()  # Formulário vazio para cadastro
-    return render(request, 'comanda/listar_mesas.html', {'mesas': mesas, 'form': form})
     
+    # Iterar sobre as mesas e pegar as comandas e produtos
+    mesas_comandas = []
+    for mesa in mesas:
+        comandas = Comanda.objects.filter(mesa=mesa, status='aberta')  # Filtra apenas as comandas abertas
+        comanda_details = []
+        
+        for comanda in comandas:
+            produtos_comanda = ProdutoComanda.objects.filter(comanda=comanda)
+            produtos_info = []
+            total_comanda = 0  # Inicializando o total da comanda
+            
+            for produto_comanda in produtos_comanda:
+                produto_info = {
+                    'produto': produto_comanda.produto.nome,
+                    'quantidade': produto_comanda.quantidade,
+                    'total': produto_comanda.total
+                }
+                produtos_info.append(produto_info)
+                total_comanda += produto_comanda.total  # Somando os totais dos produtos
+            
+            comanda_details.append({
+                'comanda': comanda,
+                'produtos': produtos_info,
+                'total_comanda': total_comanda
+            })
+        
+        mesas_comandas.append({
+            'mesa': mesa,
+            'comandas': comanda_details
+        })
+
+    form = MesaForm()  # Formulário vazio para cadastro
+    return render(request, 'comanda/listar_mesas.html', {'mesas_comandas': mesas_comandas, 'form': form})
+
+
+
 def cadastrar_mesa(request):
     if request.method == 'POST':
         form = MesaForm(request.POST)

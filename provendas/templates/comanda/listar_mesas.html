@@ -36,35 +36,63 @@
                                 <h3 class="card-title">Lista de Mesas</h3> 
                             </div>
                             <div class="card-body">
-                                <div class="row">
-                                    {% for mesa in mesas %}
-                                        <div class="col-md-3">
-                                            <div id="mesa-{{ mesa.id }}" class="card {% if mesa.status == 'ocupada' %}bg-warning{% else %}bg-success{% endif %} position-relative">
-                                                <!-- Ícone de excluir no canto superior direito -->
+                                <div class="row" id="mesas-list">
+                                    {% for mesa_comanda in mesas_comandas %}
+                                        <div class="col-md-3" id="mesa-{{ mesa_comanda.mesa.id }}">
+                                            <div class="card {% if mesa_comanda.mesa.status == 'ocupada' %}bg-warning{% else %}bg-success{% endif %} position-relative">
                                                 <a href="#" class="position-absolute top-0 end-0 p-2 text-danger" data-toggle="modal" data-target="#excluirModal" 
-                                                onclick="setMesaExcluir('{{ mesa.id }}', '{{ mesa.nome }}')">
-                                                <i class="fas fa-times-circle"></i> <!-- Ícone de 'X' -->
+                                                   onclick="setMesaExcluir('{{ mesa_comanda.mesa.id }}', '{{ mesa_comanda.mesa.nome }}')">
+                                                    <i class="fas fa-times-circle"></i>
                                                 </a>
-                                    
-                                                <div class="card-body text-center">
-                                                    <h4>Mesa {{ mesa.nome }}</h4>
-                                                    <p class="mesa-status">Status: {{ mesa.status }}</p>
-                                                    <div class="comanda-button">
-                                                        {% if mesa.status == 'livre' %}
-                                                            <form action="{% url 'abrir_ou_gerenciar_comanda' mesa.id %}" method="POST">
+                                                <div class="card-body">
+
+                                                    <h4 class="text-center">Mesa {{ mesa_comanda.mesa.nome }}</h4>
+                                                    <p class="mesa-status text-center">
+                                                        <span class="badge 
+                                                            {% if mesa_comanda.mesa.status == 'livre' %}badge-warning{% endif %}
+                                                            {% if mesa_comanda.mesa.status == 'ocupada' %}badge-danger{% endif %}">
+                                                            {{ mesa_comanda.mesa.status|capfirst }}
+                                                        </span>
+                                                    </p>
+                                                    
+                                                    
+                                                    <!-- Exibe os detalhes das comandas associadas -->
+                                                    {% if mesa_comanda.comandas %}
+                                                        {% for comanda_detail in mesa_comanda.comandas %}
+                                                            <h6 class="text-center" style="font-size: 1.2rem;">Comanda #{{ comanda_detail.comanda.id }}</h6>
+                                                            <ul class="list-unstyled">
+                                                                {% for produto_info in comanda_detail.produtos %}
+                                                                    <li class="d-flex justify-content-between" style="font-size: 0.9rem; color: #50575e;">
+                                                                        <span><strong>{{ produto_info.produto }}</strong></span> 
+                                                                        <span>x {{ produto_info.quantidade }}</span> 
+                                                                        <span>= R$ {{ produto_info.total|floatformat:2 }}</span>
+                                                                    </li>
+                                                                {% endfor %}
+                                                            </ul>
+                                                            <p class="font-weight-bold text-center" style="font-size: 1rem;">Total da Comanda: <br><span class="text-danger" style="font-size: 1.5rem;">R$ {{ comanda_detail.total_comanda|floatformat:2 }}</span></p>
+                                                        
+                            
+                                                            <!-- Botões para Gerenciar e Fechar Comanda -->
+                                                            {% if comanda_detail.comanda.status == 'aberta' %}
+                                                                <div class="comanda-buttons text-center">
+                                                                    <form action="{% url 'abrir_ou_gerenciar_comanda' mesa_comanda.mesa.id %}" method="POST">
+                                                                        {% csrf_token %}
+                                                                        <button type="submit" class="btn btn-success btn-sm">Gerenciar comanda</button>
+                                                                    </form>
+                                                                </div>
+                                                            {% else %}
+                                                                <span class="btn btn-secondary btn-sm">Comanda Fechada</span>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        <!-- Se não houver comanda aberta, exibe o botão para abrir uma nova -->
+                                                        <div class="comanda-button text-center py-3">
+                                                            <form action="{% url 'abrir_ou_gerenciar_comanda' mesa_comanda.mesa.id %}" method="POST">
                                                                 {% csrf_token %}
                                                                 <button type="submit" class="btn btn-warning btn-sm">Abrir Comanda</button>
                                                             </form>
-                                                        {% else %}
-                                                            {% with mesa.comanda_set.latest as comanda %}  <!-- Usando latest -->
-                                                                {% if comanda %}
-                                                                    <a href="{% url 'abrir_ou_gerenciar_comanda' mesa.id %}" class="btn btn-success btn-sm">Gerenciar Comanda</a>
-                                                                {% else %}
-                                                                    <span class="btn btn-secondary btn-sm">Sem Comanda para Gerenciar</span>
-                                                                {% endif %}
-                                                            {% endwith %}
-                                                        {% endif %}
-                                                    </div>
+                                                        </div>
+                                                    {% endif %}
                                                 </div>
                                             </div>
                                         </div>
@@ -72,6 +100,7 @@
                                 </div>
                             </div>
                             
+                                                       
                         </div>
                     </div>
                 </div>
@@ -101,75 +130,6 @@
                         <button type="submit" class="btn btn-warning btn-sm w-100">Salvar Alterações</button>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Detalhes -->
-<div class="modal fade" id="detalhesModal" tabindex="-1" role="dialog" aria-labelledby="detalhesModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-success">
-                <h5 class="modal-title" id="detalhesModalLabel">Detalhes do Cliente</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped">
-                        <tbody>
-                            <tr>
-                                <th>Nome</th>
-                                <td id="detalhes_nome"></td>
-                            </tr>
-                            <tr>
-                                <th>Data de Nacimento</th>
-                                <td id="data_nascimento"></td>
-                            </tr>
-                            <tr>
-                                <th>Email</th>
-                                <td id="detalhes_email"></td>
-                            </tr>
-                            <tr>
-                                <th>CPF</th>
-                                <td id="detalhes_cpf"></td>
-                            </tr>
-                            <tr>
-                                <th>Telefone</th>
-                                <td id="detalhes_telefone"></td>
-                            </tr>
-                            <tr>
-                                <th>Endereço</th>
-                                <td id="detalhes_endereco"></td>
-                            </tr>
-                            <tr>
-                                <th>Cidade</th>
-                                <td id="detalhes_cidade"></td>
-                            </tr>
-                            <tr>
-                                <th>Estado</th>
-                                <td id="detalhes_estado"></td>
-                            </tr>
-                            <tr>
-                                <th>CEP</th>
-                                <td id="detalhes_cep"></td>
-                            </tr>
-                            <tr>
-                                <th>Status</th>
-                                <td id="detalhes_status"></td>
-                            </tr>
-                            <tr>
-                                <th>Limite de Crédito</th>
-                                <td id="limite_credito"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
             </div>
         </div>
     </div>
@@ -235,6 +195,61 @@
         excluirForm.action = "{% url 'excluir_mesa' '0' %}".replace('0', mesaId); // Substitui '0' pelo id da mesa
     }
 </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Ativando o SortableJS no elemento que contém as mesas
+        new Sortable(document.getElementById('mesas-list'), {
+            animation: 150, // Tempo da animação
+            ghostClass: 'sortable-ghost', // Classe que será aplicada ao item sendo arrastado
+            onEnd(evt) {
+                // Captura a nova ordem das mesas
+                let newOrder = [];
+                const items = evt.from.children;
+                for (let i = 0; i < items.length; i++) {
+                    newOrder.push(items[i].id.replace('mesa-', '')); // Pega apenas o ID da mesa
+                }
+                
+                // Salva a nova ordem no cookie
+                setCookie('mesas_order', JSON.stringify(newOrder), 7); // Salva por 7 dias
+            }
+        });
+
+        // Função para setar um cookie
+        function setCookie(name, value, days) {
+            const d = new Date();
+            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+            let expires = "expires=" + d.toUTCString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+        }
+
+        // Função para obter o valor de um cookie
+        function getCookie(name) {
+            let nameEq = name + "=";
+            let ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEq) == 0) return c.substring(nameEq.length, c.length);
+            }
+            return "";
+        }
+
+        // Caso exista um cookie com a ordem das mesas, aplica na página
+        let mesasOrder = getCookie('mesas_order');
+        if (mesasOrder) {
+            mesasOrder = JSON.parse(mesasOrder);
+            // Reorganiza as mesas de acordo com a ordem do cookie
+            const container = document.getElementById('mesas-list');
+            mesasOrder.forEach(id => {
+                const item = document.getElementById('mesa-' + id);
+                container.appendChild(item); // Move os itens para a nova posição
+            });
+        }
+    });
+</script>
+
+
    
 {% endblock %}
 

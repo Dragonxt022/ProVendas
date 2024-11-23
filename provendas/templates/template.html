@@ -35,6 +35,9 @@
     <!-- Theme style -->
     <link rel="stylesheet" href="{% static 'css/adminlte.css' %}">
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+
+
     
 
     <!-- Summernote -->
@@ -67,7 +70,10 @@
 <body class="hold-transition sidebar-mini sidebar-collapse">
     <style>
 
-
+        .sortable-ghost {
+            opacity: 0.4;
+        }
+        
         .payment-method-block {
             cursor: pointer;
             border: 2px solid #ccc;
