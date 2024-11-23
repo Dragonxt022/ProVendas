@@ -60,10 +60,15 @@
                         <a href="{% url 'abrir_caixa_pdv' %}" class="btn btn-sm btn-success mr-2">
                             Nova Venda
                         </a>
-    
-                        <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#fecharCaixaModal" {% if not caixa_esta_aberto %}disabled{% endif %}>
-                            Fechar Caixa
-                        </button>
+
+                        {% if abrir_caixa_automatico %}
+                            <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#fecharCaixaModal" {% if not caixa_esta_aberto %}disabled{% endif %}>
+                                Fechar Caixa
+                            </button>
+                        {% else %}
+                            
+                        {% endif %}
+      
                     </div>
                 </div>
             </div><!-- /.container-fluid -->

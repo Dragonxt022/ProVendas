@@ -22,16 +22,26 @@ def license_days_remaining(request):
 def configuracoes(request):
     # Aqui você recupera as configurações para serem usadas em todos os templates
     configuracao, created = Configuracao.objects.get_or_create(id=1)
+    
 
     # Verifica se o usuário está autenticado antes de buscar o caixa
     if request.user.is_authenticated:
         caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').first()
         caixa_esta_aberto = caixa_aberto is not None
         status_caixa = caixa_aberto.status if caixa_aberto else 'N/D'
+        abrir_caixa_automatico = configuracao.gerenciar_abertura_fechamento_caixa if configuracao else False
+
+        print(f"Valor de abrir_caixa_automatico: {abrir_caixa_automatico}")
+        
+
+        
+
+        
     else:
         caixa_aberto = None
         caixa_esta_aberto = False
         status_caixa = 'N/D'
+        abrir_caixa_automatico= None
 
     return {
         'nome_aplicacao': configuracao.nome_aplicacao,
@@ -43,5 +53,6 @@ def configuracoes(request):
         'gerar_codigo_barra_automatico': configuracao.gerar_codigo_barra_automatico,
         'gerenciar_abertura_fechamento_caixa': configuracao.gerenciar_abertura_fechamento_caixa,
         'caixa_esta_aberto': caixa_esta_aberto,
+        'abrir_caixa_automatico': abrir_caixa_automatico,
         'status_caixa': status_caixa,
     }

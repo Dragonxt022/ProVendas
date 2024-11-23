@@ -27,9 +27,17 @@
             <a href="{% url 'abrir_caixa_pdv' %}" class="nav-link"><i class="fas fa-shopping-cart"></i> Caixa</a>
         </li>
 
-        <li class="nav-item d-none d-md-inline-block" {% if not gerenciar_abertura_fechamento_caixa %} style="display:none;" {% endif %}>
-          <a class="nav-link">Status Caixa: <span class="badge bg-success">{{ status_caixa }}</span></a>
-      </li>
+        {% if abrir_caixa_automatico %}
+            <li class="nav-item d-none d-md-inline-block" style="display:none;"> 
+                <a class="nav-link">Status Caixa: <span class="badge bg-success">{{ status_caixa }}</span></a>
+            </li>
+        {% else %}
+            
+        {% endif %}
+
+        
+        
+          
     </ul>
 
     <!-- Right navbar links -->
