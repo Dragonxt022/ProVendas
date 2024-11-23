@@ -6,7 +6,6 @@ from licencas.models import LicenseKey
 from caixa.models import Caixa
 from datetime import datetime
 
-
 def get_git_commits():
     try:
         result = subprocess.run(['git', 'log', '--oneline', '--max-count=5'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -19,18 +18,15 @@ def get_git_commits():
             for commit in commits:
                 commit_hash, commit_message = commit.split(" ", 1)
                 
-                # Nenhuma normalização necessária, apenas deixa a mensagem como está
-                # O Python já lida bem com caracteres especiais se os arquivos estiverem codificados corretamente
-                
-                # Obtém a data do commit
-                commit_date = subprocess.run(
-                    ['git', 'log', '--format=%cd', '--max-count=1', '--date=short', commit_hash],
+                # Obtém a data e hora do commit
+                commit_datetime = subprocess.run(
+                    ['git', 'log', '--format=%cd', '--max-count=1', '--date=iso', commit_hash],
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
                 ).stdout.strip()
                 
-                # Formatar a data para 'd/m/yy' (dd/mm/yy)
-                commit_date_obj = datetime.strptime(commit_date, '%Y-%m-%d')  # Converte a string para datetime
-                formatted_date = commit_date_obj.strftime('%d/%m/%y')  # Formato no estilo BR
+                # Formatar a data e hora para 'd/m/yy H:M'
+                commit_date_obj = datetime.strptime(commit_datetime, '%Y-%m-%d %H:%M:%S %z')  # Converte para datetime
+                formatted_date = commit_date_obj.strftime('%d/%m/%y %H:%M')  # Formato 'dd/mm/yy HH:MM'
                 
                 formatted_commits.append({
                     'commit_hash': commit_hash,
