@@ -307,17 +307,14 @@
 
 <!-- Gerenciar estoque baixo -->
 <script>
-    var produtosNomes = {{ produtos_nomes|safe }};
-    var produtosQuantidades = {{ produtos_quantidades|safe }};
-
     var ctx = document.getElementById('estoqueBaixoChart').getContext('2d');
     var estoqueBaixoChart = new Chart(ctx, {
         type: 'bar', // Tipo de gráfico: barra
         data: {
-            labels: produtosNomes, // Labels do eixo X
+            labels: {{ nomes_produtos|safe }},  // Nomes dos produtos
             datasets: [{
                 label: 'Quantidade em Estoque',
-                data: produtosQuantidades, // Dados do eixo Y
+                data: {{ quantidades_estoque|safe }},  // Quantidades de estoque
                 backgroundColor: 'rgba(255, 99, 132, 0.2)', // Cor de fundo das barras
                 borderColor: 'rgba(255, 99, 132, 1)', // Cor da borda das barras
                 borderWidth: 1

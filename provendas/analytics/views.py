@@ -91,7 +91,6 @@ def filtro_relatorio_produtos(request):
 
     ### Mais relatórios #####
 
-    # Exemplo de dados para o painel de controle
     pedidos_finalizados = CaixaPdv.objects.filter(status='Finalizado').count()
     total_vendas_mes = CaixaPdv.objects.filter(
         created_at__month=mes_int,
@@ -193,6 +192,10 @@ def filtro_relatorio_produtos(request):
         'dias_da_semana': dias_semana,
         'produtos_mais_vendidos': produtos_mais_vendidos,
         'produtos_estoque_baixo': produtos_estoque_baixo,
+
+        'nomes_produtos': nomes_produtos,
+        'quantidades_estoque': quantidades_estoque,
+
         'produtos_nomes': produtos_nomes,
         'produtos_quantidades': produtos_quantidades,
         'produtos_valores': produtos_valores,
