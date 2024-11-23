@@ -507,7 +507,17 @@
                 var Descricao = $(this).data('descricao');
                 var categoriaId = $(this).data('categoria-id');
                 var status = $(this).data('status');
-                var controleEstoque = $(this).data('controle-estoque'); 
+                var controleEstoque = $(this).data('controle-estoque') === 'True';
+
+                // Atualiza o controle de estoque
+                if (controleEstoque) {
+                    $('#customCheckbox1').prop('checked', true);
+                    $('#quantidadeEstoqueGroup').show();
+                } else {
+                    $('#customCheckbox1').prop('checked', false);
+                    $('#quantidadeEstoqueGroup').hide();
+                } 
+                                
 
                 // Atualiza os campos da modal com os dados do produto
                 $('#produto_id').val(produtoId);
@@ -519,15 +529,6 @@
                 $('#quantidade_estoque').val(quantidadeEstoque);
                 $('#categoria_ajax').val(categoriaId); 
                 $('#status').val(status);
-
-                // Atualiza o controle de estoque
-                if (controleEstoque) {
-                    $('#customCheckbox1').prop('checked', true);
-                    $('#quantidadeEstoqueGroup').show();
-                } else {
-                    $('#customCheckbox1').prop('checked', false);
-                    $('#quantidadeEstoqueGroup').hide();
-                }
 
                 // Atualiza o action do formulário
                 $('#editarForm').attr('action', "{% url 'editar_produto' 0 %}".replace('0', produtoId));
