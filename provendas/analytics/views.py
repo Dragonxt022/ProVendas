@@ -46,11 +46,17 @@ def relatorio_vendas_ajax(request):
             .order_by("-total_vendas")
         )
 
-        # Produtos mais vendidos
+       # Produtos mais vendidos
         produtos_mais_vendidos = list(
             ProdutoCaixaPdv.objects.filter(caixa_pdv__created_at__gte=data_inicio, caixa_pdv__created_at__lte=data_fim)
-            .values(produto_nome=F("produto__nome"))
-            .annotate(total_vendido=Sum("quantidade"), receita_total=Sum("total"))
+            .values(
+                produto_nome=F("produto__nome"),
+                preco_venda=F("produto__preco_de_venda")  # Incluindo o valor do produto
+            )
+            .annotate(
+                total_vendido=Sum("quantidade"),
+                receita_total=Sum("total")
+            )
             .order_by("-total_vendido")
         )
 
@@ -58,6 +64,10 @@ def relatorio_vendas_ajax(request):
         total_vendas = CaixaPdv.objects.filter(**filtro).aggregate(
             receita_total=Sum("total"), quantidade_total=Sum("subtotal")
         )
+
+        # Garantir que os valores não sejam None
+        total_vendas["receita_total"] = total_vendas["receita_total"] or 0
+        total_vendas["quantidade_total"] = total_vendas["quantidade_total"] or 0
 
         # Dados a serem retornados
         data = {

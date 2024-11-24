@@ -118,6 +118,7 @@
                                 <tr>
                                     <th>Produto</th>
                                     <th>Quantidade Vendida</th>
+                                    <th>Valor de Venda</th>
                                     <th>Receita Total (R$)</th>
                                 </tr>
                             </thead>
@@ -182,12 +183,12 @@
                             <tr>
                                 <td>${venda.payment_method}</td>
                                 <td>${venda.quantidade}</td>
-                                <td>R$ ${parseFloat(venda.total_vendas).toFixed(2)}</td>
+                                <td>R$ ${parseFloat(venda.total_vendas).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                             </tr>
                         `;
                     });
                     $("#vendas-por-metodo").html(vendasHtml);
-        
+
                     // Produtos mais vendidos
                     let produtosHtml = "";
                     data.produtos_mais_vendidos.forEach(produto => {
@@ -195,11 +196,13 @@
                             <tr>
                                 <td>${produto.produto_nome}</td>
                                 <td>${produto.total_vendido}</td>
-                                <td>R$ ${parseFloat(produto.receita_total).toFixed(2)}</td>
+                                <td>R$ ${parseFloat(produto.receita_total).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td>R$ ${parseFloat(produto.preco_venda).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                             </tr>
                         `;
                     });
                     $("#produtos-mais-vendidos").html(produtosHtml);
+
                 },
                 error: function (xhr, status, error) {
                     alert("Erro ao carregar os dados do relatório: " + error);
