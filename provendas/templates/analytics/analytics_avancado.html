@@ -9,379 +9,234 @@
 <div class="wrapper">
     {% include 'includes/sidebar.html' %}
     {% include 'includes/navbar.html' %} 
-    <!-- Link para o CSS do Flatpickr -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
-    <style>
-        @media print {
-           
-            /* Esconder o formulário de pesquisa */
-            form {
-                display: none;
-            }
-    
-
-        }
-    </style>
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
-        <section class="content-header">
+        <!-- Cabeçalho -->
+        <section class="content-header bg-primary text-white py-3 shadow-sm">
             <div class="container-fluid">
-                <div class="row mb-2">
-                    <div class="col-sm-3">
-                        <h1>Analytics Avançado</h1>
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="font-weight-bold">
+                            <i class="fas fa-chart-line"></i> Analytics Avançado
+                        </h1>
                     </div>
-                    <div class="col-sm-5">
-
-                        <button onclick="window.print()" class="btn btn-success btn-sm">Imprimir Relatório</button>
+                    <div class="col-md-4 text-md-right">
+                        <button onclick="window.print()" class="btn btn-success btn-sm shadow">
+                            <i class="fas fa-print"></i> Imprimir Relatório
+                        </button>
                     </div>
                 </div>
             </div>
         </section>
-        <!-- Main content -->
+    
+        <!-- Conteúdo principal -->
         <section class="content">
             <div class="container-fluid">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-
-                                <form method="get" action="{% url 'filtro_relatorio_produtos' %}" class="mb-4">
-                                    <div class="row">
-                                        <!-- Selecionar Ano -->
-                                        <div class="col-md-2 col-sm-12 mb-3">
-                                            <select name="ano" id="ano" class="form-select form-control">
-                                                <option value="">Selecione o Ano</option>
-                                                {% for year in anos %}
-                                                    <option value="{{ year }}" {% if year == ano|default:'' %}selected{% endif %}>{{ year }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                
-                                        <!-- Selecionar Mês -->
-                                        <div class="col-md-2 col-sm-12 mb-3">
-                                            <select name="mes" id="mes" class="form-select form-control">
-                                                <option value="">Selecione o Mês</option>
-                                                {% for month in meses %}
-                                                    <option value="{{ forloop.counter }}" {% if forloop.counter == mes|default:'' %}selected{% endif %}>{{ month }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                
-                                        <!-- Selecionar Dia -->
-                                        <div class="col-md-2 col-sm-12 mb-3">
-                                            <select name="dia" id="dia" class="form-select form-control">
-                                                <option value="">Selecione o Dia</option>
-                                                {% for day in dias %}
-                                                    <option value="{{ day }}" {% if day == dia|default:'' %}selected{% endif %}>{{ day }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                
-                                        <!-- Selecionar Controle de Estoque -->
-                                        <div class="col-md-3 col-sm-12 mb-3">
-                                            <select name="controle_estoque" id="controle_estoque" class="form-select form-control">
-                                                <option value="">Selecione o Controle de Estoque</option>
-                                                <option value="True" {% if controle_estoque == 'True' %}selected{% endif %}>Com Estoque</option>
-                                                <option value="False" {% if controle_estoque == 'False' %}selected{% endif %}>Sem Estoque</option>
-                                                <option value="ambos" {% if controle_estoque == 'ambos' %}selected{% endif %}>Ambos</option>
-                                            </select>
-                                        </div>
-                                
-                                        <div class="col-md-3 col-sm-12 mb-3">
-                                            <button type="submit" class="btn btn-success px-5 w-100">Filtrar Relatório</button>
-                                        </div>
-                                    </div>
-                                </form>
-                                
-                                
-
-
-                               <!-- Exibição de Dados -->
-                                <table class="table table-striped table-bordered text-center">
-                                    <thead class="bg-success">
-                                        <tr>
-                                            {% for coluna in colunas %}
-                                                <th>{{ coluna }}</th>
-                                            {% endfor %}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for produto in produtos_dados %}
-                                        <tr>
-                                            <td>{{ produto.produto__nome }}</td>
-                                            <td>{{ produto.quantidade_total }}</td>
-                                            <td>{% localize on %}R$ {{ produto.produto__preco_de_custo|floatformat:2 }}{% endlocalize %}</td>
-                                            <td>{% localize on %}R$ {{ produto.produto__preco_de_venda|floatformat:2 }}{% endlocalize %}</td>
-                                            <td>{% localize on %}R$ {{ produto.valor_total|floatformat:2 }}{% endlocalize %}</td>
-                                            <td>{% localize on %}R$ {{ produto.valor_bruto|floatformat:2 }}{% endlocalize %}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-
-                                <div>
-                                    <table class="table table-striped table-bordered text-center">
-                                        <thead class="bg-success">
-                                            <tr>
-                                                <th>Total Bruto:</th>
-                                                <th>Total Líquido:</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><strong>R$ {{ total_bruto|floatformat:2 }}</strong></td>
-                                                <td><strong>R$ {{ valor_liquido_total|floatformat:2 }}</strong></td>
-                                            </tr> 
-                                        </tbody>
-                                    </table>
-                                    <div class="row text-center">
-                                        <div class="col">
-                                            <p> 
-                                                * O <strong>total Bruto</strong> é a soma total de todos os produtos vendidos  já removido os desconto se ouver das vendas. <br>
-                                                * O <strong>total Líquido</strong> é a soma total entre o valor de custo e o valor de venda, trazendo o seu lucro de cada produto.    
-                                            <p>
-                                        </div>
-                                    </div>
-                                </div>
+                <!-- Filtros -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white font-weight-bold">
+                        <i class="fas fa-filter"></i> Filtros
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="data-inicio">Data Início</label>
+                                <input type="date" id="data-inicio" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="data-fim">Data Fim</label>
+                                <input type="date" id="data-fim" class="form-control">
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button id="filtrar" class="btn btn-primary btn-block shadow">
+                                    <i class="fas fa-search"></i> Filtrar
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-12">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="card card-success card-outline">
-                                    <div class="card-header">
-                                        <h3 class="card-title">Relatório de Vendas por (Mês)</h3>
-                                        <div class="card-tools">
-                                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <canvas id="bar-chart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="card card-success card-outline">
-                                    <div class="card-header">
-                                        <h3 class="card-title">Produto com estoque Baixo</h3>
-                                        <div class="card-tools">
-                                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <canvas id="estoqueBaixoChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
 
-                        </div> 
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="card card-success card-outline">
-                                    <div class="card-header">
-                                        <h3 class="card-title">Produtos Mais vendidos Quantidade/Valor</h3>
-                                        <div class="card-tools">
-                                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <canvas id="chartProdutos"></canvas>
-                                    </div>
-                                </div>
+                <!-- Cards de Destaque -->
+                <div class="row">
+                    <!-- Card: Total Vendido -->
+                    <div class="col-lg-3 col-6">
+                        <div class="small-box bg-success">
+                            <div class="inner">
+                                <h3 id="receita-total">0,00</h3>
+                                <p>Receita total (R$)</p>
                             </div>
-                            <div class="col-md-12">
-                                <div class="card card-success card-outline">
-                                    <div class="card-header">
-                                        <h3 class="card-title">Principais Frormas de Pagamento</h3>
-                                        <div class="card-tools">
-                                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <canvas id="payment-method-chart"></canvas>
-                                    </div>
-                                </div>
-                            </div> 
+                            <div class="icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
                         </div>
+                    </div>
+    
+                    <!-- Card: Pedidos Finalizados -->
+                    <div class="col-lg-3 col-6">
+                        <div class="small-box bg-info">
+                            <div class="inner">
+                                <h3 id="total-vendas">0</h3>
+                                <p>Total de Vendas</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Card: Quantidade de Produtos Vendidos -->
+                    <div class="col-lg-3 col-6">
+                        <div class="small-box bg-warning">
+                            <div class="inner">
+                                <h3 id="quantidade-produtos">0</h3>
+                                <p>Produtos Vendidos</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-box"></i>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Card: Receita por Mês -->
+                    <div class="col-lg-3 col-6">
+                        <div class="small-box bg-danger">
+                            <div class="inner">
+                                <h3 id="receita-mes">0,00</h3>
+                                <p>Receita (Mês Atual)</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Total de Vendas -->
+    
+                <!-- Vendas por Método de Pagamento -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning text-white font-weight-bold">
+                        <i class="fas fa-credit-card"></i> Vendas por Método de Pagamento
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped table-hover text-center">
+                            <thead class="">
+                                <tr>
+                                    <th>Método de Pagamento</th>
+                                    <th>Quantidade de Pedidos</th>
+                                    <th>Total Vendido (R$)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vendas-por-metodo">
+                                <!-- Dados carregados via AJAX -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+    
+                <!-- Produtos Mais Vendidos -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-danger text-white font-weight-bold">
+                        <i class="fas fa-box"></i> Produtos Mais Vendidos
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped table-hover text-center">
+                            <thead class="">
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Quantidade Vendida</th>
+                                    <th>Receita Total (R$)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="produtos-mais-vendidos">
+                                <!-- Dados carregados via AJAX -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </section>
-
-
+    </div>
     </div>
 </div>
 {% block extra_scripts %}
+    <script>
+        $(document).ready(function () {
+            // Inicializar os campos de data com a data atual
+            const hoje = new Date().toISOString().split("T")[0];
+            $("#data-inicio").val(hoje);
+            $("#data-fim").val(hoje);
 
-<!-- Gráfico de Vendas por Mês -->
-<script>
-    var ctx = document.getElementById('bar-chart').getContext('2d');
-    var barChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: {{ meses|safe }},  // Meses do ano
-            datasets: [{
-                label: 'Vendas por Mês',
-                data: {{ vendas_mes|safe }},  // Dados de vendas por mês
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        // Configuração para formatar o eixo Y como R$
-                        callback: function(value) {
-                            // Utiliza a API Intl.NumberFormat para formatação de valores em reais
-                            var formatter = new Intl.NumberFormat('pt-BR', {
-                                style: 'currency',
-                                currency: 'BRL'
-                            });
-                            return formatter.format(value);
-                        }
-                    }
-                }
-            }
-        }
-    });
-</script>
+            // Carregar o relatório automaticamente ao abrir a página
+            carregarRelatorio();
 
-<!-- Script para o Gráfico de Formas de Pagamento -->
-<script>
-    var ctx2 = document.getElementById('payment-method-chart').getContext('2d');
-    var paymentChart = new Chart(ctx2, {
-        type: 'pie',  // Gráfico de pizza
-        data: {
-            labels: {{ payment_methods|safe }},  // Formas de pagamento
-            datasets: [{
-                data: {{ payment_counts|safe }},  // Contagem de cada forma de pagamento
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],  // Cores para cada categoria
-                hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
+            // Evento para o botão de filtro
+            $("#filtrar").on("click", carregarRelatorio);
+        });
+    </script>
+    <script>
+        function carregarRelatorio() {
+            // Obter as datas dos inputs
+            const dataInicio = $("#data-inicio").val();
+            const dataFim = $("#data-fim").val();
+
+            // Requisição AJAX
+            $.ajax({
+                url: "{% url 'relatorio_vendas_ajax' %}",
+                method: "GET",
+                data: {
+                    data_inicio: dataInicio,
+                    data_fim: dataFim
                 },
-                tooltip: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            return tooltipItem.label + ': ' + tooltipItem.raw + ' vendas';
-                        }
-                    }
-                }
-            }
-        }
-    });
-</script>
+                success: function (data) {
+                    // Total de vendas
+                    $("#receita-total").html(`
+                        <h3>${parseFloat(data.total_vendas.receita_total).toFixed(2)}</h3>
+                    `);
 
-<!-- Gerenciar estoque baixo -->
-<script>
-    var ctx = document.getElementById('estoqueBaixoChart').getContext('2d');
-    var estoqueBaixoChart = new Chart(ctx, {
-        type: 'bar', // Tipo de gráfico: barra
-        data: {
-            labels: {{ nomes_produtos|safe }},  // Nomes dos produtos
-            datasets: [{
-                label: 'Quantidade em Estoque',
-                data: {{ quantidades_estoque|safe }},  // Quantidades de estoque
-                backgroundColor: 'rgba(255, 99, 132, 0.2)', // Cor de fundo das barras
-                borderColor: 'rgba(255, 99, 132, 1)', // Cor da borda das barras
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true // Começar o eixo Y em 0
-                }
-            }
-        }
-    });
-</script>
+                    $("#total-vendas").html(`
+                        <h3>${parseFloat(data.total_vendas.quantidade_total).toFixed(2)}</h3>
+                    `);
 
+                    // Vendas por método de pagamento
+                    let vendasHtml = "";
+                    data.vendas_por_metodo_pagamento.forEach(venda => {
+                        vendasHtml += `
+                            <tr>
+                                <td>${venda.payment_method}</td>
+                                <td>${venda.quantidade}</td>
+                                <td>R$ ${parseFloat(venda.total_vendas).toFixed(2)}</td>
+                            </tr>
+                        `;
+                    });
+                    $("#vendas-por-metodo").html(vendasHtml);
 
-<script>
-    // Verifique se o Chart.js está carregado corretamente
-    console.log(typeof Chart); // Deve mostrar "function"
-
-    // Passando os dados como arrays diretamente
-    var produtosNomes = {{ produtos_nomes|safe }};
-    var produtosQuantidades = {{ produtos_quantidades|safe }};
-    var produtosValores = {{ produtos_valores|safe }};
-
-    // Gráfico de barras para quantidade de produtos vendidos e valor total
-    var ctx = document.getElementById('chartProdutos').getContext('2d');
-    var chartProdutos = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: produtosNomes,  // Nomes dos produtos
-            datasets: [
-                {
-                    label: 'Quantidade Vendida',
-                    data: produtosQuantidades,  // Dados de quantidade
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',  // Cor de fundo para as barras
-                    borderColor: 'rgba(75, 192, 192, 1)',  // Cor da borda das barras
-                    borderWidth: 1  // Largura da borda das barras
+                    // Produtos mais vendidos
+                    let produtosHtml = "";
+                    data.produtos_mais_vendidos.forEach(produto => {
+                        produtosHtml += `
+                            <tr>
+                                <td>${produto.produto_nome}</td>
+                                <td>${produto.total_vendido}</td>
+                                <td>R$ ${parseFloat(produto.receita_total).toFixed(2)}</td>
+                            </tr>
+                        `;
+                    });
+                    $("#produtos-mais-vendidos").html(produtosHtml);
                 },
-                {
-                    label: 'Valor Total Vendido (R$)',  // Rótulo para o segundo conjunto de dados
-                    data: produtosValores,  // Dados do valor total vendido
-                    backgroundColor: 'rgba(153, 102, 255, 0.2)',  // Cor de fundo para as barras
-                    borderColor: 'rgba(153, 102, 255, 1)',  // Cor da borda das barras
-                    borderWidth: 1  // Largura da borda das barras
+                error: function (xhr, status, error) {
+                    alert("Erro ao carregar os dados do relatório: " + error);
                 }
-            ]
-        },
-        options: {
-            responsive: true,  // Tornar o gráfico responsivo
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true  // Garante que o gráfico comece do zero no eixo Y
-                    }
-                }]
-            },
-            legend: {
-                position: 'top',  // Posição da legenda
-                labels: {
-                    fontSize: 14  // Tamanho da fonte das legendas
-                }
-            }
+            });
         }
-    });
-</script>
 
+        $(document).ready(function () {
+            // Evento para o botão de filtro
+            $("#filtrar").on("click", carregarRelatorio);
+        });
+    </script>
 
 
 {% endblock %}

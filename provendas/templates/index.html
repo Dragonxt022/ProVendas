@@ -27,13 +27,17 @@
     <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
+        <!-- Cards de Destaque -->
         <div class="row">
-            <!-- Quadrado 1: Quantidade de Pedidos Finalizados -->
+            <!-- Card: Total Vendido -->
             <div class="col-lg-3 col-6">
-                <div class="small-box bg-info">
+                <div class="small-box bg-primary">
                     <div class="inner">
                         <h3>{{ pedidos_finalizados }}</h3>
-                        <p>Pedidos Finalizados (Mês)</p>
+                        <p>Vendas realizadas (Mês)</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fas fa-dollar-sign"></i>
                     </div>
                     <div class="icon">
                         <i class="ion ion-bag"></i>
@@ -41,50 +45,58 @@
                     <a href="{% url 'analytics_desboard'%}" class="small-box-footer">Mais informações <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
-        
-            <!-- Quadrado 2: Valor Total do Mês -->
+
+            <!-- Card: Pedidos Finalizados -->
             <div class="col-lg-3 col-6">
                 <div class="small-box bg-success">
                     <div class="inner">
                         <h3>R$ {{ total_vendas_mes|floatformat:2 }}</h3>
-                        <p>Valor Total do (Mês)</p>
+                        <p>Vendas Total deste (mês) </p>
                     </div>
                     <div class="icon">
-                        <i class="ion ion-stats-bars"></i>
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-bag"></i>
                     </div>
                     <a href="{% url 'analytics_desboard'%}" class="small-box-footer">Mais informações <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
-        
-            <!-- Quadrado 3: Número de Produtos Cadastrados -->
+
+            <!-- Card: Quantidade de Produtos Vendidos -->
             <div class="col-lg-3 col-6">
                 <div class="small-box bg-warning">
                     <div class="inner">
-                        <h3>{{ total_produtos }}</h3> 
-                        <p>Produtos Cadastrados</p>
+                        <h3>{{ total_produtos }}</h3>
+                        <p>Total de Produtos cadastrados</p>
                     </div>
                     <div class="icon">
-                        <i class="ion ion-person-add"></i>
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-bag"></i>
                     </div>
                     <a href="{% url 'analytics_desboard'%}" class="small-box-footer">Mais informações <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
-        
-            <!-- Quadrado 4: Valor Total do Ano -->
+
+            <!-- Card: Receita por Mês -->
             <div class="col-lg-3 col-6">
-                <div class="small-box bg-danger">
+                <div class="small-box bg-info">
                     <div class="inner">
                         <h3>R$ {{ total_vendas_ano|floatformat:2 }}</h3>
-                        <p>Valor Total do (Ano)</p>
+                        <p>Vendas totais deste (ano)</p>
                     </div>
                     <div class="icon">
-                        <i class="ion ion-pie-graph"></i>
+                        <i class="fas fa-chart-line"></i>
                     </div>
-                    <a href="{% url 'filtro_relatorio_produtos'%}" class="small-box-footer">Mais informações <i class="fas fa-arrow-circle-right"></i></a>
+                    <div class="icon">
+                        <i class="ion ion-bag"></i>
+                    </div>
+                    <a href="{% url 'analytics_desboard'%}" class="small-box-footer">Mais informações <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
         </div>
-
         <div class="row">
           <div class="col-12">
             <div class="row">
