@@ -1,1 +1,2 @@
-web: gunicorn provendas.provendas.wsgi
+web: gunicorn provendas.provendas.wsgi:application
+
