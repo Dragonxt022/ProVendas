@@ -12,11 +12,16 @@
     {% include 'includes/sidebar.html' %}
     {% include 'includes/navbar.html' %} 
     <div class="content-wrapper py-2">
-        <section class="content-header">
+        <section class="content-header py-3 shadow-sm">
             <div class="container-fluid">
-                <div class="row mb-2">
-                    <div class="col-sm-12 d-flex align-items-center">
-                        <h1 class="mr-3"> Gerenciar Estoque </h1> <!-- Adicionei a classe mr-3 -->
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="font-weight-bold">
+                            <i class="fas fa-chart-line"></i> Gerenciar Estoque
+                        </h1>
+                    </div>
+                    <div class="col-md-4 text-md-right">
+
                         <button type="button" class="btn btn-sm btn-success mr-2" data-toggle="modal" data-target="#adicionarModal">
                             <i class="fas fa-plus"></i> Adicionar Produto
                         </button>
@@ -28,10 +33,10 @@
                         </button>
                     </div>
                 </div>
-            </div><!-- /.container-fluid -->
+            </div>
         </section>
         
-        <section class="content">
+        <section class="content py-3">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12">

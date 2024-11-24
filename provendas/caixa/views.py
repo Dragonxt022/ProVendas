@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from clientes.models import Cliente
 from estoque.models import Produto, CategoriaProduto
-from .models import CaixaPdv, ProdutoCaixaPdv, Caixa
+from .models import CaixaPdv, ProdutoCaixaPdv, Caixa, OperacaoCaixa
 from empresas.models import Empresa 
 from configuracoes.models import Configuracao
 import json
@@ -19,6 +19,41 @@ from decimal import Decimal
 logger = logging.getLogger(__name__)
 
 # Sistema de Caixa
+
+#  Pagina de Relatórios
+def relatorio_caixa(request):
+     # Filtrar caixas pelo usuário autenticado
+    caixas = Caixa.objects.filter(usuario=request.user).order_by('-aberto_em')
+    return render(request, 'caixa/relatorio_caixa.html', {'caixas': caixas})
+
+
+# Rota ajax busca os relatórios
+def carregar_dados_relatorio_caixa(request, caixa_id):
+    if request.method == 'GET':
+        try:
+            caixa = Caixa.objects.get(id=caixa_id, usuario=request.user)
+            vendas = CaixaPdv.objects.filter(caixa=caixa, status='Finalizado').values(
+                'numero_pedido', 'subtotal', 'desconto', 'total', 'payment_method', 'created_at', 'vendedor__username'
+            )
+            produtos = ProdutoCaixaPdv.objects.filter(caixa_pdv__caixa=caixa).values(
+                'produto__nome', 'quantidade', 'preco_unitario', 'total'
+            )
+            operacoes = OperacaoCaixa.objects.filter(caixa=caixa).values(
+                'operacao', 'valor', 'descricao', 'data_hora', 'usuario__username'
+            )
+
+            dados = {
+                'saldo_inicial': caixa.saldo_inicial,
+                'saldo_final': caixa.saldo_final,
+                'vendas': list(vendas),
+                'produtos': list(produtos),
+                'operacoes': list(operacoes),
+            }
+            return JsonResponse({'success': True, 'dados': dados})
+        except Caixa.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Caixa não encontrado.'})
+    return JsonResponse({'success': False, 'message': 'Método inválido.'})
+    
 #  Abre o caixa
 def abrir_caixa_ajax(request):
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -87,14 +122,13 @@ def verificar_caixa_aberto(request):
         'abrir_caixa_automatico': abrir_caixa_automatico
     })
 
-
-
 def retirar_ou_adicionar_valor_ajax(request):
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         try:
             data = json.loads(request.body)
             operacao = data.get('operacao')
             valor = Decimal(data.get('valor', 0))  # Converte o valor para Decimal, garantindo precisão
+            descricao = data.get('descricao', '').strip()  # Captura a descrição da operação
 
             # Verificar o saldo atual do caixa
             caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').first()
@@ -103,16 +137,25 @@ def retirar_ou_adicionar_valor_ajax(request):
                 return JsonResponse({'success': False, 'message': "Não há caixa aberto."})
 
             # Garantir que o saldo atual seja do tipo Decimal, caso o saldo seja None, usa 0.0
-            saldo_atual = Decimal(caixa_aberto.saldo_final or 0.0)  
+            saldo_atual = Decimal(caixa_aberto.saldo_final or 0.0)
 
             if operacao == 'adicionar':
                 # Adicionar o valor ao saldo final
-                caixa_aberto.saldo_final = saldo_atual + valor  
+                caixa_aberto.saldo_final = saldo_atual + valor
             elif operacao == 'retirar':
                 # Subtrair o valor do saldo final
-                caixa_aberto.saldo_final = saldo_atual - valor  
+                caixa_aberto.saldo_final = saldo_atual - valor
             else:
                 return JsonResponse({'success': False, 'message': "Operação inválida."})
+
+            # Criar um registro para histórico de operações (opcional)
+            OperacaoCaixa.objects.create(
+                caixa=caixa_aberto,
+                operacao=operacao,
+                valor=valor,
+                descricao=descricao,
+                usuario=request.user
+            )
 
             caixa_aberto.save()  # Salvar as alterações no caixa
 
@@ -140,6 +183,8 @@ def listar_caixas_abertos_ajax(request):
     return JsonResponse(caixas, safe=False)
 
 
+
+# Fim
 
 #  FInaliza a venda via Ajax
 def salvar_produtos_na_venda(caixa_pdv, produtos):

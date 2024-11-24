@@ -705,69 +705,159 @@
         </div>
     {% endif %}
 
-    <!--Sistema de adicionra saldo ou retirada-->
+    <!-- Sistema de adicionar saldo ou retirada -->
     <script>
         $(document).ready(function () {
-            // Recupera o CSRF token do cookie
-            function getCSRFToken() {
-                var name = 'csrftoken';
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = cookies[i].trim();
-                    if (cookie.startsWith(name + '=')) {
-                        return cookie.substring(name.length + 1);
-                    }
-                }
-                return null;
-            }
-        
-            $("#retiradaCaixaForm").submit(function (e) {
-                e.preventDefault();
-            
-                var operacao = $("input[name='operacao']:checked").val(); // "adicionar" ou "retirar"
-                var valor = parseFloat($("#saldoInput").val()); // valor inserido no input
-            
-                // Verificar se o valor é válido
-                if (isNaN(valor) || valor <= 0) {
-                    alert("Por favor, insira um valor válido.");
+            // Configuração do Toastr
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right", // Define onde as notificações aparecerão
+                "timeOut": "5000", // Duração da mensagem em milissegundos
+            };
+
+            // Lida com o evento de submissão do formulário
+            $('#retiradaCaixaForm').on('submit', function (e) {
+                e.preventDefault(); // Evita o comportamento padrão do formulário
+
+                // Coleta os dados do formulário
+                const operacao = $('input[name="operacao"]:checked').val();
+                const valor = parseFloat($('#saldoInput').val());
+                const descricao = $('#descricaoInput').val();
+
+                // Validação básica
+                if (!valor || valor <= 0) {
+                    toastr.error('Por favor, insira um valor válido.');
                     return;
                 }
-            
-                // Recupera o CSRF token
-                var csrfToken = getCSRFToken();
-            
-                // Preparar os dados como JSON
-                var data = {
-                    'operacao': operacao,
-                    'valor': valor
-                };
-            
-                // Realizar a requisição AJAX para adicionar ou retirar o valor
+
+                if (!descricao.trim()) {
+                    toastr.error('Por favor, adicione uma descrição para a operação.');
+                    return;
+                }
+
+                // Envia os dados via AJAX
                 $.ajax({
-                    url: "{% url 'retirar_ou_adicionar_valor_ajax' %}",
-                    method: "POST",
-                    contentType: "application/json",  // Definir o tipo de conteúdo como JSON
-                    data: JSON.stringify(data),  // Converter os dados para formato JSON
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('X-CSRFToken', csrfToken);  // Incluir o CSRF token no cabeçalho
+                    url: "{% url 'retirar_ou_adicionar_valor_ajax' %}", // Substitua pelo endpoint do seu backend
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': '{{ csrf_token }}' // Garante a proteção contra CSRF
                     },
+                    data: JSON.stringify({
+                        operacao: operacao,
+                        valor: valor,
+                        descricao: descricao
+                    }),
+                    contentType: 'application/json',
                     success: function (response) {
+                        // Verifica se a operação foi bem-sucedida
                         if (response.success) {
-                            alert(response.message);  // Exibir mensagem de sucesso
-                            location.reload();  // Recarregar página ou atualizar o saldo na tela
+                            toastr.success(response.message || 'Operação realizada com sucesso!');
+                            // Opcional: Recarregar a página após um pequeno atraso
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1500);
                         } else {
-                            alert(response.message);  // Exibir mensagem de erro
+                            toastr.error(response.message || 'Algo deu errado. Tente novamente.');
                         }
                     },
-                    error: function (xhr, status, error) {
-                        alert("Erro ao processar a operação: " + error);
+                    error: function () {
+                        toastr.error('Erro ao tentar realizar a operação. Verifique sua conexão ou tente novamente.');
                     }
                 });
             });
-            
         });
-        
     </script>
+
+    <!-- Sistema relatório de caixas-->
+    <script>
+        $(document).ready(function () {
+            $('#caixaSelecionado').change(function () {
+                const caixaId = $(this).val();
+    
+                if (!caixaId) {
+                    return;
+                }
+    
+                $.ajax({
+                    url: `/caixa/relatorio/${caixaId}/`, // Ajuste a URL conforme necessário
+                    method: 'GET',
+                    success: function (response) {
+                        if (response.success) {
+                            const dados = response.dados;
+    
+                            // Converter valores de saldo para números e atualizar os campos de resumo
+                            const saldoInicial = parseFloat(dados.saldo_inicial) || 0;
+                            const saldoFinal = parseFloat(dados.saldo_final) || 0;
+                            $('#saldoInicial').text(saldoInicial.toFixed(2));
+                            $('#saldoFinal').text(saldoFinal.toFixed(2));
+    
+                            // Atualizar tabela de vendas
+                            let vendasHtml = '';
+                            dados.vendas.forEach(venda => {
+                                const subtotal = parseFloat(venda.subtotal) || 0;
+                                const desconto = parseFloat(venda.desconto) || 0;
+                                const total = parseFloat(venda.total) || 0;
+                                vendasHtml += `
+                                    <tr>
+                                        <td>${venda.numero_pedido}</td>
+                                        <td>${subtotal.toFixed(2)}</td>
+                                        <td>${desconto.toFixed(2)}</td>
+                                        <td>${total.toFixed(2)}</td>
+                                        <td>${venda.payment_method}</td>
+                                        <td>${venda.vendedor__username}</td>
+                                        <td>${new Date(venda.created_at).toLocaleString()}</td>
+                                    </tr>
+                                `;
+                            });
+                            $('#tabelaVendas').html(vendasHtml);
+    
+                            // Atualizar tabela de produtos
+                            let produtosHtml = '';
+                            dados.produtos.forEach(produto => {
+                                const precoUnitario = parseFloat(produto.preco_unitario) || 0;
+                                const totalProduto = parseFloat(produto.total) || 0;
+                                produtosHtml += `
+                                    <tr>
+                                        <td>${produto.produto__nome}</td>
+                                        <td>${produto.quantidade}</td>
+                                        <td>${precoUnitario.toFixed(2)}</td>
+                                        <td>${totalProduto.toFixed(2)}</td>
+                                    </tr>
+                                `;
+                            });
+                            $('#tabelaProdutos').html(produtosHtml);
+    
+                            // Atualizar tabela de operações
+                            let operacoesHtml = '';
+                            dados.operacoes.forEach(operacao => {
+                                const valor = parseFloat(operacao.valor) || 0;
+                                operacoesHtml += `
+                                    <tr>
+                                        <td>${operacao.operacao}</td>
+                                        <td>${valor.toFixed(2)}</td>
+                                        <td>${operacao.descricao}</td>
+                                        <td>${new Date(operacao.data_hora).toLocaleString()}</td>
+                                        <td>${operacao.usuario__username}</td>
+                                    </tr>
+                                `;
+                            });
+                            $('#tabelaOperacoes').html(operacoesHtml);
+    
+                            $('#relatorioContent').show();
+                        } else {
+                            alert(response.message || 'Erro ao carregar dados do relatório.');
+                        }
+                    },
+                    error: function () {
+                        alert('Erro ao carregar os dados do relatório. Verifique sua conexão.');
+                    }
+                });
+            });
+        });
+    </script>
+    
 
     <!--Tremores nas notificações-->
     <script>

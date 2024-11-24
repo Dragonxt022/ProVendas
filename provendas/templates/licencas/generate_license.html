@@ -12,22 +12,27 @@
     {% include 'includes/navbar.html' %} 
 
     <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
-        <section class="content-header">
+
+        <section class="content-header py-3 shadow-sm">
             <div class="container-fluid">
-                <div class="row mb-4">
-                    <div class="col-sm-7 d-flex align-items-center">
-                        <h1 class="mr-3">Controle de Chaves</h1> <!-- Adicionei a classe mr-3 -->
-                        
-                        <!-- Link para abrir o modal -->
-                        <button class="btn btn-warning" data-toggle="modal" data-target="#licenseModal">Adicionar Chave</button>
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="font-weight-bold">
+                            <i class="fas fa-chart-line"></i> Controle de Chaves
+                        </h1>
+                    </div>
+                    <div class="col-md-4 text-md-right">
+                        <button class="btn btn-warning" data-toggle="modal" data-target="#licenseModal">
+                            <i class="fas fa-plus mr-2"></i>Adicionar Chave
+
+                        </button>
 
                     </div>
                 </div>
-            </div><!-- /.container-fluid -->
+            </div>
         </section>
         
-        <section class="content">
+        <section class="content py-3">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12">

@@ -49,39 +49,39 @@
     {% include 'includes/navbar.html' %} 
 
     <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
-        <section class="content-header">
+        <section class="content-header py-3 shadow-sm">
             <div class="container-fluid">
-                <div class="row mb-2">
-                    <div class="col-sm-12 d-flex align-items-center">
-                        <h1 class="mr-3">Controle de Venda</h1>
-        
-                        <!-- Link para nova venda -->
-                        <a href="{% url 'abrir_caixa_pdv' %}" class="btn btn-sm btn-success mr-2 d-flex align-items-center">
+                <div class="row align-items-center">
+                    <div class="col-md-5">
+                        <h1 class="font-weight-bold">
+                            <i class="fas fa-chart-line"></i> Hístorico de vendas
+                        </h1>
+                    </div>
+                    <div class="col-md-7 text-md-right">
+                         <!-- Link para nova venda -->
+                         <a href="{% url 'abrir_caixa_pdv' %}" class="btn btn-sm btn-success mr-2">
                             <i class="fas fa-plus mr-2"></i> Nova Venda
                         </a>
         
                         {% if abrir_caixa_automatico %}
                             <!-- Botão Fechar Caixa -->
-                            <button class="btn btn-danger btn-sm mr-2 d-flex align-items-center" data-toggle="modal" data-target="#fecharCaixaModal" {% if not caixa_esta_aberto %}disabled{% endif %}>
+                            <button class="btn btn-danger btn-sm mr-2" data-toggle="modal" data-target="#fecharCaixaModal" {% if not caixa_esta_aberto %}disabled{% endif %}>
                                 <i class="fas fa-box-open mr-2"></i> Fechar Caixa
                             </button>
         
-                            <!-- Botão Realizar Retirada -->
-                            <button class="btn btn-warning btn-sm d-flex align-items-center" data-toggle="modal" data-target="#retiradaCaixaModal" {% if not caixa_esta_aberto %}disabled{% endif %}>
-                                <i class="fas fa-wallet mr-2"></i> Realizar Retirada
+                            <!-- Botão operações do caixa -->
+                            <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#retiradaCaixaModal" {% if not caixa_esta_aberto %}disabled{% endif %}>
+                                <i class="fas fa-wallet mr-2"></i> Operações do Caixa
                             </button>
                         {% else %}
 
                         {% endif %}
-        
                     </div>
                 </div>
-            </div><!-- /.container-fluid -->
+            </div>
         </section>
-        
-        
-        <section class="content">
+        <!-- Content Header (Page header) -->
+        <section class="content py-3">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12">
@@ -93,10 +93,14 @@
                                     <li class="nav-item mb-4" role="presentation">
                                         <a class="nav-link active" id="vendas-tab" data-toggle="tab" href="#vendas" role="tab" aria-controls="vendas" aria-selected="true">Registro de Vendas</a>
                                     </li>
-                                    <li class="nav-item mb-4" role="presentation">
-                                        <a class="nav-link" id="pedidos-tab" data-toggle="tab" href="#pedidos" role="tab" aria-controls="pedidos" aria-selected="false">Registro Caixa</a>
-                                    </li>
 
+                                    {% if abrir_caixa_automatico %}
+                                        <li class="nav-item mb-4" role="presentation">
+                                            <a class="nav-link" id="pedidos-tab" data-toggle="tab" href="#pedidos" role="tab" aria-controls="pedidos" aria-selected="false">Registro Caixa</a>
+                                        </li>
+                                    {% else %}
+
+                                    {% endif %}
                                 </ul>
                                 <div class="tab-content" id="myTabContent ">
                                     <!-- Aba de Registro de Vendas -->
@@ -255,37 +259,38 @@
     </div>
 </div>
 
-<!--Modal de Fechar caixa-->
+<!-- Modal para Fechar Caixa -->
 <div class="modal fade" id="fecharCaixaModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Fechar Caixa</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title"><i class="fas fa-lock"></i> Fechar Caixa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="fecharCaixaForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="saldoFinalInput"><i class="fas fa-coins"></i> Saldo Final:</label>
+                        <input type="number" step="0.01" id="saldoFinalInput" class="form-control" value="0.00" required>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-sm w-100">
+                        <i class="fas fa-check"></i> Fechar Caixa
+                    </button>
+                </form>
+            </div>
         </div>
-        <div class="modal-body">
-            <form id="fecharCaixaForm">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="saldoFinalInput">Saldo Final:</label>
-                    <input type="number" step="0.01" id="saldoFinalInput" class="form-control" value="0.00" required>
-                </div>
-                <button type="submit" class="btn btn-success btn-sm w-100">Fechar Caixa</button>
-            </form>
-            
-        </div>
-      </div>
     </div>
 </div>
 
-<!--Modal de Retirada de Caixa-->
+<!-- Modal para Retirada ou Adição -->
 <div class="modal fade" id="retiradaCaixaModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-warning">
-                <h5 class="modal-title">Realizar Retirada de Valores</h5>
+                <h5 class="modal-title"><i class="fas fa-cash-register"></i> Operação no Caixa</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -294,20 +299,35 @@
                 <form id="retiradaCaixaForm">
                     {% csrf_token %}
                     <div class="form-group">
-                        <label for="operacao">Selecione a Operação:</label><br>
-                        <input type="radio" id="adicionarValor" name="operacao" value="adicionar" checked> Adicionar
-                        <input type="radio" id="retirarValor" name="operacao" value="retirar"> Retirar
+                        <label for="operacao"><i class="fas fa-exchange-alt py-1"></i> Selecione a Operação:</label>
+                        <div class="btn-group btn-group-toggle d-flex" data-toggle="buttons">
+                            <label class="btn btn-warning active flex-fill mr-1">
+                                <input type="radio" name="operacao" value="adicionar" id="adicionarValor" autocomplete="off" checked>
+                                <i class="fas fa-plus-circle"></i> Adicionar
+                            </label>
+                            <label class="btn btn-danger flex-fill">
+                                <input type="radio" name="operacao" value="retirar" id="retirarValor" autocomplete="off">
+                                <i class="fas fa-minus-circle"></i> Retirar
+                            </label>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="saldoInput">Valor:</label>
+                        <label for="saldoInput"><i class="fas fa-money-bill-wave"></i> Valor:</label>
                         <input type="number" step="0.01" id="saldoInput" class="form-control" value="0.00" required>
                     </div>
-                    <button type="submit" class="btn btn-warning btn-sm w-100">Salvar</button>
+                    <div class="form-group">
+                        <label for="descricaoInput"><i class="fas fa-info-circle"></i> Descrição da Operação:</label>
+                        <textarea id="descricaoInput" class="form-control" rows="3" placeholder="Descreva a operação realizada..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-warning btn-sm w-100">
+                        <i class="fas fa-save"></i> Salvar
+                    </button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
 
 
 {% block extra_scripts %}

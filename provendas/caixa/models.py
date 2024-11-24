@@ -55,3 +55,19 @@ class Caixa(models.Model):
 
     def __str__(self):
         return f"Caixa #{self.id} - {self.status}"
+    
+class OperacaoCaixa(models.Model):
+    OPERACAO_CHOICES = [
+        ('adicionar', 'Adicionar'),
+        ('retirar', 'Retirar'),
+    ]
+
+    caixa = models.ForeignKey(Caixa, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    operacao = models.CharField(max_length=10, choices=OPERACAO_CHOICES)
+    valor = models.DecimalField(max_digits=10, decimal_places=2)
+    descricao = models.TextField()
+    data_hora = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.operacao.capitalize()} - R${self.valor} ({self.data_hora.strftime('%d/%m/%Y %H:%M')})"
