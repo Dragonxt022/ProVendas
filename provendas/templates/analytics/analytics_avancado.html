@@ -32,7 +32,7 @@
         </section>
     
         <!-- Conteúdo principal -->
-        <section class="content">
+        <section class="content mt-3">
             <div class="container-fluid">
                 <!-- Filtros -->
                 <div class="card shadow-sm mb-4">
@@ -59,9 +59,9 @@
                 </div>
 
                 <!-- Cards de Destaque -->
-                <div class="row">
+                <div class="row py-3">
                     <!-- Card: Total Vendido -->
-                    <div class="col-lg-3 col-6">
+                    <div class="col-lg-6 col-6">
                         <div class="small-box bg-success">
                             <div class="inner">
                                 <h3 id="receita-total">0,00</h3>
@@ -72,49 +72,20 @@
                             </div>
                         </div>
                     </div>
-    
-                    <!-- Card: Pedidos Finalizados -->
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-info">
-                            <div class="inner">
-                                <h3 id="total-vendas">0</h3>
-                                <p>Total de Vendas</p>
-                            </div>
-                            <div class="icon">
-                                <i class="fas fa-shopping-cart"></i>
-                            </div>
-                        </div>
-                    </div>
-    
                     <!-- Card: Quantidade de Produtos Vendidos -->
-                    <div class="col-lg-3 col-6">
+                    <div class="col-lg-6 col-6">
                         <div class="small-box bg-warning">
                             <div class="inner">
-                                <h3 id="quantidade-produtos">0</h3>
-                                <p>Produtos Vendidos</p>
+                                <h3 id="quantidade-produtos-vendidas">0</h3>
+                                <p>Quantidade de produtos Vendidos</p>
                             </div>
                             <div class="icon">
                                 <i class="fas fa-box"></i>
                             </div>
                         </div>
                     </div>
-    
-                    <!-- Card: Receita por Mês -->
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-danger">
-                            <div class="inner">
-                                <h3 id="receita-mes">0,00</h3>
-                                <p>Receita (Mês Atual)</p>
-                            </div>
-                            <div class="icon">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                        </div>
-                    </div>
                 </div>
-    
-                <!-- Total de Vendas -->
-    
+
                 <!-- Vendas por Método de Pagamento -->
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-warning text-white font-weight-bold">
@@ -181,7 +152,7 @@
             // Obter as datas dos inputs
             const dataInicio = $("#data-inicio").val();
             const dataFim = $("#data-fim").val();
-
+        
             // Requisição AJAX
             $.ajax({
                 url: "{% url 'relatorio_vendas_ajax' %}",
@@ -193,13 +164,17 @@
                 success: function (data) {
                     // Total de vendas
                     $("#receita-total").html(`
-                        <h3>${parseFloat(data.total_vendas.receita_total).toFixed(2)}</h3>
+                        <h3>R$ ${parseFloat(data.total_vendas.receita_total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                     `);
-
+        
                     $("#total-vendas").html(`
-                        <h3>${parseFloat(data.total_vendas.quantidade_total).toFixed(2)}</h3>
+                        <h3>${parseFloat(data.total_vendas.quantidade_total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                     `);
-
+        
+                    // Exibir a quantidade de produtos vendidos
+                    const quantidadeProdutosVendidos = data.produtos_mais_vendidos.reduce((acc, produto) => acc + produto.total_vendido, 0);
+                    $("#quantidade-produtos-vendidas").html(quantidadeProdutosVendidos.toLocaleString('pt-BR'));
+        
                     // Vendas por método de pagamento
                     let vendasHtml = "";
                     data.vendas_por_metodo_pagamento.forEach(venda => {
@@ -212,7 +187,7 @@
                         `;
                     });
                     $("#vendas-por-metodo").html(vendasHtml);
-
+        
                     // Produtos mais vendidos
                     let produtosHtml = "";
                     data.produtos_mais_vendidos.forEach(produto => {

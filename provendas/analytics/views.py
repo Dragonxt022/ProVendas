@@ -4,8 +4,9 @@ from estoque.models import Produto
 from django.db.models import Sum, Count, F
 from django.db.models.functions import ExtractHour
 from django.utils.timezone import now
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.http import JsonResponse
+
 
 def relatorio_vendas(request):
     
@@ -25,6 +26,10 @@ def relatorio_vendas_ajax(request):
                 data_fim = datetime.strptime(data_fim, "%Y-%m-%d")
         except ValueError:
             return JsonResponse({"error": "Formato de data inválido"}, status=400)
+        
+        # Se a data de início e a data de fim forem as mesmas, adicionar 24 horas à data de início
+        if data_inicio and data_fim and data_inicio == data_fim:
+            data_fim = data_inicio + timedelta(days=1)
 
         # Filtro base
         filtro = {"status": "Finalizado"}
@@ -62,6 +67,9 @@ def relatorio_vendas_ajax(request):
         }
         return JsonResponse(data, safe=False)
     return JsonResponse({"error": "Método não permitido"}, status=405)
+
+
+
 
 def analytics_desboard(request):
     # Pegando o ano e mês da query string ou usando os valores atuais
