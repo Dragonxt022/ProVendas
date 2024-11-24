@@ -15,24 +15,22 @@
         <section class="content-header">
             <div class="container-fluid">
                 <div class="row mb-2">
-                    <div class="col-sm-6 d-flex align-items-center">
+                    <div class="col-sm-12 d-flex align-items-center">
                         <h1 class="mr-3"> Gerenciar Estoque </h1> <!-- Adicionei a classe mr-3 -->
                         <button type="button" class="btn btn-sm btn-success mr-2" data-toggle="modal" data-target="#adicionarModal">
-                            Adicionar Produto
+                            <i class="fas fa-plus"></i> Adicionar Produto
                         </button>
-                        <button type="button" class="btn btn-sm btn-primary mr-2 " data-toggle="modal" data-target="#importarModal">
-                            Importar Produtos
+                        <button type="button" class="btn btn-sm btn-primary mr-2" data-toggle="modal" data-target="#importarModal">
+                            <i class="fas fa-file-import"></i> Importar Produtos
                         </button>
                         <button type="button" class="btn btn-sm btn-secondary" onclick="window.location.href='{% url 'exportar_produtos' %}'">
-                            Exportar Produtos
+                            <i class="fas fa-file-export"></i> Exportar Produtos
                         </button>
-                        
-                        
                     </div>
                 </div>
-                
             </div><!-- /.container-fluid -->
         </section>
+        
         <section class="content">
             <div class="container-fluid">
                 <div class="row">

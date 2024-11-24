@@ -526,7 +526,7 @@
     <!-- AdminLTE for demo purposes -->
     <script src="{% static 'js/demo.js' %}"></script>
 
-
+    <!-- Comfogirações do Toastr-->
     <script>
         {% if messages %}
             {% for message in messages %}
@@ -705,10 +705,71 @@
         </div>
     {% endif %}
 
-    
-    <!-- blocos de script-->
-    {% block extra_scripts %} {% endblock %}
+    <!--Sistema de adicionra saldo ou retirada-->
+    <script>
+        $(document).ready(function () {
+            // Recupera o CSRF token do cookie
+            function getCSRFToken() {
+                var name = 'csrftoken';
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + '=')) {
+                        return cookie.substring(name.length + 1);
+                    }
+                }
+                return null;
+            }
+        
+            $("#retiradaCaixaForm").submit(function (e) {
+                e.preventDefault();
+            
+                var operacao = $("input[name='operacao']:checked").val(); // "adicionar" ou "retirar"
+                var valor = parseFloat($("#saldoInput").val()); // valor inserido no input
+            
+                // Verificar se o valor é válido
+                if (isNaN(valor) || valor <= 0) {
+                    alert("Por favor, insira um valor válido.");
+                    return;
+                }
+            
+                // Recupera o CSRF token
+                var csrfToken = getCSRFToken();
+            
+                // Preparar os dados como JSON
+                var data = {
+                    'operacao': operacao,
+                    'valor': valor
+                };
+            
+                // Realizar a requisição AJAX para adicionar ou retirar o valor
+                $.ajax({
+                    url: "{% url 'retirar_ou_adicionar_valor_ajax' %}",
+                    method: "POST",
+                    contentType: "application/json",  // Definir o tipo de conteúdo como JSON
+                    data: JSON.stringify(data),  // Converter os dados para formato JSON
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('X-CSRFToken', csrfToken);  // Incluir o CSRF token no cabeçalho
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);  // Exibir mensagem de sucesso
+                            location.reload();  // Recarregar página ou atualizar o saldo na tela
+                        } else {
+                            alert(response.message);  // Exibir mensagem de erro
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Erro ao processar a operação: " + error);
+                    }
+                });
+            });
+            
+        });
+        
+    </script>
 
+    <!--Tremores nas notificações-->
     <script>
         // Função para aplicar o efeito de tremor
          function triggerShakeEffect() {
@@ -731,7 +792,12 @@
  
  
  
-     </script>
+    </script>
+
+    <!-- blocos de script-->
+    {% block extra_scripts %} {% endblock %}
+
+    
  
 
     

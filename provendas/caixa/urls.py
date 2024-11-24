@@ -20,6 +20,9 @@ urlpatterns = [
     path('fechar_caixa_ajax/', views.fechar_caixa_ajax, name='fechar_caixa_ajax'),
     path('verificar_caixa_aberto/', views.verificar_caixa_aberto, name='verificar_caixa_aberto'),
 
+    # Ajax
+    path('listar-caixas-abertos-ajax/', views.listar_caixas_abertos_ajax, name='listar_caixas_abertos_ajax'),
+    path('retirar-ou-adicionar-valor-ajax/', views.retirar_ou_adicionar_valor_ajax, name='retirar_ou_adicionar_valor_ajax'),
 
 
     
