@@ -48,17 +48,82 @@
                                     </select>
                                 </div>
 
+                               
+
+
                                 <div id="relatorioContent" class="mt-4" style="display: none;">
-                                    <div class="card bg-light p-3 mb-4 rounded">
-                                        <h3 class="font-weight-bold text-primary">Resumo</h3>
-                                        <p><strong>Saldo Inicial:</strong> R$ <span id="saldoInicial" class="font-weight-bold"></span></p>
-                                        <p><strong>Saldo Final:</strong> R$ <span id="saldoFinal" class="font-weight-bold"></span></p>
+                                    <!-- Cards de Destaque -->
+                                    <div class="row py-3">
+                                        <!-- Card: Saldo inicial -->
+                                        <div class="col-lg-3 col-4">
+                                            <div class="small-box bg-success">
+                                                <div class="inner">
+                                                    <h3 id="saldoInicial">R$ 0,00</h3>
+                                                    <p>Saldo inicial</p>
+                                                </div>
+                                                <div class="icon">
+                                                    <i class="fas fa-dollar-sign"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Card: Saldo Final -->
+                                        <div class="col-lg-3 col-4">
+                                            <div class="small-box bg-primary">
+                                                <div class="inner">
+                                                    <h3 id="saldoFinal">R$ 0,00</h3>
+                                                    <p>Saldo Final</p>
+                                                </div>
+                                                <div class="icon">
+                                                    <i class="fas fa-chart-line"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Card: Quantidade de Produtos Vendidos -->
+                                        <div class="col-lg-3 col-4">
+                                            <div class="small-box bg-info">
+                                                <div class="inner">
+                                                    <h3 id="quantidade-produtos-vendidos">0</h3>
+                                                    <p>Total de Produtos Vendidos</p>
+                                                </div>
+                                                <div class="icon">
+                                                    <i class="fas fa-box"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-4">
+                                            <div class="small-box" id="diferencaCaixa">
+                                                <div class="inner">
+                                                    <h3 id="diferencaCaixa">0</h3>
+                                                    <p id="saudeCaixa">Saúde do Caixa</p>
+                                                </div>
+                                                <div class="icon">
+                                                    <i class="fas fa-heart" id="diferencaIcon"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
                                     </div>
 
-                                    <h3 class="mt-4 text-primary">Vendas</h3>
+                                    <h3 class="mt-4">Operações de Caixa</h3>
                                     <div class="table-responsive">
                                         <table class="table table-striped table-hover table-bordered">
-                                            <thead class="thead-dark">
+                                            <thead class="bg-warning">
+                                                <tr>
+                                                    <th>Operação</th>
+                                                    <th>Valor</th>
+                                                    <th>Descrição</th>
+                                                    <th>Data e Hora</th>
+                                                    <th>Usuário</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tabelaOperacoes"></tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <h3 class="mt-4 text-success">Vendas</h3>
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover table-bordered">
+                                            <thead class="bg-success">
                                                 <tr>
                                                     <th>Pedido</th>
                                                     <th>Subtotal</th>
@@ -73,10 +138,10 @@
                                         </table>
                                     </div>
 
-                                    <h3 class="mt-4 text-primary">Produtos Vendidos</h3>
+                                    <h3 class="mt-4 text-info">Produtos Vendidos</h3>
                                     <div class="table-responsive">
                                         <table class="table table-striped table-hover table-bordered">
-                                            <thead class="thead-dark">
+                                            <thead class="bg-info">
                                                 <tr>
                                                     <th>Produto</th>
                                                     <th>Quantidade</th>
@@ -88,21 +153,7 @@
                                         </table>
                                     </div>
 
-                                    <h3 class="mt-4 text-primary">Operações de Caixa</h3>
-                                    <div class="table-responsive">
-                                        <table class="table table-striped table-hover table-bordered">
-                                            <thead class="thead-dark">
-                                                <tr>
-                                                    <th>Operação</th>
-                                                    <th>Valor</th>
-                                                    <th>Descrição</th>
-                                                    <th>Data e Hora</th>
-                                                    <th>Usuário</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="tabelaOperacoes"></tbody>
-                                        </table>
-                                    </div>
+                                    
                                 </div>
                             </div>
                         </div>

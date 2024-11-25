@@ -770,30 +770,67 @@
         });
     </script>
 
-    <!-- Sistema relatório de caixas-->
     <script>
         $(document).ready(function () {
             $('#caixaSelecionado').change(function () {
                 const caixaId = $(this).val();
-    
+        
                 if (!caixaId) {
                     return;
                 }
-    
+        
                 $.ajax({
                     url: `/caixa/relatorio/${caixaId}/`, // Ajuste a URL conforme necessário
                     method: 'GET',
                     success: function (response) {
                         if (response.success) {
                             const dados = response.dados;
-    
-                            // Converter valores de saldo para números e atualizar os campos de resumo
+        
+                            // Atualizar Saldo Inicial e Final com valores em Real (R$)
                             const saldoInicial = parseFloat(dados.saldo_inicial) || 0;
                             const saldoFinal = parseFloat(dados.saldo_final) || 0;
-                            $('#saldoInicial').text(saldoInicial.toFixed(2));
-                            $('#saldoFinal').text(saldoFinal.toFixed(2));
-    
-                            // Atualizar tabela de vendas
+                            console.log("Saldo Inicial:", saldoInicial);
+                            console.log("Saldo Final:", saldoFinal);
+                            $('#saldoInicial').text(`R$ ${saldoInicial.toFixed(2).replace('.', ',')}`);
+                            $('#saldoFinal').text(`R$ ${saldoFinal.toFixed(2).replace('.', ',')}`);
+
+                            // Calcular o Total das Vendas
+                            const totalVendas = dados.vendas.reduce((total, venda) => total + parseFloat(venda.total), 0);
+                            console.log("Total de Vendas:", totalVendas);
+
+                            // Operações de Adição e Retirada
+                            const totalOperacoesAdicionadas = dados.operacoes.filter(op => op.operacao === 'adicionar').reduce((total, operacao) => total + parseFloat(operacao.valor), 0);
+                            const totalOperacoesRetiradas = dados.operacoes.filter(op => op.operacao === 'retirar').reduce((total, operacao) => total + parseFloat(operacao.valor), 0);
+                            console.log("Total de Operações Adicionadas:", totalOperacoesAdicionadas);
+                            console.log("Total de Operações Retiradas:", totalOperacoesRetiradas);
+
+                            // Calcular o Total Esperado (Saldo Inicial + Vendas + Operações de Adição - Operações de Retirada)
+                            const totalEsperado = saldoInicial + totalVendas + totalOperacoesAdicionadas - totalOperacoesRetiradas;
+                            console.log("Total Esperado:", totalEsperado);
+
+                            // Se o saldo final for zero, não calcular a diferença
+                            if (saldoFinal === 0) {
+                                console.log("Saldo Final é zero. Não será calculada a diferença.");
+                                console.log("Total Esperado (sem diferença):", totalEsperado);
+
+                                // Exibe o Total Esperado, indicando que não foi possível calcular a diferença
+                                $('#diferencaCaixa').removeClass('bg-success bg-danger').addClass('bg-warning');
+                                $('#diferencaCaixa').find('h3').text(`R$ ${totalEsperado.toFixed(2).replace('.', ',')}`);
+                                $('#diferencaIcon').removeClass('fa-check-circle fa-exclamation-triangle').addClass('fa-exclamation-triangle text-warning');
+                            } else {
+                                // Caso contrário, calcular a Diferença (Saldo Final - Total Esperado)
+                                const diferenca = saldoFinal - totalEsperado;
+                                console.log("Diferença entre Saldo Final e Total Esperado:", diferenca);
+
+                                const diferencaTexto = `R$ ${diferenca.toFixed(2).replace('.', ',')}`;
+                                const diferencaIcone = diferenca >= 0 ? 'fa-check-circle text-success' : 'fa-exclamation-triangle text-danger';
+
+                                $('#diferencaCaixa').removeClass('bg-success bg-danger').addClass(diferenca >= 0 ? 'bg-success' : 'bg-danger');
+                                $('#diferencaCaixa').find('h3').text(diferencaTexto);
+                                $('#diferencaIcon').removeClass('fa-check-circle fa-exclamation-triangle').addClass(diferencaIcone);
+                            }
+        
+                            // Atualizar Tabela de Vendas
                             let vendasHtml = '';
                             dados.vendas.forEach(venda => {
                                 const subtotal = parseFloat(venda.subtotal) || 0;
@@ -802,9 +839,9 @@
                                 vendasHtml += `
                                     <tr>
                                         <td>${venda.numero_pedido}</td>
-                                        <td>${subtotal.toFixed(2)}</td>
-                                        <td>${desconto.toFixed(2)}</td>
-                                        <td>${total.toFixed(2)}</td>
+                                        <td>R$ ${subtotal.toFixed(2).replace('.', ',')}</td>
+                                        <td>R$ ${desconto.toFixed(2).replace('.', ',')}</td>
+                                        <td>R$ ${total.toFixed(2).replace('.', ',')}</td>
                                         <td>${venda.payment_method}</td>
                                         <td>${venda.vendedor__username}</td>
                                         <td>${new Date(venda.created_at).toLocaleString()}</td>
@@ -812,8 +849,8 @@
                                 `;
                             });
                             $('#tabelaVendas').html(vendasHtml);
-    
-                            // Atualizar tabela de produtos
+        
+                            // Atualizar Tabela de Produtos
                             let produtosHtml = '';
                             dados.produtos.forEach(produto => {
                                 const precoUnitario = parseFloat(produto.preco_unitario) || 0;
@@ -822,21 +859,22 @@
                                     <tr>
                                         <td>${produto.produto__nome}</td>
                                         <td>${produto.quantidade}</td>
-                                        <td>${precoUnitario.toFixed(2)}</td>
-                                        <td>${totalProduto.toFixed(2)}</td>
+                                        <td>R$ ${precoUnitario.toFixed(2).replace('.', ',')}</td>
+                                        <td>R$ ${totalProduto.toFixed(2).replace('.', ',')}</td>
                                     </tr>
                                 `;
                             });
                             $('#tabelaProdutos').html(produtosHtml);
-    
-                            // Atualizar tabela de operações
+        
+                            // Atualizar Tabela de Operações com ícones
                             let operacoesHtml = '';
                             dados.operacoes.forEach(operacao => {
                                 const valor = parseFloat(operacao.valor) || 0;
+                                const operacaoIcon = operacao.operacao === 'adicionar' ? 'fa-plus' : 'fa-minus text-danger';
                                 operacoesHtml += `
                                     <tr>
-                                        <td>${operacao.operacao}</td>
-                                        <td>${valor.toFixed(2)}</td>
+                                        <td class="text-center"><i class="fas ${operacaoIcon}"></i></td>
+                                        <td>R$ ${valor.toFixed(2).replace('.', ',')}</td>
                                         <td>${operacao.descricao}</td>
                                         <td>${new Date(operacao.data_hora).toLocaleString()}</td>
                                         <td>${operacao.usuario__username}</td>
@@ -844,7 +882,7 @@
                                 `;
                             });
                             $('#tabelaOperacoes').html(operacoesHtml);
-    
+        
                             $('#relatorioContent').show();
                         } else {
                             alert(response.message || 'Erro ao carregar dados do relatório.');
@@ -856,7 +894,11 @@
                 });
             });
         });
+        
     </script>
+    
+    
+    
     
 
     <!--Tremores nas notificações-->
