@@ -770,119 +770,86 @@
         });
     </script>
 
+    <!-- Sistema de fechar caixa -->
+    <script>
+        document.getElementById('fecharCaixaForm').addEventListener('submit', function(event) {
+
+            event.preventDefault(); // Evita o envio padrão do formulário
+        
+            let saldoFinal = document.getElementById('saldoFinalInput').value;
+        
+            // Fazer a requisição AJAX para fechar o caixa
+            fetch('/caixa/fechar_caixa_ajax/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', // Enviando como JSON
+                    'X-CSRFToken': getCsrfToken(), // Função para obter o CSRF token
+                    'X-Requested-With': 'XMLHttpRequest' // Garantir que o cabeçalho AJAX esteja presente
+                },
+                body: JSON.stringify({ saldo_final: saldoFinal }) // Stringify os dados como JSON
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);  // Adiciona um log para ver o que vem na resposta
+        
+                if (data.success) {
+                    alert('Caixa fechado com sucesso!');
+
+                    // Supondo que a resposta contenha o ID do caixa fechado
+                    const caixaId = data.caixa_id;
+
+                    // Redirecionar para a página de relatórios com o ID do caixa selecionado
+                    window.location.href = `/caixa/relatorio/`;
+                } else {
+                    alert('Erro ao fechar o caixa: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Ocorreu um erro ao tentar fechar o caixa.');
+            });
+        });
+        
+        // Função para obter o CSRF token (Django)
+        function getCsrfToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        }
+    </script>
+
     <script>
         $(document).ready(function () {
             $('#caixaSelecionado').change(function () {
                 const caixaId = $(this).val();
-        
+    
                 if (!caixaId) {
                     return;
                 }
-        
+    
                 $.ajax({
                     url: `/caixa/relatorio/${caixaId}/`, // Ajuste a URL conforme necessário
                     method: 'GET',
                     success: function (response) {
                         if (response.success) {
                             const dados = response.dados;
-        
-                            // Atualizar Saldo Inicial e Final com valores em Real (R$)
-                            const saldoInicial = parseFloat(dados.saldo_inicial) || 0;
-                            const saldoFinal = parseFloat(dados.saldo_final) || 0;
-                            console.log("Saldo Inicial:", saldoInicial);
-                            console.log("Saldo Final:", saldoFinal);
-                            $('#saldoInicial').text(`R$ ${saldoInicial.toFixed(2).replace('.', ',')}`);
-                            $('#saldoFinal').text(`R$ ${saldoFinal.toFixed(2).replace('.', ',')}`);
-
-                            // Calcular o Total das Vendas
-                            const totalVendas = dados.vendas.reduce((total, venda) => total + parseFloat(venda.total), 0);
-                            console.log("Total de Vendas:", totalVendas);
-
-                            // Operações de Adição e Retirada
-                            const totalOperacoesAdicionadas = dados.operacoes.filter(op => op.operacao === 'adicionar').reduce((total, operacao) => total + parseFloat(operacao.valor), 0);
-                            const totalOperacoesRetiradas = dados.operacoes.filter(op => op.operacao === 'retirar').reduce((total, operacao) => total + parseFloat(operacao.valor), 0);
-                            console.log("Total de Operações Adicionadas:", totalOperacoesAdicionadas);
-                            console.log("Total de Operações Retiradas:", totalOperacoesRetiradas);
-
-                            // Calcular o Total Esperado (Saldo Inicial + Vendas + Operações de Adição - Operações de Retirada)
-                            const totalEsperado = saldoInicial + totalVendas + totalOperacoesAdicionadas - totalOperacoesRetiradas;
-                            console.log("Total Esperado:", totalEsperado);
-
-                            // Se o saldo final for zero, não calcular a diferença
-                            if (saldoFinal === 0) {
-                                console.log("Saldo Final é zero. Não será calculada a diferença.");
-                                console.log("Total Esperado (sem diferença):", totalEsperado);
-
-                                // Exibe o Total Esperado, indicando que não foi possível calcular a diferença
-                                $('#diferencaCaixa').removeClass('bg-success bg-danger').addClass('bg-warning');
-                                $('#diferencaCaixa').find('h3').text(`R$ ${totalEsperado.toFixed(2).replace('.', ',')}`);
-                                $('#diferencaIcon').removeClass('fa-check-circle fa-exclamation-triangle').addClass('fa-exclamation-triangle text-warning');
-                            } else {
-                                // Caso contrário, calcular a Diferença (Saldo Final - Total Esperado)
-                                const diferenca = saldoFinal - totalEsperado;
-                                console.log("Diferença entre Saldo Final e Total Esperado:", diferenca);
-
-                                const diferencaTexto = `R$ ${diferenca.toFixed(2).replace('.', ',')}`;
-                                const diferencaIcone = diferenca >= 0 ? 'fa-check-circle text-success' : 'fa-exclamation-triangle text-danger';
-
-                                $('#diferencaCaixa').removeClass('bg-success bg-danger').addClass(diferenca >= 0 ? 'bg-success' : 'bg-danger');
-                                $('#diferencaCaixa').find('h3').text(diferencaTexto);
-                                $('#diferencaIcon').removeClass('fa-check-circle fa-exclamation-triangle').addClass(diferencaIcone);
-                            }
-        
-                            // Atualizar Tabela de Vendas
-                            let vendasHtml = '';
-                            dados.vendas.forEach(venda => {
-                                const subtotal = parseFloat(venda.subtotal) || 0;
-                                const desconto = parseFloat(venda.desconto) || 0;
-                                const total = parseFloat(venda.total) || 0;
-                                vendasHtml += `
-                                    <tr>
-                                        <td>${venda.numero_pedido}</td>
-                                        <td>R$ ${subtotal.toFixed(2).replace('.', ',')}</td>
-                                        <td>R$ ${desconto.toFixed(2).replace('.', ',')}</td>
-                                        <td>R$ ${total.toFixed(2).replace('.', ',')}</td>
-                                        <td>${venda.payment_method}</td>
-                                        <td>${venda.vendedor__username}</td>
-                                        <td>${new Date(venda.created_at).toLocaleString()}</td>
-                                    </tr>
-                                `;
-                            });
-                            $('#tabelaVendas').html(vendasHtml);
-        
-                            // Atualizar Tabela de Produtos
-                            let produtosHtml = '';
-                            dados.produtos.forEach(produto => {
-                                const precoUnitario = parseFloat(produto.preco_unitario) || 0;
-                                const totalProduto = parseFloat(produto.total) || 0;
-                                produtosHtml += `
-                                    <tr>
-                                        <td>${produto.produto__nome}</td>
-                                        <td>${produto.quantidade}</td>
-                                        <td>R$ ${precoUnitario.toFixed(2).replace('.', ',')}</td>
-                                        <td>R$ ${totalProduto.toFixed(2).replace('.', ',')}</td>
-                                    </tr>
-                                `;
-                            });
-                            $('#tabelaProdutos').html(produtosHtml);
-        
-                            // Atualizar Tabela de Operações com ícones
-                            let operacoesHtml = '';
-                            dados.operacoes.forEach(operacao => {
-                                const valor = parseFloat(operacao.valor) || 0;
-                                const operacaoIcon = operacao.operacao === 'adicionar' ? 'fa-plus' : 'fa-minus text-danger';
-                                operacoesHtml += `
-                                    <tr>
-                                        <td class="text-center"><i class="fas ${operacaoIcon}"></i></td>
-                                        <td>R$ ${valor.toFixed(2).replace('.', ',')}</td>
-                                        <td>${operacao.descricao}</td>
-                                        <td>${new Date(operacao.data_hora).toLocaleString()}</td>
-                                        <td>${operacao.usuario__username}</td>
-                                    </tr>
-                                `;
-                            });
-                            $('#tabelaOperacoes').html(operacoesHtml);
-        
+    
+                            // Atualizar saldos
+                            atualizarSaldos(dados);
+    
+                            // Calcular totais
+                            const { totalVendas, totalOperacoesAdicionadas, totalOperacoesRetiradas, totalEsperado, quantidadeProdutosVendidos } = calcularTotais(dados, dados.saldo_inicial);
+    
+                            // Exibir quantidade total de produtos vendidos
+                            $('#quantidadeProdutosVendidos').text(quantidadeProdutosVendidos);
+    
+                            // Calcular diferença
+                            const diferenca = calcularDiferenca(dados.saldo_final, totalEsperado);
+    
+                            // Atualizar Tabelas
+                            atualizarTabela('#tabelaVendas', dados.vendas, formatarVendas);
+                            atualizarTabela('#tabelaProdutos', dados.produtos, formatarProdutos);
+                            atualizarTabela('#tabelaOperacoes', dados.operacoes, formatarOperacoes);
+    
+                            // Exibir relatório
                             $('#relatorioContent').show();
                         } else {
                             alert(response.message || 'Erro ao carregar dados do relatório.');
@@ -893,9 +860,122 @@
                     }
                 });
             });
+    
+            // Função para atualizar saldos na página
+            function atualizarSaldos(dados) {
+                const saldoInicial = parseFloat(dados.saldo_inicial) || 0;
+                const saldoFinal = parseFloat(dados.saldo_final) || 0;
+    
+                console.log("Saldo Inicial:", saldoInicial);
+                console.log("Saldo Final:", saldoFinal);
+    
+                $('#saldoInicial').text(formatarMoeda(saldoInicial));
+                $('#saldoFinal').text(formatarMoeda(saldoFinal));
+            }
+    
+            // Função para calcular totais, incluindo a quantidade total de produtos vendidos
+            function calcularTotais(dados, saldoInicial) {
+                const totalVendas = dados.vendas.reduce((total, venda) => total + parseFloat(venda.total), 0);
+                const totalOperacoesAdicionadas = dados.operacoes.filter(op => op.operacao === 'adicionar').reduce((total, op) => total + parseFloat(op.valor), 0);
+                const totalOperacoesRetiradas = dados.operacoes.filter(op => op.operacao === 'retirar').reduce((total, op) => total + parseFloat(op.valor), 0);
+                
+                // Calcular a quantidade total de produtos vendidos
+                const quantidadeProdutosVendidos = dados.produtos.reduce((total, produto) => total + parseInt(produto.quantidade), 0);
+    
+                console.log("Total de Vendas:", totalVendas);
+                console.log("Total de Operações Adicionadas:", totalOperacoesAdicionadas);
+                console.log("Total de Operações Retiradas:", totalOperacoesRetiradas);
+                console.log("Quantidade de Produtos Vendidos:", quantidadeProdutosVendidos);
+    
+                const totalEsperado = saldoInicial + totalVendas + totalOperacoesAdicionadas - totalOperacoesRetiradas;
+                console.log("Total Esperado:", totalEsperado);
+    
+                return { totalVendas, totalOperacoesAdicionadas, totalOperacoesRetiradas, totalEsperado, quantidadeProdutosVendidos };
+            }
+    
+            // Função para calcular a diferença entre Saldo Final e Total Esperado
+            function calcularDiferenca(saldoFinal, totalEsperado) {
+                const diferenca = saldoFinal - totalEsperado;
+                const diferencaTexto = formatarMoeda(diferenca);
+                const diferencaIcone = diferenca >= 0 ? 'fa-check-circle text-success' : 'fa-exclamation-triangle text-danger';
+    
+                $('#diferencaCaixa')
+                    .removeClass('bg-success bg-danger bg-danger')
+                    .addClass(diferenca >= 0 ? 'bg-success' : 'bg-success')
+                    .find('h3')
+                    .text(diferencaTexto);
+    
+                $('#diferencaIcon')
+                    .removeClass('fa-check-circle fa-exclamation-triangle')
+                    .addClass(diferencaIcone);
+    
+                return diferenca;
+            }
+    
+            // Função para formatar valores em Real (R$)
+            function formatarMoeda(valor) {
+                return `R$ ${valor.toFixed(2).replace('.', ',')}`;
+            }
+    
+            // Função para atualizar uma tabela
+            function atualizarTabela(tabelaId, dados, formatarFunc) {
+                let html = '';
+                dados.forEach(item => {
+                    html += formatarFunc(item);
+                });
+                $(tabelaId).html(html);
+            }
+    
+            // Função para formatar as vendas
+            function formatarVendas(venda) {
+                const subtotal = parseFloat(venda.subtotal) || 0;
+                const desconto = parseFloat(venda.desconto) || 0;
+                const total = parseFloat(venda.total) || 0;
+                return `
+                    <tr>
+                        <td>${venda.numero_pedido}</td>
+                        <td>${formatarMoeda(subtotal)}</td>
+                        <td>${formatarMoeda(desconto)}</td>
+                        <td>${formatarMoeda(total)}</td>
+                        <td>${venda.payment_method}</td>
+                        <td>${venda.vendedor__username}</td>
+                        <td>${new Date(venda.created_at).toLocaleString()}</td>
+                    </tr>
+                `;
+            }
+    
+            // Função para formatar os produtos
+            function formatarProdutos(produto) {
+                const precoUnitario = parseFloat(produto.preco_unitario) || 0;
+                const totalProduto = parseFloat(produto.total) || 0;
+                return `
+                    <tr>
+                        <td>${produto.produto__nome}</td>
+                        <td>${produto.quantidade}</td>
+                        <td>${formatarMoeda(precoUnitario)}</td>
+                        <td>${formatarMoeda(totalProduto)}</td>
+                    </tr>
+                `;
+            }
+    
+            // Função para formatar as operações
+            function formatarOperacoes(operacao) {
+                const valor = parseFloat(operacao.valor) || 0;
+                const operacaoIcon = operacao.operacao === 'adicionar' ? 'fa-plus' : 'fa-minus text-danger';
+                return `
+                    <tr>
+                        <td class="text-center"><i class="fas ${operacaoIcon}"></i></td>
+                        <td>${formatarMoeda(valor)}</td>
+                        <td>${operacao.descricao}</td>
+                        <td>${new Date(operacao.data_hora).toLocaleString()}</td>
+                        <td>${operacao.usuario__username}</td>
+                    </tr>
+                `;
+            }
         });
-        
     </script>
+    
+    
     
     
     

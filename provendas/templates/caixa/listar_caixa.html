@@ -573,54 +573,9 @@
     
 </script>
 
-<!-- Sistema de visualização de produtos-->
-<script>
-    
 
-    document.getElementById('fecharCaixaForm').addEventListener('submit', function(event) {
 
-        if (window.hasRun) return;
-        window.hasRun = true;
 
-        event.preventDefault(); // Evita o envio padrão do formulário
-    
-        let saldoFinal = document.getElementById('saldoFinalInput').value;
-    
-        // Fazer a requisição AJAX para fechar o caixa
-        fetch('/caixa/fechar_caixa_ajax/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json', // Enviando como JSON
-                'X-CSRFToken': getCsrfToken(), // Função para obter o CSRF token
-                'X-Requested-With': 'XMLHttpRequest' // Garantir que o cabeçalho AJAX esteja presente
-            },
-            body: JSON.stringify({ saldo_final: saldoFinal }) // Stringify os dados como JSON
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);  // Adiciona um log para ver o que vem na resposta
-    
-            if (data.success) {
-                alert('Caixa fechado com sucesso!');
-                // Atualizar a página ou redirecionar
-                location.reload();
-            } else {
-                alert('Erro ao fechar o caixa: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            alert('Ocorreu um erro ao tentar fechar o caixa.');
-        });
-    });
-        
-    // Função para obter o CSRF token (Django)
-    function getCsrfToken() {
-        return document.querySelector('[name=csrfmiddlewaretoken]').value;
-    }
-       
-    
-</script>
 
 <!-- Listagem de caixas-->
 <script>

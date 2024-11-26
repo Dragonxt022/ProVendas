@@ -53,6 +53,7 @@ def carregar_dados_relatorio_caixa(request, caixa_id):
         except Caixa.DoesNotExist:
             return JsonResponse({'success': False, 'message': 'Caixa não encontrado.'})
     return JsonResponse({'success': False, 'message': 'Método inválido.'})
+  
     
 #  Abre o caixa
 def abrir_caixa_ajax(request):
@@ -101,7 +102,8 @@ def fechar_caixa_ajax(request):
 
             logger.info(f"Caixa {caixa_aberto.id} fechado com sucesso")
 
-            return JsonResponse({'success': True, 'message': "Caixa fechado com sucesso."})
+            # Retornar o ID do caixa fechado para redirecionamento no frontend
+            return JsonResponse({'success': True, 'message': "Caixa fechado com sucesso.", 'caixa_id': caixa_aberto.id})
         except Exception as e:
             logger.error(f"Erro ao tentar fechar o caixa: {str(e)}")
             return JsonResponse({'success': False, 'message': f"Erro ao fechar o caixa: {str(e)}"})
@@ -182,7 +184,6 @@ def listar_caixas_abertos_ajax(request):
         })
 
     return JsonResponse(caixas_data, safe=False)
-
 
 
 # Fim
