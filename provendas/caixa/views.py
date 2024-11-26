@@ -166,21 +166,22 @@ def retirar_ou_adicionar_valor_ajax(request):
     return JsonResponse({'success': False, 'message': "Requisição inválida."})
 
 def listar_caixas_abertos_ajax(request):
-    # Filtrar caixas com status "Aberto"
-    caixas_abertos = Caixa.objects.filter(status="Aberto").values(
-        'id', 'usuario__username', 'saldo_final', 'status', 'aberto_em'
-    ).order_by('-aberto_em')  # Garantir que os caixas abertos apareçam primeiro e em ordem decrescente
+    caixas = Caixa.objects.filter(status='Aberto')
+    
+    # Criar a resposta com os dados dos caixas
+    caixas_data = []
+    for caixa in caixas:
+        caixas_data.append({
+            'id': caixa.id,
+            'usuario__username': caixa.usuario.username,
+            'status': caixa.status,
+            'aberto_em': caixa.aberto_em,
+            'fechado_em': caixa.fechado_em,
+            # Aqui, mostramos o saldo_inicial se o caixa estiver aberto, caso contrário, saldo_final
+            'saldo': str(caixa.saldo_inicial if caixa.status == 'Aberto' else caixa.saldo_final),
+        })
 
-    # Filtrar caixas com status "Fechado" e ordená-los em ordem decrescente pela data de fechamento
-    caixas_fechados = Caixa.objects.filter(status="Fechado").values(
-        'id', 'usuario__username', 'saldo_final', 'status', 'aberto_em', 'fechado_em'
-    ).order_by('-fechado_em')  # Caixas fechados em ordem decrescente
-
-    # Concatenar caixas abertos e fechados
-    caixas = list(caixas_abertos) + list(caixas_fechados)
-
-    # Retornar os dados em formato JSON
-    return JsonResponse(caixas, safe=False)
+    return JsonResponse(caixas_data, safe=False)
 
 
 

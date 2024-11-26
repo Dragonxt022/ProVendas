@@ -276,23 +276,24 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header bg-success">
-          <h5 class="modal-title">Abrir Caixa</h5>
+          <h5 class="modal-title"><i class="fas fa-wallet"></i> Abrir Caixa</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
+            <span aria-hidden="true"><i class="fas fa-times"></i></span>
           </button>
         </div>
         <div class="modal-body">
           <form id="abrirCaixaForm">
             <div class="form-group">
-              <label for="saldoInicialInput">Saldo Inicial:</label>
-              <input type="number" step="0.01" id="saldoInicialInput" class="form-control" value="0.00" required>
+              <label for="saldoInicialInput"><i class="fas fa-money-bill-wave"></i> Saldo Inicial:</label>
+              <input type="number" step="0.01" id="saldoInicialInput" class="form-control" required>
             </div>
-            <button type="submit" class="btn btn-success w-100 btn-sm">Abrir Caixa</button>
+            <button type="submit" class="btn btn-success w-100 btn-sm"><i class="fas fa-check"></i> Abrir Caixa</button>
           </form>
         </div>
       </div>
     </div>
 </div>
+
 
 
 
@@ -1038,9 +1039,12 @@
                 return csrfToken;
             }
     
-            // Abrir Caixa
             $('#abrirCaixaForm').on('submit', function(e) {
                 e.preventDefault();
+                
+                // Pegar o valor do saldo inicial e substituir vírgula por ponto
+                let saldo_inicial = $('#saldoInicialInput').val().replace(',', '.');
+                
                 $.ajax({
                     type: 'POST',
                     url: '/caixa/abrir_caixa_ajax/',
@@ -1048,7 +1052,7 @@
                         'X-CSRFToken': getCSRFToken()  // Inclui o CSRF Token no cabeçalho
                     },
                     data: {
-                        'saldo_inicial': $('#saldoInicialInput').val(),
+                        'saldo_inicial': saldo_inicial,
                     },
                     success: function(response) {
                         if (response.success) {
@@ -1060,6 +1064,7 @@
                     }
                 });
             });
+            
         });
         
     </script>
