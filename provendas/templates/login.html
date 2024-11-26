@@ -35,9 +35,12 @@
             max-width: 700px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
         }
         .login-card .form-left {
             padding: 30px;
+            flex: 1;
         }
         .login-card .form-right {
             background-color: #007bff;
@@ -67,7 +70,6 @@
         .btn-success{
             background-color: {{ cor_primaria }} !important; 
             border-color: {{ cor_primaria }} !important;
-
         }
     
         .bg-success{
@@ -79,6 +81,39 @@
             background-color: {{ cor_primaria }} !important;
             border-color: {{ cor_primaria }} !important;
         }
+
+        /* Melhorias de usabilidade */
+        .input-group-text {
+            background-color: #e9ecef;
+        }
+        
+        .input-group .form-control {
+            border-left: none;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .login-card {
+                flex-direction: column;
+            }
+            .login-card .form-left {
+                padding: 20px;
+                text-align: center;
+            }
+            .login-card .form-right {
+                border-top-left-radius: 8px;
+                border-bottom-left-radius: 8px;
+            }
+        }
+
+        /* Campos com erro */
+        .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+        .text-danger {
+            font-size: 0.875rem;
+        }
+
     </style>
 </head>
 <body>
@@ -86,7 +121,8 @@
         <div class="login-card bg-white">
             <div class="row no-gutters">
                 <div class="col-md-7 form-left">
-                    <h2>{{ nome_aplicacao }}</h2>
+                    <h2>Bem vindo</h2>
+
                     <form method="post" action="{% url 'login' %}">
                         {% csrf_token %}
                         
@@ -94,7 +130,7 @@
                             <label for="username" class="form-label">Usuário <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-user"></i></span>
-                                <input type="text" class="form-control" id="username" name="username" placeholder="Digite o seu usuário" required>
+                                <input type="text" class="form-control {% if errors.username %}is-invalid{% endif %}" id="username" name="username" placeholder="Digite o seu usuário" required aria-label="Usuário">
                             </div>
                             {% if errors.username %}
                                 <span class="text-danger">{{ errors.username }}</span>
@@ -105,7 +141,7 @@
                             <label for="password" class="form-label">Senha <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-lock"></i></span>
-                                <input type="password" class="form-control" id="password" name="password" placeholder="Digite sua senha" required>
+                                <input type="password" class="form-control {% if errors.password %}is-invalid{% endif %}" id="password" name="password" placeholder="Digite sua senha" required aria-label="Senha">
                             </div>
                             {% if errors.password %}
                                 <span class="text-danger">{{ errors.password }}</span>
@@ -113,7 +149,7 @@
                         </div>
                     
                         <div class="form-check mb-4">
-                            <input class="form-check-input" type="checkbox" id="remember_me" name="remember_me">
+                            <input class="form-check-input" type="checkbox" id="remember_me" name="remember_me" aria-label="Lembrar-me">
                             <label class="form-check-label" for="remember_me">Relembrar-me</label>
                         </div>
                     
@@ -123,16 +159,19 @@
                     
                         <button type="submit" class="btn btn-success w-100">Entrar</button>
                     </form>
-                    <div  class="text-center py-3">
-                        <a href="#" data-toggle="modal" data-target="#licenseModal"> Validar sistema </a>
+                    <div class="text-center py-3">
+                        <a class="py-2" href="#" data-toggle="modal" data-target="#licenseModal"> Validar sistema </a>
+                        <h5 class="text-center text-success"> <strong>{{ nome_aplicacao }}</strong> </h5>
                     </div>
                 </div>
                 <div class="col-md-5 form-right text-center bg-success">
-                    
-                    <h2>Bem-vindo!</h2>
+                    {% if logo_empresa %}
+                        <img src="{{ logo_empresa }}" alt="Logo da empresa" class="brand-image img-circle elevation-3" style="opacity: .8; width: 70%;">
+                    {% else %}
+                        <img src="{% static 'image/iconsistema.png' %}" alt="Logo da empresa" style="width: 70%;">
+                    {% endif %}
                 </div>
             </div>
-        
         </div>
     </div>
 
