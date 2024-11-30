@@ -193,7 +193,7 @@ def salvar_produtos_na_venda(caixa_pdv, produtos):
     try:
         # Limpa os produtos anteriores associados à venda
         ProdutoCaixaPdv.objects.filter(caixa_pdv=caixa_pdv).delete()
-        
+
         for produto_data in produtos:
             produto = Produto.objects.filter(id=produto_data.get('produto_id')).first()
             if produto:
@@ -252,40 +252,30 @@ def finalizar_venda(request):
                     payment_method=payment_method
                 )
 
-                # Se a venda não estiver finalizada, não associa ao caixa
-                if status != 'Finalizado' and gerenciar_abertura_fechamento_caixa:
-                    return JsonResponse({'success': True, 'message': 'Venda salva sem associação ao caixa.'})
-
             # Salva os produtos quando a venda está em aberto, sem ajuste de estoque
             if status == "Em aberto":
                 salvar_produtos_na_venda(caixa_pdv, produtos)
-
+            
             # Caso contrário, se for "Finalizado", processa como finalização de venda
-            else:
-                # Se o status recebido for "Finalizado", atualiza o status do caixa_pdv
-                if status == "Finalizado":
-                    caixa_pdv.status = 'Finalizado'
+            if status == "Finalizado":
+                caixa_pdv.status = 'Finalizado'
+                caixa_pdv.save()
+                salvar_produtos_na_venda(caixa_pdv, produtos)
+
+                for produto_data in produtos:
+                    produto = Produto.objects.filter(id=produto_data.get('produto_id')).first()
+                    if produto and produto.controle_estoque:
+                        produto.quantidade_estoque -= produto_data['quantidade']
+                        produto.save()
+
+                if gerenciar_abertura_fechamento_caixa:
+                    caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').first()
+                    if not caixa_aberto:
+                        return JsonResponse({'success': False, 'message': 'Não há caixa aberto para associar a venda.'}, status=400)
+                    caixa_pdv.caixa = caixa_aberto
                     caixa_pdv.save()
 
-                # Ajuste de estoque e outros processamentos (mantendo a lógica existente)
-                if status == "Finalizado":
-                    salvar_produtos_na_venda(caixa_pdv, produtos)
-                    for produto_data in produtos:
-                        produto = Produto.objects.filter(id=produto_data.get('produto_id')).first()
-                        if produto and produto.controle_estoque:
-                            produto.quantidade_estoque -= produto_data['quantidade']
-                            produto.save()
-
-                    # Associa ao caixa, se necessário
-                    if gerenciar_abertura_fechamento_caixa:
-                        caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').first()
-                        if not caixa_aberto:
-                            return JsonResponse({'success': False, 'message': 'Não há caixa aberto para associar a venda.'}, status=400)
-                        caixa_pdv.caixa = caixa_aberto
-                        caixa_pdv.save()
-
-
-            return JsonResponse({'success': True, 'message': 'Venda finalizada com sucesso!'})
+            return JsonResponse({'success': True, 'message': 'Venda processada com sucesso!'})
 
         except Exception as e:
             return JsonResponse({'success': False, 'message': f'Erro ao salvar a venda: {str(e)}'}, status=500)
