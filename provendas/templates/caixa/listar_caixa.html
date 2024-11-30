@@ -489,78 +489,7 @@
         }
 
 
-        // Função para abrir a modal com os detalhes do pedido
-        function abrirModalCupomFiscal(pedidoId) {
-            $.ajax({
-                url: '/caixa/cupom_fiscal_ajax/' + pedidoId + '/',  // Endpoint para carregar os dados da venda
-                method: 'GET',
-                success: function(response) {
-                    // Preencher a modal com os dados retornados
-                    var modalBody = $('#modal-body-cupom');
-                    modalBody.empty(); // Limpa o conteúdo anterior
         
-                    // Formatar valores com separador de milhar e vírgula para casas decimais
-                    const formatarMoeda = (valor) => {
-                        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
-                    };
-        
-                    // Adiciona os detalhes do pedido com ícones
-                    modalBody.append('<p><i class="fas fa-file-alt"></i> <strong>Pedido:</strong> #' + response.numero_pedido + '</p>');
-                    modalBody.append('<p><i class="fas fa-user"></i> <strong>Cliente:</strong> ' + response.cliente + '</p>');
-                    modalBody.append('<p><i class="fas fa-tags"></i> <strong>Total:</strong> ' + formatarMoeda(response.total) + '</p>');
-                    modalBody.append('<p><i class="fas fa-check-circle"></i> <strong>Status:</strong> ' + response.status + '</p>');
-        
-                    // Preenche os produtos em formato de tabela
-                    var produtosHtml = '<h5><i class="fas fa-cogs"></i> Produtos:</h5>';
-                    produtosHtml += '<table class="table table-striped table-bordered">';
-                    produtosHtml += '<thead><tr><th>#</th><th>Produto</th><th>Quantidade</th><th>Preço Unitário</th><th>Total</th></tr></thead>';
-                    produtosHtml += '<tbody>';
-                    
-                    var totalProdutos = 0;  // Variável para acumular o valor total dos produtos
-        
-                    response.produtos.forEach(function(produto, index) {
-                        var totalProduto = produto.quantidade * produto.preco_unitario; // Calcula o total por produto
-                        totalProdutos += totalProduto; // Acumula o total
-        
-                        produtosHtml += '<tr>';
-                        produtosHtml += '<td>' + (index + 1) + '</td>'; // Número de ordem
-                        produtosHtml += '<td>' + produto.produto.nome + '</td>';
-                        produtosHtml += '<td>' + produto.quantidade + '</td>';
-                        produtosHtml += '<td>' + formatarMoeda(produto.preco_unitario) + '</td>';
-                        produtosHtml += '<td>' + formatarMoeda(totalProduto) + '</td>';
-                        produtosHtml += '</tr>';
-                    });
-        
-                    // Adiciona a linha do total dos produtos
-                    produtosHtml += '</tbody>';
-                    produtosHtml += '<tfoot>';
-                    produtosHtml += '<tr><td colspan="4"><strong>Total Geral:</strong></td><td><strong>' + formatarMoeda(totalProdutos) + '</strong></td></tr>';
-                    produtosHtml += '</tfoot>';
-                    produtosHtml += '</table>';
-        
-                    modalBody.append(produtosHtml);
-        
-                    // Adicionar o evento de clique para gerar o cupom fiscal
-                    $('#gerar-cupom-btn').on('click', function() {
-                        gerarCupomFiscal(pedidoId);
-                    });
-        
-                    // Mostra a modal
-                    $('#modalCupomFiscal').modal('show');
-                },
-                error: function() {
-                    alert('Erro ao carregar os detalhes do cupom fiscal.');
-                }
-            });
-        }
-        
-
-        // Função para gerar o cupom fiscal e abrir uma nova aba
-        function gerarCupomFiscal(pedidoId) {
-            // Abre a nova aba passando o ID do pedido na URL
-            var cupomFiscalUrl = '/caixa/cupom_fiscal/' + pedidoId + '/';
-            window.open(cupomFiscalUrl, '_blank');  // Abre em uma nova aba
-        }
 
 
 
@@ -573,9 +502,80 @@
     
 </script>
 
+<script>
+    // Função para abrir a modal com os detalhes do pedido
+    function abrirModalCupomFiscal(pedidoId) {
+        $.ajax({
+            url: '/caixa/cupom_fiscal_ajax/' + pedidoId + '/',  // Endpoint para carregar os dados da venda
+            method: 'GET',
+            success: function(response) {
+                // Preencher a modal com os dados retornados
+                var modalBody = $('#modal-body-cupom');
+                modalBody.empty(); // Limpa o conteúdo anterior
+    
+                // Formatar valores com separador de milhar e vírgula para casas decimais
+                const formatarMoeda = (valor) => {
+                    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+                };
+    
+                // Adiciona os detalhes do pedido com ícones
+                modalBody.append('<p><i class="fas fa-file-alt"></i> <strong>Pedido:</strong> #' + response.numero_pedido + '</p>');
+                modalBody.append('<p><i class="fas fa-user"></i> <strong>Cliente:</strong> ' + response.cliente + '</p>');
+                modalBody.append('<p><i class="fas fa-tags"></i> <strong>Total:</strong> ' + formatarMoeda(response.total) + '</p>');
+                modalBody.append('<p><i class="fas fa-check-circle"></i> <strong>Status:</strong> ' + response.status + '</p>');
+    
+                // Preenche os produtos em formato de tabela
+                var produtosHtml = '<h5><i class="fas fa-cogs"></i> Produtos:</h5>';
+                produtosHtml += '<table class="table table-striped table-bordered">';
+                produtosHtml += '<thead><tr><th>#</th><th>Produto</th><th>Quantidade</th><th>Preço Unitário</th><th>Total</th></tr></thead>';
+                produtosHtml += '<tbody>';
+                
+                var totalProdutos = 0;  // Variável para acumular o valor total dos produtos
+    
+                response.produtos.forEach(function(produto, index) {
+                    var totalProduto = produto.quantidade * produto.preco_unitario; // Calcula o total por produto
+                    totalProdutos += totalProduto; // Acumula o total
+    
+                    produtosHtml += '<tr>';
+                    produtosHtml += '<td>' + (index + 1) + '</td>'; // Número de ordem
+                    produtosHtml += '<td>' + produto.produto.nome + '</td>';
+                    produtosHtml += '<td>' + produto.quantidade + '</td>';
+                    produtosHtml += '<td>' + formatarMoeda(produto.preco_unitario) + '</td>';
+                    produtosHtml += '<td>' + formatarMoeda(totalProduto) + '</td>';
+                    produtosHtml += '</tr>';
+                });
+    
+                // Adiciona a linha do total dos produtos
+                produtosHtml += '</tbody>';
+                produtosHtml += '<tfoot>';
+                produtosHtml += '<tr><td colspan="4"><strong>Total Geral:</strong></td><td><strong>' + formatarMoeda(totalProdutos) + '</strong></td></tr>';
+                produtosHtml += '</tfoot>';
+                produtosHtml += '</table>';
+    
+                modalBody.append(produtosHtml);
+    
+                // Adicionar o evento de clique para gerar o cupom fiscal
+                $('#gerar-cupom-btn').on('click', function() {
+                    gerarCupomFiscal(pedidoId);
+                });
+    
+                // Mostra a modal
+                $('#modalCupomFiscal').modal('show');
+            },
+            error: function() {
+                alert('Erro ao carregar os detalhes do cupom fiscal.');
+            }
+        });
+    }
+    
 
-
-
+    // Função para gerar o cupom fiscal e abrir uma nova aba
+    function gerarCupomFiscal(pedidoId) {
+        // Abre a nova aba passando o ID do pedido na URL
+        var cupomFiscalUrl = '/caixa/cupom_fiscal/' + pedidoId + '/';
+        window.open(cupomFiscalUrl, '_blank');  // Abre em uma nova aba
+    }
+</script>
 
 <!-- Listagem de caixas-->
 <script>
