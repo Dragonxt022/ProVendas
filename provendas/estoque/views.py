@@ -249,7 +249,12 @@ def editar_produto(request, produto_id):  # Recebe o ID do produto na URL
     })
 
 def excluir_produto(request, produto_id):
-    # Tenta obter a categoria pelo ID, retornando 404 se não existir
-    produto = get_object_or_404(Produto, id=produto_id)
-    produto.delete()
+    try:
+        # Tenta obter e excluir o produto
+        produto = Produto.objects.get(id=produto_id)
+        produto.delete()
+        messages.success(request, "Produto excluído com sucesso!")
+    except Produto.DoesNotExist:
+        # Caso o produto já tenha sido excluído
+        messages.warning(request, "O produto já foi excluído ou não existe.")
     return redirect('listar_produtos')
