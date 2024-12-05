@@ -17,6 +17,8 @@ from clientes.models import Cliente
 from empresas.models import Empresa
 from configuracoes.models import Configuracao
 from estoque.models import Produto, CategoriaProduto
+from django.views.decorators.cache import cache_page
+
 
 
 logger = logging.getLogger(__name__)
@@ -227,11 +229,13 @@ def fechar_comanda(request, mesa_id):
     return redirect('listar_mesas')
 
 # Pagina de hístórico de vendas
+
 def historico_vendas(request):
     vendas = Comanda.objects.filter(status='fechada').order_by('-created_at')  # Filtra apenas as comandas fechadas
     return render(request, 'comanda/lista_vendas_comanda.html', {'vendas': vendas})
 
 #  Veja os detalhes da comanda
+@cache_page(60 * 15)  # Cache de 15 minutos
 def detalhes_comanda(request, comanda_id):
     try:
         # Buscar a comanda com seus produtos
@@ -355,6 +359,7 @@ def adicionar_produto_comanda(request, mesa_id):
     # Se não for uma requisição POST, redirecionar para a lista de mesas
     return redirect('listar_mesas')
 
+@cache_page(60 * 15)  # Cache de 15 minutos
 def get_comanda_details(request, mesa_id):
     # Buscar a mesa com o ID fornecido
     mesa = get_object_or_404(Mesa, id=mesa_id)
@@ -396,7 +401,7 @@ def get_comanda_details(request, mesa_id):
 
     return JsonResponse(data)
 
-
+@cache_page(60 * 15)  # Cache de 15 minutos
 def listar_mesas(request):
     mesas = Mesa.objects.all()  # Obter todas as mesas
     
@@ -457,6 +462,7 @@ def excluir_mesa(request, mesa_id):
     messages.success(request, f"A mesa {mesa.nome} foi excluída com sucesso.")
     return redirect('listar_mesas')  # Redireciona para a página de listagem das mesas
 
+@cache_page(60 * 15)  # Cache de 15 minutos
 # Abra uma comanda ou continue editando depois
 def abrir_ou_gerenciar_comanda(request, mesa_id):
     mesa = get_object_or_404(Mesa, id=mesa_id)

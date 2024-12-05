@@ -9,6 +9,8 @@ import csv
 from django.http import JsonResponse
 from django.utils.text import slugify
 import uuid
+from django.views.decorators.cache import cache_page
+
 
 
 # Importador e exportador
@@ -93,10 +95,12 @@ def exportar_produtos(request):
     return response
 
 # View para gerenciar Categorias
+@cache_page(60 * 15)  # Cache de 15 minutos
 def listar_categorias(request):
     categorias = CategoriaProduto.objects.all()
     form = CategoriaProdutoForm()
     return render(request, 'estoque/categoria/cadastrar_categoria.html', {'categorias': categorias, 'form': form})
+
 
 def cadastrar_categoria(request):
     if request.method == 'POST':
@@ -151,6 +155,7 @@ def excluir_categoria(request, categoria_id):
     return redirect('listar_categorias')
 
 # View para gerenciar produtos
+@cache_page(60 * 15)  # Cache de 15 minutos
 def listar_produtos(request):
     produtos = Produto.objects.all()
     categorias = CategoriaProduto.objects.all()
