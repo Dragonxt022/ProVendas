@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 # Sistema de Caixa
 
 #  Pagina de Relatórios
-@cache_page(60 * 15)  # Cache de 15 minutos
+
 def relatorio_caixa(request):
      # Filtrar caixas pelo usuário autenticado
     caixas = Caixa.objects.filter(usuario=request.user).order_by('-aberto_em')
@@ -31,7 +31,7 @@ def relatorio_caixa(request):
 
 
 # Rota ajax busca os relatórios
-@cache_page(60 * 15)  # Cache de 15 minutos
+
 def carregar_dados_relatorio_caixa(request, caixa_id):
     if request.method == 'GET':
         try:
@@ -60,7 +60,7 @@ def carregar_dados_relatorio_caixa(request, caixa_id):
   
     
 #  Abre o caixa
-@cache_page(60 * 15)  # Cache de 15 minutos
+
 def abrir_caixa_ajax(request):
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         # Verificar se já existe um caixa aberto
@@ -117,7 +117,7 @@ def fechar_caixa_ajax(request):
     return JsonResponse({'success': False, 'message': "Requisição inválida."})
 
 # Verifica se tem algum caixa aberto
-@cache_page(60 * 15)  # Cache de 15 minutos
+
 def verificar_caixa_aberto(request):
     caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').exists()
 
@@ -371,7 +371,7 @@ def search_products(request):
         return JsonResponse({'products': results, 'categories': categories})
 
 #Alimenta a lista de Vendas realizadas
-@cache_page(60 * 15)  # Cache de 15 minutos
+
 def listar_caixa(request):
 
 
@@ -486,7 +486,7 @@ def cupom_fiscal_ajax(request, pedido_id):
         return JsonResponse({'error': 'Pedido não encontrado'}, status=404)
 
 #  Abre Caixa PDV
-@cache_page(60 * 15)  # Cache de 15 minutos
+
 def abrir_caixa_pdv(request):
     # Busca todos os pedidos do CaixaPdv
     pedidos = CaixaPdv.objects.all()  # Todos os pedidos

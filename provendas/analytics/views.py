@@ -9,7 +9,6 @@ from django.http import JsonResponse
 from django.views.decorators.cache import cache_page
 
 
-@cache_page(60 * 15)  # Cache de 15 minutos
 def relatorio_vendas(request):
     
     return render(request, "analytics/analytics_avancado.html")
@@ -82,7 +81,6 @@ def relatorio_vendas_ajax(request):
 
 
 
-@cache_page(60 * 15)  # Cache de 15 minutos
 def analytics_desboard(request):
     # Pegando o ano e mês da query string ou usando os valores atuais
     ano = int(request.GET.get('ano', now().year))
