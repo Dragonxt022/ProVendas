@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 import json
 import logging
 import random
+import time
 
 # Imports dos modelos e forms do seu projeto
 from caixa.models import CaixaPdv, ProdutoCaixaPdv, Caixa
@@ -512,14 +513,14 @@ def abrir_ou_gerenciar_comanda(request, mesa_id):
     # Se a mesa não estiver livre, redireciona para a lista de mesas
     return redirect('listar_mesas')
 
-# Gera o Numero do pedido automaticamente
 def gerar_numero_pedido():
-    # Gera um número aleatório de 8 dígitos
-    numero_aleatorio = random.randint(10000000, 99999999)
+    # Obtém o timestamp atual em segundos e usa os últimos 4 dígitos
+    timestamp = str(int(time.time()))[-4:]
     
-    # Formata o número de pedido
-    numero_pedido = f"PDV-{numero_aleatorio}"
+    # Gera um número aleatório de 4 dígitos
+    numero_aleatorio = random.randint(1000, 9999)
+    
+    # Combina os 4 últimos dígitos do timestamp com o número aleatório para criar um número de 8 dígitos
+    numero_pedido = f"PDVM-{timestamp}{numero_aleatorio}"
 
     return numero_pedido
-
-

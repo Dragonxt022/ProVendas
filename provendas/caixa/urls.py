@@ -23,6 +23,7 @@ urlpatterns = [
     # Ajax
     path('listar-caixas-abertos-ajax/', views.listar_caixas_abertos_ajax, name='listar_caixas_abertos_ajax'),
     path('retirar-ou-adicionar-valor-ajax/', views.retirar_ou_adicionar_valor_ajax, name='retirar_ou_adicionar_valor_ajax'),
+    path('gerar-numero-pedido/', views.gerar_numero_unico, name='gerar_numero_pedido'),
     
     path('relatorio/', views.relatorio_caixa, name='relatorio_caixa'),
     path('relatorio/<int:caixa_id>/', views.carregar_dados_relatorio_caixa, name='carregar_dados_relatorio_caixa'),

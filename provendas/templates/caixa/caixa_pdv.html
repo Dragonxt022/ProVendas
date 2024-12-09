@@ -440,9 +440,25 @@
 
 
 
-        function generateOrderNumber() {
-            return 'PDV-' + Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+        function generateUniqueOrderNumber() {
+            // Obtém os números já gerados do localStorage
+            let generatedNumbers = JSON.parse(localStorage.getItem('generatedOrderNumbers')) || [];
+
+            let newNumber;
+            do {
+                // Gera um novo número no formato PDV-XXXX
+                newNumber = 'PDVC-' + Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+            } while (generatedNumbers.includes(newNumber)); // Garante que não se repita
+
+            // Adiciona o novo número à lista de números gerados
+            generatedNumbers.push(newNumber);
+
+            // Atualiza o localStorage com a nova lista
+            localStorage.setItem('generatedOrderNumbers', JSON.stringify(generatedNumbers));
+
+            return newNumber;
         }
+
 
         // Atalhos de acesso rápido
         $(document).ready(function() {
@@ -451,7 +467,7 @@
             $('#filtrar_produto_code').focus();
 
             // Atribui um número de pedido ao carregar a página
-            $('#numero_pedido').val(generateOrderNumber());
+            $('#numero_pedido').val(generateUniqueOrderNumber());
             // Evento de atalho para finalizar a venda
             $(document).on('keydown', function(event) {
                 if (event.altKey && event.key === 'f') { // Verifica se Alt + F foi pressionado
@@ -909,7 +925,7 @@
                     renderCart();
                     document.getElementById('total').innerText = '0.00';
                     document.getElementById('discount').value = '0';
-                    $('#numero_pedido').val(generateOrderNumber());
+                    $('#numero_pedido').val(generateUniqueOrderNumber());
 
                     window.location.href = "{% url 'listar_caixa' %}";
                 } else {
@@ -991,7 +1007,7 @@
                     renderCart();
                     document.getElementById('total').innerText = '0.00';
                     document.getElementById('discount').value = '0';
-                    $('#numero_pedido').val(generateOrderNumber());
+                    $('#numero_pedido').val(generateUniqueOrderNumber());
                 } else {
                     $('#errorModal').modal('show');
                     setTimeout(() => {

@@ -16,12 +16,31 @@ import locale
 import logging
 from decimal import Decimal
 from django.views.decorators.cache import cache_page
+from django.utils.crypto import get_random_string
+
+
 
 
 logger = logging.getLogger(__name__)
 
 # Sistema de Caixa
+def gerar_numero_unico(request):
+    if request.method == "GET":
+        # Prefixo do número de pedido
+        prefixo = "PDV-"
+        
+        # Tente gerar um número único
+        for _ in range(5):  # Tenta 5 vezes para evitar loops infinitos
+            numero_aleatorio = get_random_string(8, allowed_chars='0123456789')
+            numero_pedido = f"{prefixo}{numero_aleatorio}"
 
+            # Verifique se já existe no banco de dados
+            if not CaixaPdv.objects.filter(numero_pedido=numero_pedido).exists():
+                return JsonResponse({'status': 'success', 'numero_pedido': numero_pedido})
+
+        return JsonResponse({'status': 'error', 'message': 'Não foi possível gerar um número único.'})
+
+    return JsonResponse({'status': 'error', 'message': 'Método inválido.'})
 #  Pagina de Relatórios
 
 def relatorio_caixa(request):
