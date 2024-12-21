@@ -1,654 +1,892 @@
-{% extends "template.html" %}
-
-{% load static %}
-{% block title %}
-    Hístorico de vendas
-{% endblock %}
-
-{% block content %}
+{% extends "template.html" %} {% load static %} {% block title %} Hístorico de
+vendas {% endblock %} {% block content %}
 
 <style>
-    .imagemProdutos{
-      width: 11%;
-      background: #fff;
-      position: inherit;
-      border: 1px solid rgba(52, 73, 94, 0.44);
-      padding: 7px;
-      border-radius: 50%;
-    }
+  .imagemProdutos {
+    width: 11%;
+    background: #fff;
+    position: inherit;
+    border: 1px solid rgba(52, 73, 94, 0.44);
+    padding: 7px;
+    border-radius: 50%;
+  }
 
-    .table td, .table th {
-        vertical-align: middle !important;
+  .table td,
+  .table th {
+    vertical-align: middle !important;
+  }
 
-    }
-
-    .modal-body p {
-        font-size: 1.2rem;
-        margin-bottom: 1.2rem;
-    }
-    .modal-body ul {
-        list-style: none;
-        padding-left: 0;
-    }
-    .modal-body ul li {
-        padding-left: 20px;
-        position: relative;
-    }
-    .modal-body ul li i {
-        position: absolute;
-        left: 0;
-        top: 0;
-        font-size: 1.2rem;
-    }
-    
-   
+  .modal-body p {
+    font-size: 1.2rem;
+    margin-bottom: 1.2rem;
+  }
+  .modal-body ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  .modal-body ul li {
+    padding-left: 20px;
+    position: relative;
+  }
+  .modal-body ul li i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 1.2rem;
+  }
 </style>
 
 <div class="wrapper">
-    {% include 'includes/sidebar.html' %}
-    {% include 'includes/navbar.html' %} 
+  {% include 'includes/sidebar.html' %} {% include 'includes/navbar.html' %}
 
-    <div class="content-wrapper">
-        <section class="content-header py-3 shadow-sm">
-            <div class="container-fluid">
-                <div class="row align-items-center">
-                    <div class="col-md-5">
-                        <h1 class="font-weight-bold">
-                            <i class="fas fa-chart-line"></i> Hístorico de vendas
-                        </h1>
-                    </div>
-                    <div class="col-md-7 text-md-right">
-                         <!-- Link para nova venda -->
-                         <a href="{% url 'abrir_caixa_pdv' %}" class="btn btn-sm btn-success mr-2">
-                            <i class="fas fa-plus mr-2"></i> Nova Venda
-                        </a>
-        
-                        {% if abrir_caixa_automatico %}
-                            <!-- Botão Fechar Caixa -->
-                            <button class="btn btn-danger btn-sm mr-2" data-toggle="modal" data-target="#fecharCaixaModal" {% if not caixa_esta_aberto %}disabled{% endif %}>
-                                <i class="fas fa-box-open mr-2"></i> Fechar Caixa
-                            </button>
-        
-                            <!-- Botão operações do caixa -->
-                            <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#retiradaCaixaModal" {% if not caixa_esta_aberto %}disabled{% endif %}>
-                                <i class="fas fa-wallet mr-2"></i> Operações do Caixa
-                            </button>
-                        {% else %}
+  <div class="content-wrapper">
+    <section class="content-header py-3 shadow-sm">
+      <div class="container-fluid">
+        <div class="row align-items-center">
+          <div class="col-md-5">
+            <h1 class="font-weight-bold">
+              <i class="fas fa-chart-line"></i> Hístorico de vendas
+            </h1>
+          </div>
+          <div class="col-md-7 text-md-right">
+            <!-- Link para nova venda -->
+            <a
+              href="{% url 'abrir_caixa_pdv' %}"
+              class="btn btn-sm btn-success mr-2"
+            >
+              <i class="fas fa-plus mr-2"></i> Nova Venda
+            </a>
 
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Content Header (Page header) -->
-        <section class="content py-3">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-12">
-                        <!-- Card de Pedidos -->
-                        <div class="card">
-                            <div class="card-body">
-                                <!-- Abas -->
-                                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                                    <li class="nav-item mb-4" role="presentation">
-                                        <a class="nav-link active" id="vendas-tab" data-toggle="tab" href="#vendas" role="tab" aria-controls="vendas" aria-selected="true">Registro de Vendas</a>
-                                    </li>
+            {% if abrir_caixa_automatico %}
+            <!-- Botão Fechar Caixa -->
+            <button
+              class="btn btn-danger btn-sm mr-2"
+              data-toggle="modal"
+              data-target="#fecharCaixaModal"
+              {%
+              if
+              not
+              caixa_esta_aberto
+              %}disabled{%
+              endif
+              %}
+            >
+              <i class="fas fa-box-open mr-2"></i> Fechar Caixa
+            </button>
 
-                                    {% if abrir_caixa_automatico %}
-                                        <li class="nav-item mb-4" role="presentation">
-                                            <a class="nav-link" id="pedidos-tab" data-toggle="tab" href="#pedidos" role="tab" aria-controls="pedidos" aria-selected="false">Registro Caixa</a>
-                                        </li>
-                                    {% else %}
+            <!-- Botão operações do caixa -->
+            <button
+              class="btn btn-warning btn-sm"
+              data-toggle="modal"
+              data-target="#retiradaCaixaModal"
+              {%
+              if
+              not
+              caixa_esta_aberto
+              %}disabled{%
+              endif
+              %}
+            >
+              <i class="fas fa-wallet mr-2"></i> Operações do Caixa
+            </button>
+            {% else %} {% endif %}
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Content Header (Page header) -->
+    <section class="content py-3">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <!-- Card de Pedidos -->
+            <div class="card">
+              <div class="card-body">
+                <!-- Abas -->
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                  <li class="nav-item mb-4" role="presentation">
+                    <a
+                      class="nav-link active"
+                      id="vendas-tab"
+                      data-toggle="tab"
+                      href="#vendas"
+                      role="tab"
+                      aria-controls="vendas"
+                      aria-selected="true"
+                      >Registro de Vendas</a
+                    >
+                  </li>
 
-                                    {% endif %}
-                                </ul>
-                                <div class="tab-content" id="myTabContent ">
-                                    <!-- Aba de Registro de Vendas -->
-                                    <div class="tab-pane fade show active" id="vendas" role="tabpanel" aria-labelledby="vendas-tab">
-                                        <div class="row mb-3">
-                                            <div class="col-12 col-sm-6 col-md-6">
-                                                <div class="mb-3">
-                                                    <input type="text" id="searchInput" class="form-control" placeholder="Pesquisar por Pedido, Vendedor ou Cliente">
-                                                </div>
-                                            </div>
-                                            <div class="col-12 col-sm-6 col-md-3">
-                                                <div class="mb-3">
-                                                    <select id="statusFilter" class="form-control">
-                                                        <option value="">Filtrar por Status</option>
-                                                        <option value="Em aberto">Em aberto</option>
-                                                        <option value="Finalizado">Finalizado</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-12 col-sm-6 col-md-3">
-                                                <div class="mb-3">
-                                                    <input type="text" id="vendedorFilter" class="form-control" placeholder="Filtrar por Vendedor">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="table-responsive py-3 text-center">
-                                            <table id="orders" class="table table-striped">
-                                                <thead>
-                                                    <tr class="bg-success">
-                                                        <th scope="col">Pedido</th>
-                                                        <th scope="col">Data/Hora</th>
-                                                        <th scope="col">Vendedor</th>
-                                                        <th scope="col">Cliente</th>
-                                                        <th scope="col">Total</th>
-                                                        <th scope="col">Status</th>
-                                                        <th scope="col">Ações</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <!-- As linhas de pedidos serão adicionadas aqui dinamicamente -->
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <div id="pagination-controls" class="pagination text-center">
-                                            <!-- Links de paginação serão injetados aqui -->
-                                        </div>
-                                    </div>
-    
-                                    <!-- Aba de Pedidos -->
-                                    <div class="tab-pane fade" id="pedidos" role="tabpanel" aria-labelledby="pedidos-tab">
-                                        
-                                        <table id="caixas-abertos-tabela" class="table table-striped table-bordered table-hover ">
-                                            <thead class="bg-success">
-                                                <tr>
-                                                    <th class="text-center">ID</th>
-                                                    <th>Usuário/Vendedor</th>
-                                                    <th class="text-center">Saldo Inicial</th>
-                                                    <th class="text-center">Status</th>
-                                                    <th class="text-center">Aberto Em</th>
-                                                    <th class="text-center">Fechado Em</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <!-- Os dados dos caixas abertos serão inseridos aqui pelo AJAX -->
-                                            </tbody>
-                                        </table>
-                                    </div>
-    
-                                </div>
-                            </div>
+                  {% if abrir_caixa_automatico %}
+                  <li class="nav-item mb-4" role="presentation">
+                    <a
+                      class="nav-link"
+                      id="pedidos-tab"
+                      data-toggle="tab"
+                      href="#pedidos"
+                      role="tab"
+                      aria-controls="pedidos"
+                      aria-selected="false"
+                      >Registro Caixa</a
+                    >
+                  </li>
+                  {% else %} {% endif %}
+                </ul>
+                <div class="tab-content" id="myTabContent ">
+                  <!-- Aba de Registro de Vendas -->
+                  <div
+                    class="tab-pane fade show active"
+                    id="vendas"
+                    role="tabpanel"
+                    aria-labelledby="vendas-tab"
+                  >
+                    <div class="row mb-3">
+                      <div class="col-12 col-sm-6 col-md-6">
+                        <div class="mb-3">
+                          <input
+                            type="text"
+                            id="searchInput"
+                            class="form-control"
+                            placeholder="Pesquisar por Pedido, Vendedor ou Cliente"
+                          />
                         </div>
+                      </div>
+                      <div class="col-12 col-sm-6 col-md-3">
+                        <div class="mb-3">
+                          <select id="statusFilter" class="form-control">
+                            <option value="">Filtrar por Status</option>
+                            <option value="Em aberto">Em aberto</option>
+                            <option value="Finalizado">Finalizado</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-12 col-sm-6 col-md-3">
+                        <div class="mb-3">
+                          <input
+                            type="text"
+                            id="vendedorFilter"
+                            class="form-control"
+                            placeholder="Filtrar por Vendedor"
+                          />
+                        </div>
+                      </div>
                     </div>
+                    <div class="table-responsive py-3 text-center">
+                      <table id="orders" class="table table-striped">
+                        <thead>
+                          <tr class="bg-success">
+                            <th scope="col">Pedido</th>
+                            <th scope="col">Data/Hora</th>
+                            <th scope="col">Vendedor</th>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Ações</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <!-- As linhas de pedidos serão adicionadas aqui dinamicamente -->
+                        </tbody>
+                      </table>
+                    </div>
+                    <div
+                      id="pagination-controls"
+                      class="pagination text-center"
+                    >
+                      <!-- Links de paginação serão injetados aqui -->
+                    </div>
+                  </div>
+
+                  <!-- Aba de Pedidos -->
+                  <div
+                    class="tab-pane fade"
+                    id="pedidos"
+                    role="tabpanel"
+                    aria-labelledby="pedidos-tab"
+                  >
+                    <table
+                      id="caixas-abertos-tabela"
+                      class="table table-striped table-bordered table-hover"
+                    >
+                      <thead class="bg-success">
+                        <tr>
+                          <th class="text-center">ID</th>
+                          <th>Usuário/Vendedor</th>
+                          <th class="text-center">Saldo Inicial</th>
+                          <th class="text-center">Status</th>
+                          <th class="text-center">Aberto Em</th>
+                          <th class="text-center">Fechado Em</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <!-- Os dados dos caixas abertos serão inseridos aqui pelo AJAX -->
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
+              </div>
             </div>
-        </section>
-    </div>
-    
-         
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 </div>
 
 <!-- Modal de Confirmação -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Exclusão</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Tem certeza de que deseja excluir este pedido?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteButton">Excluir</button>
-            </div>
-        </div>
+<div
+  class="modal fade"
+  id="confirmDeleteModal"
+  tabindex="-1"
+  aria-labelledby="confirmDeleteModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmDeleteModalLabel">
+          Confirmar Exclusão
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        Tem certeza de que deseja excluir este pedido?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteButton">
+          Excluir
+        </button>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Modal de Resultado -->
-<div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="resultModalLabel">Resultado da Exclusão</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="modalMessageBody">
-                Processando...
-            </div>
-        </div>
+<div
+  class="modal fade"
+  id="resultModal"
+  tabindex="-1"
+  aria-labelledby="resultModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="resultModalLabel">Resultado da Exclusão</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body" id="modalMessageBody">Processando...</div>
     </div>
+  </div>
 </div>
-
 
 <!-- Modal de Sucesso -->
-<div class="modal fade" id="resultModal" tabindex="-1" role="dialog" aria-labelledby="resultModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header justify-content-center">
-                <!-- Ícone de confirmação com animação -->
-                <div id="checkmark-animation" class="checkmark">
-                    <div class="checkmark-circle"></div>
-                    <div class="checkmark-stem"></div>
-                    <div class="checkmark-kick"></div>
-                </div>
-            </div>
-            <div class="modal-body text-center">
-                <div class="modal-body text-center" id="modalMessageBody">
-                    <!-- A mensagem será inserida aqui -->
-                </div>
-            </div>
+<div
+  class="modal fade"
+  id="resultModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="resultModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header justify-content-center">
+        <!-- Ícone de confirmação com animação -->
+        <div id="checkmark-animation" class="checkmark">
+          <div class="checkmark-circle"></div>
+          <div class="checkmark-stem"></div>
+          <div class="checkmark-kick"></div>
         </div>
+      </div>
+      <div class="modal-body text-center">
+        <div class="modal-body text-center" id="modalMessageBody">
+          <!-- A mensagem será inserida aqui -->
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
-
 <!-- Modal -->
-<div class="modal fade" id="modalCupomFiscal" tabindex="-1" role="dialog" aria-labelledby="modalCupomFiscalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-success">
-                <h5 class="modal-title" id="modalCupomFiscalLabel"><i class="fas fa-receipt"></i> Detalhes do Cupom Fiscal</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" id="modal-body-cupom">
-                <!-- Detalhes serão preenchidos aqui via AJAX -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"><i class="fas fa-times"></i> Fechar</button>
-                <button type="button" class="btn btn-primary btn-sm" id="gerar-cupom-btn"><i class="fas fa-print"></i> Gerar Cupom não Fiscal</button>
-            </div>
-        </div>
+<div
+  class="modal fade"
+  id="modalCupomFiscal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="modalCupomFiscalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-success">
+        <h5 class="modal-title" id="modalCupomFiscalLabel">
+          <i class="fas fa-receipt"></i> Detalhes do Cupom Fiscal
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-body-cupom">
+        <!-- Detalhes serão preenchidos aqui via AJAX -->
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          data-dismiss="modal"
+        >
+          <i class="fas fa-times"></i> Fechar
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          id="gerar-cupom-btn"
+        >
+          <i class="fas fa-print"></i> Gerar Cupom não Fiscal
+        </button>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Modal para Fechar Caixa -->
 <div class="modal fade" id="fecharCaixaModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-success">
-                <h5 class="modal-title"><i class="fas fa-lock"></i> Fechar Caixa</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="fecharCaixaForm">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="saldoFinalInput"><i class="fas fa-coins"></i> Saldo Final:</label>
-                        <input type="number" step="0.01" id="saldoFinalInput" class="form-control" value="0.00" required>
-                    </div>
-                    <button type="submit" class="btn btn-success btn-sm w-100">
-                        <i class="fas fa-check"></i> Fechar Caixa
-                    </button>
-                </form>
-            </div>
-        </div>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-success">
+        <h5 class="modal-title"><i class="fas fa-lock"></i> Fechar Caixa</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="fecharCaixaForm">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="saldoFinalInput"
+              ><i class="fas fa-coins"></i> Saldo Final:</label
+            >
+            <input
+              type="number"
+              step="0.01"
+              id="saldoFinalInput"
+              class="form-control"
+              value="0.00"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-success btn-sm w-100">
+            <i class="fas fa-check"></i> Fechar Caixa
+          </button>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Modal para Retirada ou Adição -->
 <div class="modal fade" id="retiradaCaixaModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title"><i class="fas fa-cash-register"></i> Operação no Caixa</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title">
+          <i class="fas fa-cash-register"></i> Operação no Caixa
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="retiradaCaixaForm">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="operacao"
+              ><i class="fas fa-exchange-alt py-1"></i> Selecione a
+              Operação:</label
+            >
+            <div
+              class="btn-group btn-group-toggle d-flex"
+              data-toggle="buttons"
+            >
+              <label
+                class="btn btn-outline-warning active flex-fill mr-1"
+                id="adicionarLabel"
+              >
+                <input
+                  type="radio"
+                  name="operacao"
+                  value="adicionar"
+                  id="adicionarValor"
+                  autocomplete="off"
+                  checked
+                />
+                <i class="fas fa-plus-circle"></i> Adicionar
+              </label>
+              <label class="btn btn-outline-danger flex-fill" id="retirarLabel">
+                <input
+                  type="radio"
+                  name="operacao"
+                  value="retirar"
+                  id="retirarValor"
+                  autocomplete="off"
+                />
+                <i class="fas fa-minus-circle"></i> Retirar
+              </label>
             </div>
-            <div class="modal-body">
-                <form id="retiradaCaixaForm">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="operacao"><i class="fas fa-exchange-alt py-1"></i> Selecione a Operação:</label>
-                        <div class="btn-group btn-group-toggle d-flex" data-toggle="buttons">
-                            <label class="btn btn-outline-warning active flex-fill mr-1" id="adicionarLabel">
-                                <input type="radio" name="operacao" value="adicionar" id="adicionarValor" autocomplete="off" checked>
-                                <i class="fas fa-plus-circle"></i> Adicionar
-                            </label>
-                            <label class="btn btn-outline-danger flex-fill" id="retirarLabel">
-                                <input type="radio" name="operacao" value="retirar" id="retirarValor" autocomplete="off">
-                                <i class="fas fa-minus-circle"></i> Retirar
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="saldoInput"><i class="fas fa-money-bill-wave"></i> Valor:</label>
-                        <input type="number" step="0.01" id="saldoInput" class="form-control" value="0.00" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="descricaoInput"><i class="fas fa-info-circle"></i> Descrição da Operação:</label>
-                        <textarea id="descricaoInput" class="form-control" rows="3" placeholder="Descreva a operação realizada..." required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-warning btn-sm w-100">
-                        <i class="fas fa-save"></i> Salvar
-                    </button>
-                </form>
-            </div>
-        </div>
+          </div>
+          <div class="form-group">
+            <label for="saldoInput"
+              ><i class="fas fa-money-bill-wave"></i> Valor:</label
+            >
+            <input
+              type="number"
+              step="0.01"
+              id="saldoInput"
+              class="form-control"
+              value="0.00"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="descricaoInput"
+              ><i class="fas fa-info-circle"></i> Descrição da Operação:</label
+            >
+            <textarea
+              id="descricaoInput"
+              class="form-control"
+              rows="3"
+              placeholder="Descreva a operação realizada..."
+              required
+            ></textarea>
+          </div>
+          <button type="submit" class="btn btn-warning btn-sm w-100">
+            <i class="fas fa-save"></i> Salvar
+          </button>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
-
-
 
 {% block extra_scripts %}
 
 <!--Sistema de listagem de vendas-->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        $(document).ready(function () {
-            // Gerenciar a troca da classe 'active' e a mudança de estilo
-            $("input[name='operacao']").on("change", function() {
-                // Remove a classe 'active' de ambos os botões e a classe 'btn-*' para reverter o estilo
-                $("#adicionarLabel").removeClass("active btn-warning").addClass("btn-outline-warning");
-                $("#retirarLabel").removeClass("active btn-danger").addClass("btn-outline-danger");
-    
-                // Adiciona a classe 'active' e 'btn-*' no botão que foi selecionado
-                if ($(this).val() === "adicionar") {
-                    $("#adicionarLabel").addClass("active btn-warning");
-                } else {
-                    $("#retirarLabel").addClass("active btn-danger");
-                }
-            });
-        });
+  document.addEventListener("DOMContentLoaded", function () {
+    $(document).ready(function () {
+      // Gerenciar a troca da classe 'active' e a mudança de estilo
+      $("input[name='operacao']").on("change", function () {
+        // Remove a classe 'active' de ambos os botões e a classe 'btn-*' para reverter o estilo
+        $("#adicionarLabel")
+          .removeClass("active btn-warning")
+          .addClass("btn-outline-warning");
+        $("#retirarLabel")
+          .removeClass("active btn-danger")
+          .addClass("btn-outline-danger");
 
-        function loadOrders(page = 1, searchTerm = '', statusFilter = '', vendedorFilter = '', clienteFilter = '') {
-            $.ajax({
-                url: '{% url "listar_pedidos_ajax" %}', // URL da view AJAX
-                data: {
-                    'page': page,
-                    'search': searchTerm,
-                    'status': statusFilter,
-                    'vendedor': vendedorFilter,
-                    'cliente': clienteFilter
-                },
-                success: function(response) {
-                    var pedidos = response.pedidos;
-                    var tbody = $("#orders tbody");
-                    tbody.empty();
-    
-                    // Verifica se há pedidos para mostrar
-                    if (pedidos.length === 0) {
-                        tbody.append('<tr><td colspan="7" class="text-center">Nenhum pedido encontrado.</td></tr>');
-                    } else {
-                        pedidos.forEach(function(pedido) {
-                            // Formata o total em formato monetário (BRL)
-                            var totalFormatado = parseFloat(pedido.total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                            
-                            var row = `
+        // Adiciona a classe 'active' e 'btn-*' no botão que foi selecionado
+        if ($(this).val() === "adicionar") {
+          $("#adicionarLabel").addClass("active btn-warning");
+        } else {
+          $("#retirarLabel").addClass("active btn-danger");
+        }
+      });
+    });
+
+    function loadOrders(
+      page = 1,
+      searchTerm = "",
+      statusFilter = "",
+      vendedorFilter = "",
+      clienteFilter = ""
+    ) {
+      $.ajax({
+        url: '{% url "listar_pedidos_ajax" %}',
+        data: {
+          page: page,
+          search: searchTerm,
+          status: statusFilter,
+          vendedor: vendedorFilter,
+          cliente: clienteFilter,
+        },
+        success: function (response) {
+          var pedidos = response.pedidos;
+          var tbody = $("#orders tbody");
+          tbody.empty();
+
+          // Exibir pedidos
+          if (pedidos.length === 0) {
+            tbody.append(
+              '<tr><td colspan="7" class="text-center">Nenhum pedido encontrado.</td></tr>'
+            );
+          } else {
+            pedidos.forEach(function (pedido) {
+              var totalFormatado = parseFloat(pedido.total).toLocaleString(
+                "pt-BR",
+                { style: "currency", currency: "BRL" }
+              );
+              var row = `
                                 <tr class="text-center">
                                     <td>#${pedido.numero_pedido}</td>
                                     <td>${pedido.data}</td>
                                     <td>${pedido.vendedor}</td>
                                     <td>${pedido.cliente}</td>
                                     <td><strong>${totalFormatado}</strong></td>
-                                    <td><span class="badge ${pedido.status === 'Em aberto' ? 'badge-warning' : 'badge-success'}">${pedido.status}</span></td>
+                                    <td><span class="badge ${
+                                      pedido.status === "Em aberto"
+                                        ? "badge-warning"
+                                        : "badge-success"
+                                    }">${pedido.status}</span></td>
                                     <td>
-                                        <a href="{% url 'abrir_caixa_pdv' %}?id=${pedido.id}" class="btn btn-sm btn-success"><i class="fas fa-edit"></i></a>
-                                        <a href="javascript:void(0);" class="btn btn-sm btn-primary" onclick="abrirModalCupomFiscal(${pedido.id})"><i class="fas fa-eye"></i></a>
-                                        <button type="button" class="btn btn-sm btn-danger" onclick="excluirVenda(${pedido.id})"><i class="fas fa-trash"></i></button>
+                                        <a href="{% url 'abrir_caixa_pdv' %}?id=${
+                                          pedido.id
+                                        }" class="btn btn-sm btn-success"><i class="fas fa-edit"></i></a>
+                                        <a href="javascript:void(0);" class="btn btn-sm btn-primary" onclick="abrirModalCupomFiscal(${
+                                          pedido.id
+                                        })"><i class="fas fa-eye"></i></a>
+                                        <button type="button" class="btn btn-sm btn-danger" onclick="excluirVenda(${
+                                          pedido.id
+                                        })"><i class="fas fa-trash"></i></button>
                                     </td>
                                 </tr>`;
-                            tbody.append(row);
-                        });
-                    }
-
-    
-                    // Atualizar paginação
-                    var paginationControls = $('#pagination-controls');
-                    paginationControls.html('');
-    
-                    if (response.current_page > 1) {
-                        paginationControls.append('<a href="javascript:void(0);" class="pagination-link btn btn-sm btn-success" data-page="1">Primeira Página</a>');
-                        paginationControls.append('<a href="javascript:void(0);" class="pagination-link btn btn-sm btn-success" data-page="' + response.previous_page_number + '">Anterior</a>');
-                    }
-    
-                    for (let i = 1; i <= response.total_pages; i++) {
-                        paginationControls.append('<a href="javascript:void(0);" class="pagination-link btn btn-sm ' + (i === response.current_page ? 'btn-primary' : 'btn-light') + '" data-page="' + i + '">' + i + '</a>');
-                    }
-    
-                    if (response.current_page < response.total_pages) {
-                        paginationControls.append('<a href="javascript:void(0);" class="pagination-link btn btn-sm btn-warning" data-page="' + response.next_page_number + '">Próxima</a>');
-                        paginationControls.append('<a href="javascript:void(0);" class="pagination-link btn btn-sm btn-warning" data-page="' + response.total_pages + '">Última Página</a>');
-                    }
-    
-                    // Adicionar eventos aos links de paginação
-                    $('.pagination-link').click(function() {
-                        var page = $(this).data('page');
-                        loadOrders(page, searchTerm, statusFilter, vendedorFilter, clienteFilter);
-                    });
-                },
-                error: function(xhr, status, error) {
-                    console.error("Erro ao carregar pedidos:", error);
-                    alert("Erro ao carregar pedidos.");
-                }
+              tbody.append(row);
             });
-        }
-    
-        // Eventos de busca e carregamento inicial
-        $('#searchInput').on('input', function() {
-            loadOrders(1, $(this).val(), $('#statusFilter').val(), $('#vendedorFilter').val(), $('#clienteFilter').val());
-        });
-    
-        loadOrders(1);
+          }
 
-        // Função para excluir a venda
-        window.excluirVenda = function(vendaId) {
-            // Abre o modal de confirmação
-            const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-            confirmDeleteModal.show();
-        
-            // Manipulador do botão de confirmação
-            document.getElementById('confirmDeleteButton').onclick = function() {
-                fetch('/caixa/excluir_venda/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
-                    },
-                    body: JSON.stringify({ venda_id: vendaId })  // Passando o ID da venda aqui
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const resultModal = new bootstrap.Modal(document.getElementById('resultModal'));
-                    const modalMessageBody = document.getElementById('modalMessageBody');
-        
-                    if (data.success) {
-                        modalMessageBody.textContent = data.message;
-                        
-                        // Remove a linha correspondente ao pedido da tabela
-                        $('#pedido-' + vendaId).remove();  // Remover a linha pela ID da venda
-                    } else {
-                        modalMessageBody.textContent = data.message;
-                    }
-        
-                    // Exibe o modal de resultado
-                    resultModal.show();
-        
-                    // Fecha o modal de confirmação
-                    confirmDeleteModal.hide();
-        
-                    // Fecha automaticamente o modal de resultado após 3 segundos
-                    setTimeout(() => {
-                        resultModal.hide();
-                    }, 3000);
-                })
-                .catch(error => {
-                    console.error('Erro ao excluir a venda:', error);
-                    const resultModal = new bootstrap.Modal(document.getElementById('resultModal'));
-                    const modalMessageBody = document.getElementById('modalMessageBody');
-                    modalMessageBody.textContent = 'Erro ao excluir a venda. Por favor, tente novamente.';
-                    resultModal.show();
-                    confirmDeleteModal.hide();
-        
-                    // Fecha automaticamente o modal de resultado após 3 segundos
-                    setTimeout(() => {
-                        resultModal.hide();
-                    }, 3000);
-                });
-            };
-        }
+          // Atualizar paginação
+          var paginationControls = $("#pagination-controls");
+          paginationControls.html("");
 
+          var totalPages = response.total_pages;
+          var currentPage = response.current_page;
 
-        
+          // Mostrar páginas vizinhas
+          var startPage = Math.max(1, currentPage - 2);
+          var endPage = Math.min(totalPages, currentPage + 2);
 
+          if (response.has_previous) {
+            paginationControls.append(
+              '<a href="javascript:void(0);" class="pagination-link btn btn-sm btn-success" data-page="' +
+                response.previous_page_number +
+                '">Anterior</a>'
+            );
+          }
 
+          for (let i = startPage; i <= endPage; i++) {
+            paginationControls.append(
+              '<a href="javascript:void(0);" class="pagination-link btn btn-sm ' +
+                (i === currentPage ? "btn-primary" : "btn-light") +
+                '" data-page="' +
+                i +
+                '">' +
+                i +
+                "</a>"
+            );
+          }
 
-        
+          if (response.has_next) {
+            paginationControls.append(
+              '<a href="javascript:void(0);" class="pagination-link btn btn-sm btn-warning" data-page="' +
+                response.next_page_number +
+                '">Próxima</a>'
+            );
+          }
 
+          // Adicionar eventos aos links de paginação
+          $(".pagination-link").click(function () {
+            var page = $(this).data("page");
+            loadOrders(
+              page,
+              searchTerm,
+              statusFilter,
+              vendedorFilter,
+              clienteFilter
+            );
+          });
+        },
+        error: function (xhr, status, error) {
+          console.error("Erro ao carregar pedidos:", error);
+          alert("Erro ao carregar pedidos.");
+        },
+      });
+    }
+
+    // Eventos de busca e carregamento inicial
+    $("#searchInput").on("input", function () {
+      loadOrders(
+        1,
+        $(this).val(),
+        $("#statusFilter").val(),
+        $("#vendedorFilter").val(),
+        $("#clienteFilter").val()
+      );
     });
-    
-        
-    
-    
+
+    loadOrders(1);
+
+    // Função para excluir a venda
+    window.excluirVenda = function (vendaId) {
+      // Abre o modal de confirmação
+      const confirmDeleteModal = new bootstrap.Modal(
+        document.getElementById("confirmDeleteModal")
+      );
+      confirmDeleteModal.show();
+
+      // Manipulador do botão de confirmação
+      document.getElementById("confirmDeleteButton").onclick = function () {
+        fetch("/caixa/excluir_venda/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": document.querySelector(
+              'input[name="csrfmiddlewaretoken"]'
+            ).value,
+          },
+          body: JSON.stringify({ venda_id: vendaId }), // Passando o ID da venda aqui
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            const resultModal = new bootstrap.Modal(
+              document.getElementById("resultModal")
+            );
+            const modalMessageBody =
+              document.getElementById("modalMessageBody");
+
+            if (data.success) {
+              modalMessageBody.textContent = data.message;
+
+              // Remove a linha correspondente ao pedido da tabela
+              $("#pedido-" + vendaId).remove(); // Remover a linha pela ID da venda
+            } else {
+              modalMessageBody.textContent = data.message;
+            }
+
+            // Exibe o modal de resultado
+            resultModal.show();
+
+            // Fecha o modal de confirmação
+            confirmDeleteModal.hide();
+
+            // Fecha automaticamente o modal de resultado após 3 segundos
+            setTimeout(() => {
+              resultModal.hide();
+            }, 3000);
+          })
+          .catch((error) => {
+            console.error("Erro ao excluir a venda:", error);
+            const resultModal = new bootstrap.Modal(
+              document.getElementById("resultModal")
+            );
+            const modalMessageBody =
+              document.getElementById("modalMessageBody");
+            modalMessageBody.textContent =
+              "Erro ao excluir a venda. Por favor, tente novamente.";
+            resultModal.show();
+            confirmDeleteModal.hide();
+
+            // Fecha automaticamente o modal de resultado após 3 segundos
+            setTimeout(() => {
+              resultModal.hide();
+            }, 3000);
+          });
+      };
+    };
+  });
 </script>
 
 <script>
-    // Função para abrir a modal com os detalhes do pedido
-    function abrirModalCupomFiscal(pedidoId) {
-        $.ajax({
-            url: '/caixa/cupom_fiscal_ajax/' + pedidoId + '/',  // Endpoint para carregar os dados da venda
-            method: 'GET',
-            success: function(response) {
-                // Preencher a modal com os dados retornados
-                var modalBody = $('#modal-body-cupom');
-                modalBody.empty(); // Limpa o conteúdo anterior
-    
-                // Formatar valores com separador de milhar e vírgula para casas decimais
-                const formatarMoeda = (valor) => {
-                    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
-                };
-    
-                // Adiciona os detalhes do pedido com ícones
-                modalBody.append('<p><i class="fas fa-file-alt"></i> <strong>Pedido:</strong> #' + response.numero_pedido + '</p>');
-                modalBody.append('<p><i class="fas fa-user"></i> <strong>Cliente:</strong> ' + response.cliente + '</p>');
-                modalBody.append('<p><i class="fas fa-tags"></i> <strong>Total:</strong> ' + formatarMoeda(response.total) + '</p>');
-                modalBody.append('<p><i class="fas fa-check-circle"></i> <strong>Status:</strong> ' + response.status + '</p>');
-    
-                // Preenche os produtos em formato de tabela
-                var produtosHtml = '<h5><i class="fas fa-cogs"></i> Produtos:</h5>';
-                produtosHtml += '<table class="table table-striped table-bordered">';
-                produtosHtml += '<thead><tr><th>#</th><th>Produto</th><th>Quantidade</th><th>Preço Unitário</th><th>Total</th></tr></thead>';
-                produtosHtml += '<tbody>';
-                
-                var totalProdutos = 0;  // Variável para acumular o valor total dos produtos
-    
-                response.produtos.forEach(function(produto, index) {
-                    var totalProduto = produto.quantidade * produto.preco_unitario; // Calcula o total por produto
-                    totalProdutos += totalProduto; // Acumula o total
-    
-                    produtosHtml += '<tr>';
-                    produtosHtml += '<td>' + (index + 1) + '</td>'; // Número de ordem
-                    produtosHtml += '<td>' + produto.produto.nome + '</td>';
-                    produtosHtml += '<td>' + produto.quantidade + '</td>';
-                    produtosHtml += '<td>' + formatarMoeda(produto.preco_unitario) + '</td>';
-                    produtosHtml += '<td>' + formatarMoeda(totalProduto) + '</td>';
-                    produtosHtml += '</tr>';
-                });
-    
-                // Adiciona a linha do total dos produtos
-                produtosHtml += '</tbody>';
-                produtosHtml += '<tfoot>';
-                produtosHtml += '<tr><td colspan="4"><strong>Total Geral:</strong></td><td><strong>' + formatarMoeda(totalProdutos) + '</strong></td></tr>';
-                produtosHtml += '</tfoot>';
-                produtosHtml += '</table>';
-    
-                modalBody.append(produtosHtml);
-    
-                // Adicionar o evento de clique para gerar o cupom fiscal
-                $('#gerar-cupom-btn').on('click', function() {
-                    gerarCupomFiscal(pedidoId);
-                });
-    
-                // Mostra a modal
-                $('#modalCupomFiscal').modal('show');
-            },
-            error: function() {
-                alert('Erro ao carregar os detalhes do cupom fiscal.');
-            }
-        });
-    }
-    
+  // Função para abrir a modal com os detalhes do pedido
+  function abrirModalCupomFiscal(pedidoId) {
+    $.ajax({
+      url: "/caixa/cupom_fiscal_ajax/" + pedidoId + "/", // Endpoint para carregar os dados da venda
+      method: "GET",
+      success: function (response) {
+        // Preencher a modal com os dados retornados
+        var modalBody = $("#modal-body-cupom");
+        modalBody.empty(); // Limpa o conteúdo anterior
 
-    // Função para gerar o cupom fiscal e abrir uma nova aba
-    function gerarCupomFiscal(pedidoId) {
-        // Abre a nova aba passando o ID do pedido na URL
-        var cupomFiscalUrl = '/caixa/cupom_fiscal/' + pedidoId + '/';
-        window.open(cupomFiscalUrl, '_blank');  // Abre em uma nova aba
-    }
+        // Formatar valores com separador de milhar e vírgula para casas decimais
+        const formatarMoeda = (valor) => {
+          return new Intl.NumberFormat("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }).format(valor);
+        };
+
+        // Adiciona os detalhes do pedido com ícones
+        modalBody.append(
+          '<p><i class="fas fa-file-alt"></i> <strong>Pedido:</strong> #' +
+            response.numero_pedido +
+            "</p>"
+        );
+        modalBody.append(
+          '<p><i class="fas fa-user"></i> <strong>Cliente:</strong> ' +
+            response.cliente +
+            "</p>"
+        );
+        modalBody.append(
+          '<p><i class="fas fa-tags"></i> <strong>Total:</strong> ' +
+            formatarMoeda(response.total) +
+            "</p>"
+        );
+        modalBody.append(
+          '<p><i class="fas fa-check-circle"></i> <strong>Status:</strong> ' +
+            response.status +
+            "</p>"
+        );
+
+        // Preenche os produtos em formato de tabela
+        var produtosHtml = '<h5><i class="fas fa-cogs"></i> Produtos:</h5>';
+        produtosHtml += '<table class="table table-striped table-bordered">';
+        produtosHtml +=
+          "<thead><tr><th>#</th><th>Produto</th><th>Quantidade</th><th>Preço Unitário</th><th>Total</th></tr></thead>";
+        produtosHtml += "<tbody>";
+
+        var totalProdutos = 0; // Variável para acumular o valor total dos produtos
+
+        response.produtos.forEach(function (produto, index) {
+          var totalProduto = produto.quantidade * produto.preco_unitario; // Calcula o total por produto
+          totalProdutos += totalProduto; // Acumula o total
+
+          produtosHtml += "<tr>";
+          produtosHtml += "<td>" + (index + 1) + "</td>"; // Número de ordem
+          produtosHtml += "<td>" + produto.produto.nome + "</td>";
+          produtosHtml += "<td>" + produto.quantidade + "</td>";
+          produtosHtml +=
+            "<td>" + formatarMoeda(produto.preco_unitario) + "</td>";
+          produtosHtml += "<td>" + formatarMoeda(totalProduto) + "</td>";
+          produtosHtml += "</tr>";
+        });
+
+        // Adiciona a linha do total dos produtos
+        produtosHtml += "</tbody>";
+        produtosHtml += "<tfoot>";
+        produtosHtml +=
+          '<tr><td colspan="4"><strong>Total Geral:</strong></td><td><strong>' +
+          formatarMoeda(totalProdutos) +
+          "</strong></td></tr>";
+        produtosHtml += "</tfoot>";
+        produtosHtml += "</table>";
+
+        modalBody.append(produtosHtml);
+
+        // Adicionar o evento de clique para gerar o cupom fiscal
+        $("#gerar-cupom-btn").on("click", function () {
+          gerarCupomFiscal(pedidoId);
+        });
+
+        // Mostra a modal
+        $("#modalCupomFiscal").modal("show");
+      },
+      error: function () {
+        alert("Erro ao carregar os detalhes do cupom fiscal.");
+      },
+    });
+  }
+
+  // Função para gerar o cupom fiscal e abrir uma nova aba
+  function gerarCupomFiscal(pedidoId) {
+    // Abre a nova aba passando o ID do pedido na URL
+    var cupomFiscalUrl = "/caixa/cupom_fiscal/" + pedidoId + "/";
+    window.open(cupomFiscalUrl, "_blank"); // Abre em uma nova aba
+  }
 </script>
 
 <!-- Listagem de caixas-->
 <script>
-    $(document).ready(function () {
-        // Verificar se o script já foi executado antes
-        if (window.hasRun) return;
-        window.hasRun = true; // Marca o script como executado
+  $(document).ready(function () {
+      // Verificar se o script já foi executado antes
+      if (window.hasRun) return;
+      window.hasRun = true; // Marca o script como executado
 
-        // Função AJAX para carregar caixas abertos e fechados
-        function carregarCaixasAbertos_ajax() {
-            $.ajax({
-                url: "{% url 'listar_caixas_abertos_ajax' %}",  // URL da view para listar os caixas abertos e fechados
-                method: "GET",
-                success: function(data) {
-                    // Limpar a lista antes de adicionar novos dados
-                    let caixasHtml = "";
-                
-                    // Iterar sobre os caixas e adicionar à tabela
-                    data.forEach(function(caixa) {
-                        // Verificar se o caixa está aberto ou fechado para exibir adequadamente
-                        let saldo = parseFloat(caixa.saldo).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                        
-                        // Estilo de status
-                        let statusClass = caixa.status === 'Aberto' ? 'text-success' : 'text-danger';
-                        let statusIcon = caixa.status === 'Aberto' ? 'fas fa-unlock-alt' : 'fas fa-lock';
+      // Função AJAX para carregar caixas abertos e fechados
+      function carregarCaixasAbertos_ajax() {
+          $.ajax({
+              url: "{% url 'listar_caixas_abertos_ajax' %}",  // URL da view para listar os caixas abertos e fechados
+              method: "GET",
+              success: function(data) {
+                  // Limpar a lista antes de adicionar novos dados
+                  let caixasHtml = "";
 
-                        caixasHtml += `
-                            <tr>
-                                <td class="text-center">${caixa.id}</td>
-                                <td>${caixa.usuario__username}</td>
-                                <td class="text-center">R$ ${saldo}</td>  <!-- Exibe o saldo formatado -->
-                                <td class="text-center">
-                                    <span class="badge ${statusClass}">
-                                        <i class="${statusIcon}"></i> ${caixa.status}
-                                    </span>
-                                </td>
-                                <td class="text-center">${new Date(caixa.aberto_em).toLocaleString('pt-BR')}</td>
-                                <td class="text-center">${caixa.fechado_em ? new Date(caixa.fechado_em).toLocaleString('pt-BR') : '<span class="text-warning"><strong>Ainda Aberto</strong></span>'}</td>
-                            </tr>
-                        `;
-                    });
-                
-                    // Inserir os dados na tabela
-                    $("#caixas-abertos-tabela tbody").html(caixasHtml);
-                },
-                error: function(xhr, status, error) {
-                    alert("Erro ao carregar os caixas: " + error);
-                }
-            });
-        }
-    
-        // Verificar se o modo caixa está ativado antes de realizar a busca
-        {% if abrir_caixa_automatico %}
-            // Passa true diretamente para o JavaScript
-            var caixaEstaAberto = true;
-        {% else %}
-            // Passa false diretamente para o JavaScript
-            var caixaEstaAberto = false;
-        {% endif %}
-    
-        // Condicional para executar a busca somente se o caixa estiver aberto
-        if (caixaEstaAberto) {
-            carregarCaixasAbertos_ajax();
-        } else {
-            console.log("O caixa não está aberto, a busca não será realizada.");
-        }
-    });
+                  // Iterar sobre os caixas e adicionar à tabela
+                  data.forEach(function(caixa) {
+                      // Verificar se o caixa está aberto ou fechado para exibir adequadamente
+                      let saldo = parseFloat(caixa.saldo).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                      // Estilo de status
+                      let statusClass = caixa.status === 'Aberto' ? 'text-success' : 'text-danger';
+                      let statusIcon = caixa.status === 'Aberto' ? 'fas fa-unlock-alt' : 'fas fa-lock';
+
+                      caixasHtml += `
+                          <tr>
+                              <td class="text-center">${caixa.id}</td>
+                              <td>${caixa.usuario__username}</td>
+                              <td class="text-center">R$ ${saldo}</td>  <!-- Exibe o saldo formatado -->
+                              <td class="text-center">
+                                  <span class="badge ${statusClass}">
+                                      <i class="${statusIcon}"></i> ${caixa.status}
+                                  </span>
+                              </td>
+                              <td class="text-center">${new Date(caixa.aberto_em).toLocaleString('pt-BR')}</td>
+                              <td class="text-center">${caixa.fechado_em ? new Date(caixa.fechado_em).toLocaleString('pt-BR') : '<span class="text-warning"><strong>Ainda Aberto</strong></span>'}</td>
+                          </tr>
+                      `;
+                  });
+
+                  // Inserir os dados na tabela
+                  $("#caixas-abertos-tabela tbody").html(caixasHtml);
+              },
+              error: function(xhr, status, error) {
+                  alert("Erro ao carregar os caixas: " + error);
+              }
+          });
+      }
+
+      // Verificar se o modo caixa está ativado antes de realizar a busca
+      {% if abrir_caixa_automatico %}
+          // Passa true diretamente para o JavaScript
+          var caixaEstaAberto = true;
+      {% else %}
+          // Passa false diretamente para o JavaScript
+          var caixaEstaAberto = false;
+      {% endif %}
+
+      // Condicional para executar a busca somente se o caixa estiver aberto
+      if (caixaEstaAberto) {
+          carregarCaixasAbertos_ajax();
+      } else {
+          console.log("O caixa não está aberto, a busca não será realizada.");
+      }
+  });
 </script>
 
-
-
-
-
-{% endblock %}
-
-{% endblock %}
+{% endblock %} {% endblock %}

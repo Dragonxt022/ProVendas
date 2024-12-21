@@ -411,8 +411,10 @@ def listar_caixa(request):
         'caixa_esta_aberto': caixa_esta_aberto,
     })
 
-#  Alimenta a lista de Vendas realizadas via Ajax
+# Alimenta a lista de Vendas realizadas via Ajax
 def listar_pedidos_ajax(request):
+    from math import ceil  # Import para calcular a janela de paginação
+    
     # Recebe os parâmetros de filtro da requisição
     search_term = request.GET.get('search', '')
     status_filter = request.GET.get('status', '')
@@ -441,8 +443,8 @@ def listar_pedidos_ajax(request):
         pedidos_list = pedidos_list.filter(cliente__nome__icontains=cliente_filter)
 
     # Paginação
-    paginator = Paginator(pedidos_list, 10)  # 3 pedidos por página
-    page_number = request.GET.get('page', 1)
+    paginator = Paginator(pedidos_list, 10)  # 10 pedidos por página
+    page_number = int(request.GET.get('page', 1))
     page_obj = paginator.get_page(page_number)
 
     pedidos_data = []
@@ -461,6 +463,16 @@ def listar_pedidos_ajax(request):
             'status': pedido.status
         })
 
+    # Lógica de controle de páginas vizinhas
+    total_pages = paginator.num_pages
+    window_size = 5  # Número de páginas vizinhas para exibir
+    start_page = max(1, page_number - ceil(window_size / 2))
+    end_page = min(total_pages, start_page + window_size - 1)
+    start_page = max(1, end_page - window_size + 1)
+
+    # Lista de páginas para exibir na paginação
+    pagination_range = list(range(start_page, end_page + 1))
+
     # Retornar os dados filtrados e informações de paginação
     return JsonResponse({
         'pedidos': pedidos_data,
@@ -469,7 +481,8 @@ def listar_pedidos_ajax(request):
         'next_page_number': page_obj.next_page_number() if page_obj.has_next() else None,
         'previous_page_number': page_obj.previous_page_number() if page_obj.has_previous() else None,
         'current_page': page_obj.number,
-        'total_pages': paginator.num_pages,
+        'total_pages': total_pages,
+        'pagination_range': pagination_range,  # Faixa de páginas vizinhas
     })
 
 # Gera um cupom não fiscal via Ajax
