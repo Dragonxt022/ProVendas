@@ -6,8 +6,6 @@
 {% endblock %}
 
 {% block content %}
-
-
 <div class="wrapper">
     {% include 'includes/sidebar.html' %}
     {% include 'includes/navbar.html' %} 
@@ -18,24 +16,28 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-body">
-        
                                 <!-- Linha 1: Número do Pedido, Vendedor, e Status -->
-                                <div class="row py-3">
+                                <div class="row py-2">
                                     <div class="col-12 col-md-4 mb-2">
-                                        <label for="numero_pedido" class="form-label">Número do Pedido:</label>
-                                        <input type="text" id="numero_pedido" class="form-control" value="" readonly>
+                                        <label for="numero_pedido" class="form-label font-weight-bold text-secondary small">
+                                            <i class="fas fa-hashtag mr-1"></i>Número do Pedido:
+                                        </label>
+                                        <input type="text" id="numero_pedido" class="form-control form-control-sm" value="" readonly>
                                     </div>
                                     <div class="col-12 col-md-4 mb-2">
-                                        <label for="vendedor" class="form-label">Vendedor:</label>
-                                        <input type="hidden" id="vendedor" class="form-control" value="{{ user.id }}">
-                                        <input type="hidden" id="venda_id" class="form-control" value="">
-                                        <input type="text" id="nomeVendedor" class="form-control" value="{{ user.username }}" readonly>
+                                        <label for="nomeVendedor" class="form-label font-weight-bold text-secondary small">
+                                            <i class="fas fa-user mr-1"></i>Vendedor:
+                                        </label>
+                                        <input type="hidden" id="vendedor" value="{{ user.id }}">
+                                        <input type="hidden" id="venda_id" value="">
+                                        <input type="text" id="nomeVendedor" class="form-control form-control-sm" value="{{ user.username }}" readonly>
                                     </div>
                                     <div class="col-12 col-md-4 mb-2">
-                                        <label for="status" class="form-label">Status:</label>
-                                        <input type="text" id="status" class="form-control" value="Em Aberto" readonly>
+                                        <label for="status" class="form-label font-weight-bold text-secondary small">
+                                            <i class="fas fa-info-circle mr-1"></i>Status:
+                                        </label>
+                                        <input type="text" id="status" class="form-control form-control-sm bg-warning text-white" value="Em Aberto" readonly>
                                     </div>
-
                                 </div>
                                 
                                 <div class="row py-1" {% if not modoLeitorCodigoDeBarra %} style="display:none;" {% endif %}>
@@ -50,79 +52,73 @@
                                 <div class="row">
                                     <!-- Seção de Produtos -->
                                     <div class="col-12 col-md-8 mb-4">
-                                        <div class="card py-3">
-                                            <div class="card-body d-flex flex-column background-card" style="height: 400px;">
-                                                <div class="row py-2">
-                                                    <div class="col">
-                                                        <!-- Contêiner para listar produtos com rolagem -->
-                                                        <div id="cart-items" class="overflow-auto" style="max-height: 380px;">
-                                                            <!-- Produtos serão adicionados aqui dinamicamente -->
-                                                        </div>
+                                        <div class="card shadow-sm h-100">
+                                            <div class="card-body bg-light p-0">
+                                                <div id="cart-items" class="overflow-auto" style="height: 300px;">
+                                                    <!-- Produtos serão adicionados aqui dinamicamente -->
+                                                    <div class="text-center py-5 text-muted" id="empty-cart-message">
+                                                        <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+                                                        <p>Seu carrinho está vazio</p>
+                                                        <p>Adicione produtos para iniciar</p>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-        
-                                        <!-- Botão fixado na parte inferior -->
-                                        <div class="mt-auto">
-                                            <button class="btn btn-success w-100" onclick="listaProdutos();">
-                                                <i class="fa fa-shopping-cart"></i> <strong>ADICIONAR PRODUTO [ Alt + A ]</strong>
-                                            </button>
+                                            <div class="card-footer bg-white">
+                                                <button class="btn btn-success btn-sm w-100 d-flex justify-content-center align-items-center" onclick="listaProdutos();">
+                                                    <i class="fas fa-plus mr-2"></i> <strong>ADICIONAR PRODUTO</strong>
+                                                    <span class="badge badge-light ml-2">Alt + A</span>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-        
                                     <!-- Seção do Resumo do Caixa -->
                                     <div class="col-12 col-md-4">
-                                        <div class="card shadow-sm border-0">
+                                        <div class="card shadow-sm h-100">
+                                            <div class="card-header bg-success text-white">
+                                                <h5 class="mb-0"><i class="fas fa-cash-register mr-2"></i>Resumo</h5>
+                                            </div>
                                             <div class="card-body">
                                                 <!-- Ícone de carrinho grande ao fundo -->
-                                                <div class="row py-2 position-relative">
-                                                    <div id="empty-cart-icon" class="empty-cart-icon d-flex justify-content-center align-items-center w-100">
-                                                        <i class="fa fa-shopping-cart" style="font-size: 80px; color: #ddd;"></i>
-                                                    </div>
+                                                <div id="empty-cart-icon" class="empty-cart-icon d-flex justify-content-center align-items-center w-100 mb-3">
+                                                    <i class="fas fa-shopping-cart" style="font-size: 60px; color: #eee;"></i>
                                                 </div>
-        
-                                                <!-- Título Resumo -->
-                                                <h3 class="text-center text-secondary my-3">CAIXA</h3>
-                                                <!-- Campo de Desconto -->
-                                                <div class="row mb-2">
-                                                    <div class="col">
-                                                        <label for="discount" class="form-label text-muted">Desconto (R$):</label>
-                                                        <input type="number" id="discount" class="form-control" value="0" min="0" oninput="calculateTotal()">
-                                                    </div>
-                                                </div>
-        
-                                                <!-- Total -->
-                                                <label for="total" class="form-label text-muted">Total:</label>
-                                                <div class="row mb-2">
-                                                    <div class="col text-center">
-                                                        <div class="bg-light p-3 rounded" style="border: 1px solid #ddd;">
-                                                            <h2 class="m-0" style="font-size: 35px; color: #e74c3c; font-weight: bold;">R$ <span id="total">0,00</span></h2>
+
+                                                <div class="form-group">
+                                                    <label for="discount" class="form-label text-muted font-weight-bold small">
+                                                        <i class="fas fa-percent mr-1"></i>Desconto (R$):
+                                                    </label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">R$</span>
                                                         </div>
+                                                        <input type="number" id="discount" class="form-control" value="0" min="0" step="0.01" oninput="calculateTotal()">
                                                     </div>
                                                 </div>
-        
-                                                <!-- Botão Finalizar -->
-                                                <div class="row mb-2">
-                                                    <div class="col">
-                                                        <button class="btn btn-success w-100 py-2" onclick="finalizeSale('Finalizado')">
-                                                            <strong>FINALIZAR [ Alt + F ]</strong>
-                                                        </button>
-                                                    </div>
+
+                                                <!-- Total -->
+                                                <label for="total" class="form-label text-muted font-weight-bold small">
+                                                    <i class="fas fa-money-bill-wave mr-1"></i>Total:
+                                                </label>
+                                                <div class="bg-light p-3 rounded mb-4 text-center" style="border: 1px solid #ddd;">
+                                                    <h2 class="m-0 text-success" style="font-size: 32px; font-weight: bold;">R$ <span id="total">0,00</span></h2>
                                                 </div>
-        
-                                                <!-- Botão Salvar -->
-                                                <div class="row">
-                                                    <div class="col">
-                                                        <button class="btn btn-warning w-100 py-2" onclick="finalizeSale('Em aberto')">
-                                                            <strong>SALVAR [ Alt + S ]</strong>
-                                                        </button>
-                                                    </div>
+
+                                                <!-- Botões de Ação -->
+                                                <div class="btn-group-vertical w-100">
+                                                    <button class="btn btn-success mb-2 d-flex justify-content-between align-items-center py-2" onclick="finalizeSale('Finalizado')">
+                                                        <i class="fas fa-check-circle"></i>
+                                                        <strong>FINALIZAR</strong>
+                                                        <span class="badge badge-light">Alt + F</span>
+                                                    </button>
+                                                    <button class="btn btn-warning text-white d-flex justify-content-between align-items-center py-2" onclick="finalizeSale('Em aberto')">
+                                                        <i class="fas fa-save"></i>
+                                                        <strong>SALVAR</strong>
+                                                        <span class="badge badge-light">Alt + S</span>
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-        
                                 </div> <!-- Fim da linha 2 -->
                             </div>
                         </div>
@@ -130,40 +126,45 @@
                 </div>
             </div>
         </section>
-        
-      </div>    
+    </div>
 </div>
-
 
 <!-- Modal Produtos -->
 <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
-            <div class="modal-header bg-success text-white"> <!-- Estilizando o cabeçalho -->
-                <h5 class="modal-title" id="detalhesModalLabel">Selecionar Produto</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close"> <!-- Cor branca no botão de fechar -->
-                    <span aria-hidden="true">&times;</span>
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="detalhesModalLabel">
+                    <i class="fas fa-box-open mr-2"></i>Selecionar Produto
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="row py-1">
-                    <div class="col">
-                        <div id="category-filters" class="mb-3"></div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col">
-                        <div class="input-group mb-3">
-                            <input type="text" id="filtrar_produto" class="form-control" placeholder="Buscar produto..." aria-label="Buscar produto">
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            </div>
+                            <input type="text" id="filtrar_produto" class="form-control" placeholder="Buscar produto por nome ou código..." aria-label="Buscar produto">
                         </div>
                     </div>
                 </div>
-                
-                <!-- Container para exibir a lista de produtos em formato de lista -->
-                <div id="product-list" class="d-flex flex-column overflow-auto" style="max-height: 400px;">
-                    <!-- Produtos serão renderizados aqui dinamicamente -->
+                <div id="category-filters" class="mb-3 d-flex flex-wrap">
+                    <!-- Tags de filtro serão adicionadas aqui -->
                 </div>
+                <div id="product-list" class="d-flex flex-column overflow-auto border rounded" style="max-height: 400px;">
+                    <!-- Produtos serão renderizados aqui dinamicamente -->
+                    <div class="text-center py-5 text-muted" id="no-products-message">
+                        <i class="fas fa-box-open fa-3x mb-3"></i>
+                        <p>Nenhum produto encontrado</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
             </div>
         </div>
     </div>
@@ -171,72 +172,122 @@
 
 <!-- Modal para Seleção de Forma de Pagamento -->
 <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="detalhesModalLabel">Forma de Pagamento</h5>
+                <h5 class="modal-title" id="paymentModalLabel">
+                    <i class="fas fa-wallet mr-2"></i>Forma de Pagamento
+                </h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                    <span aria-hidden="true">×</span>
                 </button>
             </div>
             <div class="modal-body">
                 <form id="payment-form">
-                    <div class="mb-3">
-                        <div class="row py-4">
-                            <div class="col">
-                                <label for="cliente" class="form-label">Cliente:</label>
-                                <input type="text" id="cliente" class="form-control" placeholder="Digite o nome do cliente">
-                                <input type="hidden" id="cliente_id" name="cliente_id"> <!-- Campo oculto para armazenar o ID -->
+                    
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label for="cliente" class="form-label font-weight-bold">
+                                    <i class="fas fa-user mr-1"></i>Cliente:
+                                </label>
+                            </div>
+                            <input type="text" id="cliente" class="form-control" placeholder="Digite o nome do cliente">
+                            <input type="hidden" id="cliente_id" name="cliente_id">
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0"><i class="fas fa-plus-square mr-1"></i>Adicionar Pagamento</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="payment_method" class="form-label small font-weight-bold">Método</label>
+                                        <select id="payment_method" class="form-select form-control" onchange="toggleCashInput()">
+                                            <option value="" selected disabled>Escolha uma opção</option>
+                                            <option value="dinheiro">Dinheiro</option>
+                                            <option value="pix">Pix</option>
+                                            <option value="cartao_debito">Cartão de Débito</option>
+                                            <option value="cartao_credito">Cartão de Crédito</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="payment_value" class="form-label small font-weight-bold">Valor (R$)</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">R$</span>
+                                            </div>
+                                            <input type="text" id="payment_value" class="form-control" placeholder="0,00" oninput="formatCurrency(this)">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-sm w-100" onclick="addPayment()">
+                                <i class="fas fa-plus-circle mr-1"></i>Adicionar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0"><i class="fas fa-receipt mr-1"></i>Pagamentos Registrados</h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped mb-0" id="payment-table">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Método</th>
+                                            <th>Valor</th>
+                                            <th class="text-center">Ação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
                             </div>
                         </div>
-                        
-                        <label for="payment_method" class="form-label">Forma de Pagamento</label>
-                        <select id="payment_method" class="form-select form-control" required onchange="toggleCashInput()">
-                            <option value="" selected disabled>Escolha uma opção</option>
-                            <option value="Dinheiro">Dinheiro</option>
-                            <option value="Pix">Pix</option>
-                            <option value="Cartão de Debito">Cartão de Debito</option>
-                            <option value="Cartão de Crédito">Cartão de Crédito</option>
-                        </select>
                     </div>
-
-                    <!-- Valor Recebido e Botões de Troco Rápido -->
-                    <div class="mb-3" id="cash-input" style="display: none;">
-                        <label for="cash-received" class="form-label">Valor Recebido (R$)</label>
-                        <input type="text" class="form-control" id="cash-received" oninput="calculateChange()" min="0" value="0,00">
-                        
-                        <div class="quick-cash-buttons mt-2 py-2 text-center">
-                            <button type="button" class="btn btn-success" onclick="setCashReceived(2)">2</button> <!-- Botão de R$ 2,00 -->
-                            <button type="button" class="btn btn-success" onclick="setCashReceived(5)">5</button>
-                            <button type="button" class="btn btn-success" onclick="setCashReceived(10)">10</button>
-                            <button type="button" class="btn btn-success" onclick="setCashReceived(20)">20</button>
-                            <button type="button" class="btn btn-success" onclick="setCashReceived(50)">50</button>
-                            <button type="button" class="btn btn-success" onclick="setCashReceived(100)">100</button>
-                            <button type="button" class="btn btn-success" onclick="setCashReceived(200)">200</button>
-                            <button type="button" class="btn btn-danger" onclick="clearCashReceived()">Limpar</button> <!-- Botão para limpar -->
+                    
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="font-weight-bold">Total da Venda:</span>
+                                <span>R$ <span id="total_venda">0,00</span></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="font-weight-bold">Total Pago:</span>
+                                <span>R$ <span id="total_pago">0,00</span></span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="font-weight-bold">Saldo Restante:</span>
+                                <span class="text-danger">R$ <span id="saldo_restante">0,00</span></span>
+                            </div>
                         </div>
-
-                        <small id="change-output" class="form-text text-center" style="background: #e2e2e2;font-size: xx-large;padding: 2%;border-radius: 0.25rem;color: #009b23;font-weight: 800;">
-                            Troco: R$ <span id="change">0,00</span>
-                        </small>
                     </div>
-
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success w-100" id="confirm-payment" onclick="finalizePayment()">CONFIRMAR</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-success" id="confirm-payment" onclick="finalizePayment()" disabled>
+                    <i class="fas fa-check-circle mr-1"></i>CONFIRMAR
+                </button>
             </div>
         </div>
     </div>
 </div>
-
 
 <!-- Modal de Sucesso -->
 <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header justify-content-center">
-                <!-- Ícone de confirmação com animação -->
                 <div id="checkmark-animation" class="checkmark">
                     <div class="checkmark-circle"></div>
                     <div class="checkmark-stem"></div>
@@ -251,12 +302,11 @@
     </div>
 </div>
 
-<!-- Modal de Error -->
+<!-- Modal de Erro -->
 <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header justify-content-center">
-                <!-- Ícone de confirmação com animação -->
                 <div id="error-animation" class="error">
                     <div class="error-circle"></div>
                     <div class="error-stem"></div>
@@ -271,57 +321,48 @@
     </div>
 </div>
 
-<!--Modal de abrir caixa-->
+<!-- Modal de Abrir Caixa -->
 <div class="modal fade" id="abrirCaixaModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header bg-success">
-          <h5 class="modal-title"><i class="fas fa-wallet"></i> Abrir Caixa</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true"><i class="fas fa-times"></i></span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <form id="abrirCaixaForm">
-            <div class="form-group">
-              <label for="saldoInicialInput"><i class="fas fa-money-bill-wave"></i> Saldo Inicial:</label>
-              <input type="number" step="0.01" id="saldoInicialInput" class="form-control" required>
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title"><i class="fas fa-wallet"></i> Abrir Caixa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"><i class="fas fa-times"></i></span>
+                </button>
             </div>
-            <button type="submit" class="btn btn-success w-100 btn-sm"><i class="fas fa-check"></i> Abrir Caixa</button>
-          </form>
+            <div class="modal-body">
+                <form id="abrirCaixaForm">
+                    <div class="form-group">
+                        <label for="saldoInicialInput"><i class="fas fa-money-bill-wave"></i> Saldo Inicial:</label>
+                        <input type="number" step="0.01" id="saldoInicialInput" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 btn-sm"><i class="fas fa-check"></i> Abrir Caixa</button>
+                </form>
+            </div>
         </div>
-      </div>
     </div>
 </div>
 
-
-
-
 {% block extra_scripts %}
-
-    
-
-    <!--Sistema PDV Ajax -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const saleId = {{ pedido.id | default:"null" }};  // Define null se 'pedido.id' não existir
-            
-            // Verifica se o ID da venda é válido e maior que zero
-            if (saleId && saleId > 0) {  
+            const saleId = {{ pedido.id | default:"null" }};
+            if (saleId && saleId > 0) {
                 fetchSaleDetails(saleId);
             } else {
-                console.warn('ID da venda não está definido ou é inválido. Detalhes da venda serão ignorados.');
+                console.warn('ID da venda não está definido ou é inválido.');
+                $('#numero_pedido').val(generateUniqueOrderNumber());
             }
         });
 
         function fetchSaleDetails(saleId) {
             if (!saleId) {
-                console.warn('Nenhum ID de venda fornecido. Nenhum produto será adicionado ao carrinho.');
+                console.warn('Nenhum ID de venda fornecido.');
                 return;
             }
-        
             $.ajax({
-                url: `{% url 'admin.caixa.idVenda' '0' %}`.replace('0', saleId),
+                url: `/caixa/buscar/venda/${saleId}/`,
                 method: 'GET',
                 dataType: 'json',
                 success: function(data) {
@@ -330,90 +371,84 @@
                     document.getElementById('vendedor').value = data.vendedor.id;
                     document.getElementById('status').value = data.status;
                     document.getElementById('discount').value = data.desconto;
-                    document.getElementById('total').value = data.total;  
-        
+                    document.getElementById('total').innerText = parseFloat(data.total).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
                     if (data.produtos && data.produtos.length > 0) {
                         data.produtos.forEach(product => {
-                            // Define a imagem a ser usada: produto, categoria, ou imagem padrão
                             const productImage = product.produto.file || (product.produto.categoria && product.produto.categoria.file) || '/media/no_image.png';
-                    
                             addProduct({
                                 id: product.produto.id,
                                 nome: product.produto.nome,
                                 preco: product.preco_unitario,
-                                file: productImage, // Usa a imagem conforme a lógica definida
-                                quantity: product.quantidade, // Usa a quantidade do produto
-                                codigoBarras: product.produto.codigoBarras || "", 
-                                categoria: product.produto.categoria ? product.produto.categoria.nome : "" // Nome da categoria, se houver
-                            }, product.quantidade); // Passa a quantidade correta
+                                file: productImage,
+                                quantity: product.quantidade,
+                                codigoBarras: product.produto.codigoBarras || "",
+                                categoria: product.produto.categoria ? product.produto.categoria.nome : ""
+                            }, product.quantidade);
                         });
-                    } else {
-                        console.warn('Nenhum produto encontrado para esta venda.');
                     }
-        
                     console.log('Carrinho atualizado:', cart);
                 },
                 error: function(xhr, status, error) {
                     console.error('Erro:', error);
+                    toastr.error('Erro ao carregar detalhes da venda.');
                 }
             });
         }
-        
-
-        // Array para armazenar os produtos adicionados 
 
         let cart = [];
+        let payments = []; // Array para armazenar múltiplos pagamentos
+        let totalCashReceived = 0; // Para cálculo de troco
+
+        function generateUniqueOrderNumber() {
+            let generatedNumbers = JSON.parse(localStorage.getItem('generatedOrderNumbers')) || [];
+            let newNumber;
+            do {
+                newNumber = 'PDVC-' + Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+            } while (generatedNumbers.includes(newNumber));
+            generatedNumbers.push(newNumber);
+            localStorage.setItem('generatedOrderNumbers', JSON.stringify(generatedNumbers));
+            return newNumber;
+        }
 
         function addProduct(product, quantity = 1) {
             const existingProductIndex = cart.findIndex(item => item.id === product.id);
-
             if (existingProductIndex > -1) {
-                // Se o produto já existe no carrinho, aumente a quantidade
-                cart[existingProductIndex].quantity += quantity; // Incrementa a quantidade corretamente
+                cart[existingProductIndex].quantity += quantity;
                 updateQuantity(existingProductIndex);
                 toastr.info(`A quantidade do produto "${product.nome}" foi atualizada.`);
             } else {
-                // Adicionar novo produto ao carrinho com a quantidade especificada
                 const newProduct = {
                     name: product.nome,
                     codigoBarras: product.codigoBarras,
                     id: product.id,
-                    quantity: quantity, // Define a quantidade personalizada aqui
+                    quantity: quantity,
                     price: parseFloat(product.preco),
                     total: parseFloat(product.preco) * quantity,
                     file: product.file,
                     categoria: product.categoria
                 };
-
                 cart.push(newProduct);
-                updateQuantity(cart.length - 1); // Passa o índice do novo produto
+                updateQuantity(cart.length - 1);
                 toastr.success(`Produto "${product.nome}" adicionado ao carrinho.`);
             }
-
             renderCart();
         }
 
         function renderCart() {
             const cartItems = document.getElementById('cart-items');
             cartItems.innerHTML = '';
-            
-            // Itera sobre os produtos no carrinho começando do último item
             for (let originalIndex = cart.length - 1; originalIndex >= 0; originalIndex--) {
                 const product = cart[originalIndex];
                 let productImage = product.file || (product.categoria && product.categoria.file) || '/media/no_image.png';
                 let codigoBarras = product.codigoBarras || 'N/D';
-
-                // Estrutura em linha para cada produto
                 cartItems.innerHTML += `
                     <div class="product-item d-flex align-items-center border-bottom py-2 px-3">
                         <img src="${productImage}" alt="${product.name}" class="product-image mr-3" style="width: 50px; height: auto;"/>
-                        
                         <div class="product-info flex-grow-1 mr-3">
                             <h6 class="product-name mb-1 text-title"><strong>${product.name}</strong></h6>
                             <small class="text-muted"><strong>Código:</strong> ${codigoBarras}</small>
                             <p class="product-price mb-1">Preço Unitário: <strong>R$ ${parseFloat(product.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong></p>
                         </div>
-
                         <div class="product-quantity d-flex align-items-center mr-4">
                             <button onclick="decreaseQuantity(${originalIndex})" class="btn btn-sm text-title mr-1">
                                 <i class="fas fa-minus-circle"></i>
@@ -423,141 +458,29 @@
                                 <i class="fas fa-plus-circle"></i>
                             </button>
                         </div>
-
                         <div class="product-total text-right mr-4">
                             <p class="mb-1"><strong>R$ ${(product.quantity * parseFloat(product.price)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong></p>
                         </div>
-
                         <button class="btn text-danger" onclick="removeProduct(${originalIndex})" style="margin-left: 10px;">
                             <i class="fa fa-times-circle"></i>
                         </button>
                     </div>
                 `;
             }
-
-            calculateTotal(); // Atualiza o total do carrinho
+            calculateTotal();
         }
 
-
-
-        function generateUniqueOrderNumber() {
-            // Obtém os números já gerados do localStorage
-            let generatedNumbers = JSON.parse(localStorage.getItem('generatedOrderNumbers')) || [];
-
-            let newNumber;
-            do {
-                // Gera um novo número no formato PDV-XXXX
-                newNumber = 'PDVC-' + Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
-            } while (generatedNumbers.includes(newNumber)); // Garante que não se repita
-
-            // Adiciona o novo número à lista de números gerados
-            generatedNumbers.push(newNumber);
-
-            // Atualiza o localStorage com a nova lista
-            localStorage.setItem('generatedOrderNumbers', JSON.stringify(generatedNumbers));
-
-            return newNumber;
-        }
-
-
-        // Atalhos de acesso rápido
-        $(document).ready(function() {
-
-             // Foca no campo de texto ao carregar a página
-            $('#filtrar_produto_code').focus();
-
-            // Atribui um número de pedido ao carregar a página
-            $('#numero_pedido').val(generateUniqueOrderNumber());
-            // Evento de atalho para finalizar a venda
-            $(document).on('keydown', function(event) {
-                if (event.altKey && event.key === 'f') { // Verifica se Alt + F foi pressionado
-                    event.preventDefault(); // Impede o comportamento padrão (se necessário)
-                    finalizeSale('Finalizado'); // Chama a função para finalizar a venda
-                }
-                if (event.altKey && event.key === 's') { // Verifica se Alt + F foi pressionado
-                    event.preventDefault(); // Impede o comportamento padrão (se necessário)
-                    finalizeSale('Em aberto'); // Chama a função para finalizar a venda
-                }
-                if (event.altKey && event.key === 'a') { // Verifica se Alt + A foi pressionado
-                    event.preventDefault(); // Impede o comportamento padrão (se necessário)
-                    listaProdutos(); // Chama a função para adicionar produto
-                }
-            });
-        });
-
-
-        function handleAddProduct(button) {
-            const productData = JSON.parse(button.getAttribute('data-product'));
-            const quantityInput = button.closest('.product-item').querySelector('.quantity-input');
-            const quantity = parseInt(quantityInput.value) || 1; // Define 1 como padrão se o campo estiver vazio
-        
-            addProduct(productData, quantity);
-            renderCart(); // Atualiza a exibição do carrinho
-        }
-
-        function matchCustom(params, data) {
-            if ($.trim(params.term) === '') {
-                return data;
-            }
-
-            if (data.text.toLowerCase().indexOf(params.term.toLowerCase()) > -1) {
-                return data;
-            }
-
-            return null;
-        }
-
-        // Função para atualizar a quantidade de um produto no carrinho
-        function updateQuantity(index, newQuantity) {
-            // Lógica para atualizar a quantidade do produto no array 'cart'
-            if (newQuantity > 0) {
-                cart[index].quantity = parseInt(newQuantity);
-                renderCart(); // Re-renderiza o carrinho para refletir a nova quantidade
-            }
-        }
-
-        // Função para remover um produto do carrinho
-        function removeProduct(index) {
-            cart.splice(index, 1); // Remove o produto do array 'cart'
-            renderCart(); // Re-renderiza o carrinho
-        }
-
-        // Função para calcular o total do carrinho
-        function calculateTotal() {
-            const totalElement = document.getElementById('total');
-            const total = cart.reduce((accumulator, product) => accumulator + (product.quantity * parseFloat(product.price)), 0);
-            
-            // Atualiza o total sem o símbolo "R$" e com duas casas decimais
-            totalElement.innerHTML = total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-
-
-        $(document).ready(function () {
-            // Resetar campos quando a modal for aberta
-            $('#paymentModal').on('show.bs.modal', function () {
-                // Limpar o campo de valor recebido
-                $('#cash-received').val('');
-                // Resetar a exibição do troco
-                $('#change').text('0.00');
-            });
-        });
-
-
-        // Função para atualizar a quantidade do produto
         function updateQuantity(index) {
-            cart[index].total = cart[index].quantity * cart[index].price; // Calcula o total
+            cart[index].total = cart[index].quantity * cart[index].price;
             renderCart();
         }
 
-        // Função para aumentar a quantidade
         function increaseQuantity(index) {
             cart[index].quantity += 1;
             cart[index].total = cart[index].quantity * cart[index].price;
             renderCart();
         }
 
-        // Função para diminuir a quantidade
         function decreaseQuantity(index) {
             if (cart[index].quantity > 1) {
                 cart[index].quantity -= 1;
@@ -566,15 +489,12 @@
             }
         }
 
-        // Função para atualizar a quantidade do produto via input
         function updateQuantity2(index, newQuantity) {
-            cart[index].quantity = parseInt(newQuantity) || 1; // Certifica-se de que seja um inteiro e mínimo de 1
+            cart[index].quantity = parseInt(newQuantity) || 1;
             cart[index].total = cart[index].quantity * cart[index].price;
             renderCart();
         }
 
-
-        // Função para remover um produto do carrinho
         function removeProduct(index) {
             cart.splice(index, 1);
             renderCart();
@@ -584,38 +504,49 @@
             let total = cart.reduce((acc, product) => acc + product.total, 0);
             const discount = parseFloat(document.getElementById('discount').value) || 0;
             total = total - discount;
-        
-            // Atualiza o total sem o prefixo "R$"
-            document.getElementById('total').innerText = total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }        
-        
+            document.getElementById('total').innerText = total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        }
 
-        // Sistema de Cliente
+        function listaProdutos() {
+            $('#productModal').modal('show');
+        }
+
         $(document).ready(function() {
-            // Obtém o cliente padrão do contexto do Django
-            var clientePadraoNome = "{{ cliente_padrao.nome|default:'' }}";  // Nome do cliente padrão
-            var clientePadraoId = "{{ cliente_padrao.id|default:'' }}";      // ID do cliente padrão
+            $('#filtrar_produto_code').focus();
+            $(document).on('keydown', function(event) {
+                if (event.altKey && event.key === 'f') {
+                    event.preventDefault();
+                    finalizeSale('Finalizado');
+                }
+                if (event.altKey && event.key === 's') {
+                    event.preventDefault();
+                    finalizeSale('Em aberto');
+                }
+                if (event.altKey && event.key === 'a') {
+                    event.preventDefault();
+                    listaProdutos();
+                }
+            });
 
-            // Se houver um cliente padrão, preencha o campo automaticamente
+            // Configurar autocomplete de cliente
+            var clientePadraoNome = "{{ cliente_padrao.nome|default:'' }}";
+            var clientePadraoId = "{{ cliente_padrao.id|default:'' }}";
             if (clientePadraoNome) {
-                $('#cliente').val(clientePadraoNome);  // Preenche o nome no campo de entrada
-                $('#cliente_id').val(clientePadraoId); // Armazena o ID do cliente no campo oculto
+                $('#cliente').val(clientePadraoNome);
+                $('#cliente_id').val(clientePadraoId);
             }
-
             $('#cliente').autocomplete({
                 source: function(request, response) {
                     $.ajax({
                         url: '{% url "search_client" %}',
                         dataType: 'json',
-                        data: {
-                            q: request.term  // Termo de busca digitado pelo usuário
-                        },
+                        data: { q: request.term },
                         success: function(data) {
                             response($.map(data, function(client) {
                                 return {
-                                    label: client.nome,  // Nome do cliente a ser mostrado
-                                    value: client.nome,  // Valor a ser preenchido no campo de pesquisa
-                                    id: client.id       // ID do cliente
+                                    label: client.nome,
+                                    value: client.nome,
+                                    id: client.id
                                 };
                             }));
                         },
@@ -624,55 +555,56 @@
                         }
                     });
                 },
-                minLength: 2,  // Mínimo de 2 caracteres para começar a busca
+                minLength: 2,
                 select: function(event, ui) {
-                    $('#cliente_id').val(ui.item.id);  // Armazena o ID do cliente selecionado
-                    $('#cliente').autocomplete('close');  // Oculta a lista de sugestões
+                    $('#cliente_id').val(ui.item.id);
+                    $('#cliente').autocomplete('close');
                 },
                 open: function() {
                     $('.ui-autocomplete').css('max-height', '200px').css('overflow-y', 'scroll');
                 }
             });
-        });
-        
 
-        // Bolsa de Itens
-        function listaProdutos() {
-            // Abrindo a modal de produtos
-            $('#productModal').modal('show');
-            
-        }
+            // Resetar pagamentos ao abrir o modal
+            $('#paymentModal').on('show.bs.modal', function() {
+                payments = [];
+                totalCashReceived = 0;
+                updatePaymentTable();
+                const total = parseFloat(document.getElementById('total').innerText.replace(',', '.')) || 0;
+                $('#total_venda').text(total.toLocaleString('pt-BR', { minimumFractionDigits: 2 }));
+                $('#total_pago').text('0,00');
+                $('#saldo_restante').text(total.toLocaleString('pt-BR', { minimumFractionDigits: 2 }));
+                $('#confirm-payment').prop('disabled', true);
+                $('#payment_method').val('');
+                $('#payment_value').val('');
+                $('#cash-received').val('');
+                $('#change').text('0,00');
+                $('#cash-input').hide();
+            });
 
-        // Rederiza os produtos na modal
-        $(document).ready(function() {
-            let selectedCategoryId = null; // Armazena a categoria selecionada
-            let allProducts = []; // Armazena todos os produtos
-            let allCategories = []; // Armazena todas as categorias
+            let selectedCategoryId = null;
+            let allProducts = [];
+            let allCategories = [];
 
             function loadProducts(data) {
                 const productList = $('#product-list');
                 productList.empty();
-            
                 if (data.length === 0) {
                     productList.append(`<div class="text-center py-3">Nenhum produto encontrado</div>`);
                 } else {
                     let productItems = '';
-            
                     data.forEach(product => {
                         const categoriaNome = product.categoria ? product.categoria.nome : 'Sem Categoria';
                         let productImage = product.file || (product.categoria && product.categoria.file) || '/media/no_image.png';
                         const precoFormatado = product.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            
                         productItems += `
-                            <div class="product-item d-flex align-items-center border-bottom py-2 px-3"> 
+                            <div class="product-item d-flex align-items-center border-bottom py-2 px-3">
                                 <img src="${productImage}" alt="${product.nome}" class="mr-3" style="width: 50px; height: auto;">
-                                
                                 <div class="flex-grow-1">
                                     <h6 class="mb-1"><strong>${product.nome}</strong></h6>
                                     <p class="mb-1 text-muted">Categoria: ${categoriaNome}</p>
                                     <p class="mb-0 text-title"><strong>Preço: ${precoFormatado}</strong></p>
                                 </div>
-            
                                 <div class="d-flex align-items-center">
                                     <input type="number" min="1" value="1" class="form-control quantity-input text-center mr-2" style="width: 60px;">
                                     <button class="btn btn-success btn-sm" data-product='${JSON.stringify(product)}' onclick="handleAddProduct(this)">
@@ -682,23 +614,18 @@
                             </div>
                         `;
                     });
-            
                     productList.append(productItems);
                 }
             }
-            // Evento para redefinir todos os campos de quantidade para 1 ao fechar a modal
-            $('#productModal').on('hidden.bs.modal', function () {
+
+            $('#productModal').on('hidden.bs.modal', function() {
                 $('.quantity-input').val(1);
             });
-            
 
-            // Função para exibir os botões de filtro de categorias
             function loadCategoryFilters() {
                 const categoryFilters = $('#category-filters');
-                categoryFilters.empty(); // Limpa os botões
-
+                categoryFilters.empty();
                 categoryFilters.append(`<button class="btn btn-suave mt-2" style="margin-right: 10px;" onclick="filterByCategory(null)">Todas</button>`);
-                
                 allCategories.forEach(category => {
                     categoryFilters.append(`
                         <button class="btn btn-suave" onclick="filterByCategory(${category.id})">
@@ -708,96 +635,75 @@
                 });
             }
 
-            // Função para filtrar produtos pelo nome e código de barras
             function filterProducts(query, categoryId) {
                 let filteredProducts = allProducts;
-
                 if (query) {
                     filteredProducts = filteredProducts.filter(product =>
                         product.nome.toLowerCase().includes(query.toLowerCase()) ||
                         (product.codigoBarras && product.codigoBarras.includes(query))
                     );
                 }
-
                 if (categoryId !== null) {
                     filteredProducts = filteredProducts.filter(product => product.categoria && product.categoria.id === categoryId);
                 }
-
-                loadProducts(filteredProducts); // Atualiza a tabela com os produtos filtrados
-
-                return filteredProducts; // Retorna os produtos filtrados
+                loadProducts(filteredProducts);
+                return filteredProducts;
             }
 
-            // Função para buscar todos os produtos e categorias
             function fetchAllProductsAndCategories() {
                 $.ajax({
-                    url: '{% url "search_products" %}', // Atualize com a URL correta
+                    url: '{% url "search_products" %}',
                     method: 'GET',
                     data: { q: '', category_id: null },
                     success: function(data) {
-                        // Converte os preços de venda para números
                         allProducts = data.products.map(product => ({
                             ...product,
-                            preco: parseFloat(product.preco), // Conversão para número
+                            preco: parseFloat(product.preco),
                         }));
-
-                        allCategories = data.categories; // Armazena todas as categorias
-
-                        loadProducts(allProducts);     // Exibe todos os produtos
-                        loadCategoryFilters();         // Exibe os filtros de categorias
+                        allCategories = data.categories;
+                        loadProducts(allProducts);
+                        loadCategoryFilters();
                     },
                     error: function() {
-                        // Trate o erro aqui
+                        console.error('Erro ao buscar produtos/categorias.');
                     }
                 });
             }
 
-            // Chama a função para buscar todos os produtos e categorias ao carregar a página
             fetchAllProductsAndCategories();
 
-            // Evento de busca de produtos pelo campo de texto
             $('#filtrar_produto').on('input', function() {
                 const query = $(this).val();
-                filterProducts(query, selectedCategoryId); // Filtra os produtos pelo texto e pela categoria selecionada
+                filterProducts(query, selectedCategoryId);
             });
 
-            // Função para filtrar por categoria
             window.filterByCategory = function(categoryId) {
-                selectedCategoryId = categoryId; // Armazena a categoria selecionada
-                filterProducts($('#filtrar_produto').val(), categoryId); // Filtra os produtos com base no texto e na categoria
+                selectedCategoryId = categoryId;
+                filterProducts($('#filtrar_produto').val(), categoryId);
             };
 
-            // Evento para adicionar produto ao pressionar Enter
             $('#filtrar_produto').on('keydown', function(event) {
                 if (event.key === 'Enter') {
                     const query = $(this).val();
-                    const filteredProducts = filterProducts(query, selectedCategoryId); // Filtra os produtos
-
+                    const filteredProducts = filterProducts(query, selectedCategoryId);
                     if (filteredProducts.length === 1) {
                         const button = document.createElement('button');
-                        button.dataset.product = JSON.stringify(filteredProducts[0]); // Passa o produto como JSON
-                        handleAddProduct(button); // Chama a função com o botão
+                        button.dataset.product = JSON.stringify(filteredProducts[0]);
+                        handleAddProduct(button);
                     }
                 }
             });
 
-            // Função para buscar um produto pelo código de barras
             function buscarProdutoPorCodigoBarras(codigoBarras) {
-                // Simular uma chamada ao servidor ou buscar localmente na lista de produtos
                 const produto = allProducts.find(item => item.codigoBarras === codigoBarras);
-
                 if (produto) {
-                    addProduct(produto);  // Adiciona o produto ao carrinho
-
+                    addProduct(produto);
                 } else {
                     toastr.error("Produto não encontrado. Verifique o código de barras e tente novamente.");
                 }
             }
 
-            // Captura o campo de entrada pelo ID
             const inputCodigoBarras = document.getElementById('filtrar_produto_code');
-
-            // Adiciona um evento de 'change' para verificar quando o valor do campo muda
             inputCodigoBarras.addEventListener('change', function(event) {
                 const codigoBarras = event.target.value.trim();
                 if (codigoBarras) {
@@ -806,100 +712,141 @@
                     $('#filtrar_produto_code').focus();
                 }
             });
-
         });
 
-        // Variável global para armazenar o valor total recebido
-        let totalCashReceived = 0;
-
-        // Função para definir o valor recebido e calcular o troco
-        function setCashReceived(amount) {
-            // Soma o valor recebido atual com o novo valor
-            totalCashReceived += amount;
-            
-            // Define o valor acumulado no campo de entrada e formata para o padrão brasileiro
-            document.getElementById('cash-received').value = totalCashReceived.toFixed(2).replace('.', ',');
-            calculateChange(); // Recalcula o troco
+        function handleAddProduct(button) {
+            const productData = JSON.parse(button.getAttribute('data-product'));
+            const quantityInput = button.closest('.product-item').querySelector('.quantity-input');
+            const quantity = parseInt(quantityInput.value) || 1;
+            addProduct(productData, quantity);
+            renderCart();
         }
 
-        // Função para calcular o troco
+        // Funções de pagamento
+        function formatCurrency(input) {
+            let value = input.value.replace(/\D/g, '');
+            value = (value / 100).toFixed(2).replace('.', ',');
+            input.value = value;
+        }
+
+        function setCashReceived(value) {
+            value = parseFloat(value.replace(',', '.')) || 0;
+            totalCashReceived = value;
+            calculateChange();
+        }
+
         function calculateChange() {
-            const cashReceived = totalCashReceived; // Usa o valor total acumulado
-            const totalAmount = parseFloat(document.getElementById('total').textContent.replace(',', '.')) || 0;
-            const change = cashReceived - totalAmount;
-
-            document.getElementById('change').textContent = change >= 0 ? change.toFixed(2).replace('.', ',') : '0,00';
+            const totalAmount = parseFloat(document.getElementById('total').innerText.replace(',', '.')) || 0;
+            const change = totalCashReceived - totalAmount;
+            document.getElementById('change').textContent = change >= 0 ? change.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00';
         }
 
-        // Função para limpar o valor recebido
         function clearCashReceived() {
-            totalCashReceived = 0; // Reseta o total recebido
-            document.getElementById('cash-received').value = '0,00'; // Limpa o campo de entrada
-            calculateChange(); // Atualiza o troco para 0,00
+            totalCashReceived = 0;
+            document.getElementById('cash-received').value = '0,00';
+            calculateChange();
         }
 
-        // Evento para exibir/ocultar o campo de valor recebido com base na forma de pagamento
         function toggleCashInput() {
-            // Obtém o valor selecionado da forma de pagamento
             var paymentMethod = document.getElementById('payment_method').value;
-            
-            // Verifica se a opção selecionada é "Dinheiro"
-            if (paymentMethod === 'Dinheiro') {
-                // Exibe o campo de entrada para o valor em dinheiro
+            if (paymentMethod === 'dinheiro') {
                 document.getElementById('cash-input').style.display = 'block';
             } else {
-                // Oculta o campo de entrada para o valor em dinheiro
                 document.getElementById('cash-input').style.display = 'none';
+                clearCashReceived();
             }
         }
 
+        function addPayment() {
+            const metodo = $('#payment_method').val();
+            const valorStr = $('#payment_value').val().replace(',', '.');
+            const valor = parseFloat(valorStr) || 0;
+            if (!metodo) {
+                toastr.error('Selecione um método de pagamento.');
+                return;
+            }
+            if (valor <= 0) {
+                toastr.error('O valor deve ser maior que zero.');
+                return;
+            }
+            payments.push({ metodo, valor });
+            updatePaymentTable();
+            $('#payment_method').val('');
+            $('#payment_value').val('');
+            clearCashReceived();
+        }
 
-        // Função para finalizar a venda
+        function removePayment(index) {
+            payments.splice(index, 1);
+            updatePaymentTable();
+        }
+
+        function updatePaymentTable() {
+            const tbody = $('#payment-table tbody');
+            tbody.empty();
+            let totalPago = 0;
+            payments.forEach((payment, index) => {
+                totalPago += payment.valor;
+                const metodoDisplay = {
+                    'dinheiro': 'Dinheiro',
+                    'pix': 'Pix',
+                    'cartao_debito': 'Cartão de Débito',
+                    'cartao_credito': 'Cartão de Crédito'
+                }[payment.metodo];
+                tbody.append(`
+                    <tr>
+                        <td>${metodoDisplay}</td>
+                        <td>R$ ${payment.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                        <td><button class="btn btn-sm text-danger" onclick="removePayment(${index})"><i class="fa fa-times"></i></button></td>
+                    </tr>
+                `);
+            });
+            const totalVenda = parseFloat($('#total_venda').text().replace(',', '.')) || 0;
+            $('#total_pago').text(totalPago.toLocaleString('pt-BR', { minimumFractionDigits: 2 }));
+            const saldoRestante = totalVenda - totalPago;
+            $('#saldo_restante').text(saldoRestante.toLocaleString('pt-BR', { minimumFractionDigits: 2 }));
+            $('#confirm-payment').prop('disabled', saldoRestante > 0);
+        }
+
         function finalizeSale(status) {
+            if (cart.length === 0) {
+                toastr.error('Adicione pelo menos um produto ao carrinho.');
+                return;
+            }
             if (status === 'Em aberto') {
-                // Se o status for "Em aberto", finalize a venda diretamente
                 saveSale(status);
             } else {
-                // Armazena o status na modal e abre a modal de pagamento
                 $('#paymentModal').data('saleStatus', status);
                 $('#paymentModal').modal('show');
             }
         }
 
-        // Função para salvar a venda
         function saveSale(status) {
             let venda_id = document.getElementById('venda_id').value;
             let numero_pedido = document.getElementById('numero_pedido').value;
             let vendedor_id = document.getElementById('vendedor').value;
             let cliente_id = $('#cliente_id').val();
-            let discount = parseFloat(document.getElementById('discount').value) || 0; // Convertendo para float
-            let total = document.getElementById('total').innerText;
-        
-            let totalInDollars = parseFloat(total.replace('R$', '').replace('.', '').replace(',', '.'));
-        
-            if (!numero_pedido || !vendedor_id || !total) {
-                alert('Algum campo obrigatório está faltando.');
-                return;
-            }
-        
+            let discount = parseFloat(document.getElementById('discount').value) || 0;
+            let total = parseFloat(document.getElementById('total').innerText.replace(',', '.'));
+
             let produtos = cart.map(item => ({
                 produto_id: item.id,
                 quantidade: item.quantity,
                 preco_unitario: item.price
             }));
-        
+
             let saleData = {
                 venda_id: venda_id,
                 numero_pedido: numero_pedido,
                 vendedor_id: vendedor_id,
                 cliente_id: cliente_id,
-                desconto: discount.toFixed(2), // Mantendo 2 casas decimais
-                total: totalInDollars.toFixed(2),
-                payment_method: 'N/D',
+                desconto: discount.toFixed(2),
+                total: total.toFixed(2),
                 status: status,
-                produtos: produtos,
+                payment_method: 'N/D',
+                produtos: produtos
             };
-        
+
             fetch('/caixa/finalizar_venda/', {
                 method: 'POST',
                 headers: {
@@ -908,81 +855,59 @@
                 },
                 body: JSON.stringify(saleData)
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erro na requisição: ' + response.statusText);
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     $('#successModal').modal('show');
                     setTimeout(() => {
                         $('#successModal').modal('hide');
-                    }, 3000);
-        
+                        window.location.href = "/caixa/";  
+                    }, 2000);
                     cart = [];
                     renderCart();
-                    document.getElementById('total').innerText = '0.00';
+                    document.getElementById('total').innerText = '0,00';
                     document.getElementById('discount').value = '0';
                     $('#numero_pedido').val(generateUniqueOrderNumber());
-
-                    window.location.href = "{% url 'listar_caixa' %}";
                 } else {
+                    toastr.error(data.message);
                     $('#errorModal').modal('show');
-                    setTimeout(() => {
-                        $('#errorModal').modal('hide');
-                    }, 3000);
+                    setTimeout(() => $('#errorModal').modal('hide'), 2000);
                 }
             })
             .catch(error => {
-                console.error('Erro ao processar o pagamento:', error);
+                console.error('Erro:', error);
                 $('#errorModal').modal('show');
-                setTimeout(() => {
-                    $('#errorModal').modal('hide');
-                }, 3000);
-            })
-            .finally(() => {
-                $('#paymentModal').modal('hide');
+                setTimeout(() => $('#errorModal').modal('hide'), 2000);
             });
         }
 
-        // Finaliza os pagamentos
         function finalizePayment() {
             let venda_id = document.getElementById('venda_id').value;
             let numero_pedido = document.getElementById('numero_pedido').value;
             let vendedor_id = document.getElementById('vendedor').value;
             let cliente_id = $('#cliente_id').val();
-            let discount = parseFloat(document.getElementById('discount').value) || 0; // Convertendo para float
-            let payment_method = document.getElementById('payment_method').value;
-            let total = document.getElementById('total').innerText;
-        
-            let totalInDollars = parseFloat(total.replace('R$', '').replace('.', '').replace(',', '.'));
-        
-            if (!numero_pedido || !vendedor_id || !total || !payment_method) {
-                alert('Algum campo obrigatório está faltando.');
-                return;
-            }
-        
+            let discount = parseFloat(document.getElementById('discount').value) || 0;
+            let total = parseFloat(document.getElementById('total').innerText.replace(',', '.'));
+
             let produtos = cart.map(item => ({
                 produto_id: item.id,
-                quantidade: item.quantity > 0 ? item.quantity : null,
+                quantidade: item.quantity,
                 preco_unitario: item.price
             }));
-        
+
             let saleData = {
                 venda_id: venda_id,
                 numero_pedido: numero_pedido,
                 vendedor_id: vendedor_id,
                 cliente_id: cliente_id,
-                desconto: discount.toFixed(2), // Mantendo 2 casas decimais
-                total: totalInDollars.toFixed(2),
-                payment_method: payment_method,
+                desconto: discount.toFixed(2),
+                total: total.toFixed(2),
                 status: $('#paymentModal').data('saleStatus'),
-                produtos: produtos
+                produtos: produtos,
+                pagamentos: payments
             };
-        
-            fetch('/caixa/finalizar_venda/', {
+
+            fetch('/caixa/finalizar_venda_multi/', {  
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -990,103 +915,75 @@
                 },
                 body: JSON.stringify(saleData)
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erro na requisição: ' + response.statusText);
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     $('#successModal').modal('show');
                     setTimeout(() => {
                         $('#successModal').modal('hide');
+                        window.location.href = "/caixa/"; 
                     }, 2000);
-        
                     cart = [];
+                    payments = [];
                     renderCart();
-                    document.getElementById('total').innerText = '0.00';
+                    document.getElementById('total').innerText = '0,00';
                     document.getElementById('discount').value = '0';
                     $('#numero_pedido').val(generateUniqueOrderNumber());
                 } else {
+                    toastr.error(data.message);
                     $('#errorModal').modal('show');
-                    setTimeout(() => {
-                        $('#errorModal').modal('hide');
-                    }, 2000);
+                    setTimeout(() => $('#errorModal').modal('hide'), 2000);
                 }
             })
             .catch(error => {
-                console.error('Erro ao processar o pagamento:', error);
+                console.error('Erro:', error);
                 $('#errorModal').modal('show');
-                setTimeout(() => {
-                    $('#errorModal').modal('hide');
-                }, 2000);
+                setTimeout(() => $('#errorModal').modal('hide'), 2000);
             })
             .finally(() => {
                 $('#paymentModal').modal('hide');
             });
         }
-        
 
-    </script>
-
-    <!--Sistema de caixa aberto-->
-    <script>
+        // Sistema de caixa aberto
         $(document).ready(function() {
-            // Variável para garantir que a verificação do caixa seja realizada apenas uma vez
             if (window.verificacaoCaixaJaFeita) return;
             window.verificacaoCaixaJaFeita = true;
-        
-            console.log("Verificando caixa..."); // Teste para ver se o script executa só uma vez
-            // Verificar se há um caixa aberto
+            console.log("Verificando caixa...");
             $.ajax({
                 type: 'GET',
-                url: '/caixa/verificar_caixa_aberto/',
+                url: '/caixa/verificar_caixa_aberto/',  
                 success: function(response) {
                     if (!response.caixa_aberto && response.abrir_caixa_automatico) {
                         $('#abrirCaixaModal').modal('show');
                     }
                 }
             });
-    
-            // Função para obter o CSRF Token de um cookie (caso seja necessário)
-            function getCSRFToken() {
-                let csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
-                return csrfToken;
-            }
-    
+
             $('#abrirCaixaForm').on('submit', function(e) {
                 e.preventDefault();
-                
-                // Pegar o valor do saldo inicial e substituir vírgula por ponto
                 let saldo_inicial = $('#saldoInicialInput').val().replace(',', '.');
-                
                 $.ajax({
                     type: 'POST',
-                    url: '/caixa/abrir_caixa_ajax/',
+                    url: '/caixa/abrir_caixa_ajax/', 
                     headers: {
-                        'X-CSRFToken': getCSRFToken()  // Inclui o CSRF Token no cabeçalho
+                        'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
                     },
                     data: {
                         'saldo_inicial': saldo_inicial,
                     },
                     success: function(response) {
                         if (response.success) {
-                            alert(response.message);
-                            location.reload();  // Recarregar a página ou redirecionar
+                            toastr.success(response.message);
+                            location.reload();
                         } else {
-                            alert(response.message);
+                            toastr.error(response.message);
                         }
                     }
                 });
             });
-            
         });
-        
     </script>
-    
-
-
 {% endblock %}
 
 {% endblock %}

@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from clientes.models import Cliente
 from estoque.models import Produto, CategoriaProduto
-from .models import CaixaPdv, ProdutoCaixaPdv, Caixa, OperacaoCaixa
+from .models import CaixaPdv, ProdutoCaixaPdv, Caixa, OperacaoCaixa, PagamentoCaixaPdv
 from empresas.models import Empresa 
 from configuracoes.models import Configuracao
 import json
@@ -50,7 +50,6 @@ def relatorio_caixa(request):
 
 
 # Rota ajax busca os relatórios
-
 def carregar_dados_relatorio_caixa(request, caixa_id):
     if request.method == 'GET':
         try:
@@ -76,10 +75,8 @@ def carregar_dados_relatorio_caixa(request, caixa_id):
         except Caixa.DoesNotExist:
             return JsonResponse({'success': False, 'message': 'Caixa não encontrado.'})
     return JsonResponse({'success': False, 'message': 'Método inválido.'})
-  
     
 #  Abre o caixa
-
 def abrir_caixa_ajax(request):
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         # Verificar se já existe um caixa aberto
@@ -136,7 +133,6 @@ def fechar_caixa_ajax(request):
     return JsonResponse({'success': False, 'message': "Requisição inválida."})
 
 # Verifica se tem algum caixa aberto
-
 def verificar_caixa_aberto(request):
     caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').exists()
 
@@ -209,7 +205,6 @@ def listar_caixas_abertos_ajax(request):
         })
 
     return JsonResponse(caixas_data, safe=False)
-
 
 # Fim
 
@@ -646,3 +641,98 @@ def excluir_venda(request):
             return JsonResponse({'success': False, 'message': f'Erro ao excluir a venda: {str(e)}'}, status=500)
 
     return JsonResponse({'success': False, 'message': 'Método não permitido.'}, status=405)
+
+# Muiti-metodos de pagamentos
+def finalizar_venda_multi(request):
+    if request.method == 'POST':
+        try:
+            configuracao = Configuracao.objects.first()
+            gerenciar_abertura_fechamento_caixa = configuracao.gerenciar_abertura_fechamento_caixa if configuracao else False
+
+            data = json.loads(request.body)
+
+            venda_id = data.get('venda_id')
+            numero_pedido = data.get('numero_pedido')
+            vendedor_id = data.get('vendedor_id')
+            cliente_id = data.get('cliente_id')
+            desconto = float(data.get('desconto', 0))
+            total = float(data.get('total', 0))
+            status = data.get('status', 'Em aberto')
+            produtos = data.get('produtos', [])
+            pagamentos = data.get('pagamentos', [])  # Lista de pagamentos
+
+            # Verifica se a venda já existe para atualizar, caso contrário, cria uma nova
+            if venda_id:
+                caixa_pdv = CaixaPdv.objects.filter(id=venda_id).first()
+                if not caixa_pdv:
+                    return JsonResponse({'success': False, 'message': 'Venda não encontrada.'}, status=404)
+            else:
+                cliente = Cliente.objects.filter(id=cliente_id).first()
+                vendedor = User.objects.filter(id=vendedor_id).first()
+
+                if not cliente:
+                    return JsonResponse({'success': False, 'message': 'Cliente não encontrado.'}, status=404)
+                if not vendedor:
+                    return JsonResponse({'success': False, 'message': 'Vendedor não encontrado.'}, status=404)
+
+                caixa_pdv = CaixaPdv.objects.create(
+                    numero_pedido=numero_pedido,
+                    vendedor=vendedor,
+                    cliente=cliente,
+                    desconto=desconto,
+                    subtotal=sum(float(p['quantidade']) * float(p['preco_unitario']) for p in produtos),
+                    total=total,
+                    status=status,
+                    payment_method='multi'  # Marca como 'multi' para diferenciar
+                )
+
+            # Atualizar desconto e total
+            caixa_pdv.desconto = desconto
+            caixa_pdv.total = total
+            caixa_pdv.save()
+
+            # Salvar produtos
+            salvar_produtos_na_venda(caixa_pdv, produtos)
+
+            # Processar pagamentos se existirem
+            if pagamentos:
+                PagamentoCaixaPdv.objects.filter(caixa_pdv=caixa_pdv).delete()  # Limpar pagamentos anteriores
+                for pagamento in pagamentos:
+                    PagamentoCaixaPdv.objects.create(
+                        caixa_pdv=caixa_pdv,
+                        metodo=pagamento['metodo'],
+                        valor=float(pagamento['valor'])
+                    )
+
+            # Atualizar status e estoque
+            if status == 'Finalizado':
+                if not caixa_pdv.is_pago():
+                    return JsonResponse({'success': False, 'message': 'Total pago insuficiente.'}, status=400)
+                
+                caixa_pdv.status = 'Finalizado'
+                caixa_pdv.save()
+
+                for produto_data in produtos:
+                    produto = Produto.objects.filter(id=produto_data.get('produto_id')).first()
+                    if produto and produto.controle_estoque:
+                        produto.quantidade_estoque -= produto_data['quantidade']
+                        produto.save()
+
+                if gerenciar_abertura_fechamento_caixa:
+                    caixa_aberto = Caixa.objects.filter(usuario=request.user, status='Aberto').first()
+                    if not caixa_aberto:
+                        return JsonResponse({'success': False, 'message': 'Não há caixa aberto para associar a venda.'}, status=400)
+                    caixa_pdv.caixa = caixa_aberto
+                    caixa_pdv.save()
+
+            elif status == 'Em aberto':
+                caixa_pdv.status = 'Em aberto'
+                caixa_pdv.save()
+
+            return JsonResponse({'success': True, 'message': 'Venda processada com sucesso!'})
+
+        except Exception as e:
+            logger.error(f"Erro ao processar venda multi: {str(e)}")
+            return JsonResponse({'success': False, 'message': f'Erro ao salvar a venda: {str(e)}'}, status=500)
+    else:
+        return JsonResponse({'success': False, 'message': 'Método não permitido.'}, status=405)

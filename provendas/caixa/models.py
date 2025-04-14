@@ -1,8 +1,8 @@
 # caixa/models.py
 
 from django.db import models
-from django.contrib.auth.models import User  # para relacionar com o vendedor
-from clientes.models import Cliente  # relacionamento com Cliente
+from django.contrib.auth.models import User
+from clientes.models import Cliente
 from estoque.models import Produto
 
 
@@ -28,6 +28,31 @@ class CaixaPdv(models.Model):
     def __str__(self):
         return f"Pedido #{self.numero_pedido} - {self.status}"
 
+    def get_total_pago(self):
+        """Retorna o total pago somando todos os pagamentos registrados."""
+        return sum(pagamento.valor for pagamento in self.pagamentos.all())
+
+    def is_pago(self):
+        """Verifica se o total da venda foi pago."""
+        return self.get_total_pago() >= self.total
+
+
+class PagamentoCaixaPdv(models.Model):
+    METODO_CHOICES = [
+        ('dinheiro', 'Dinheiro'),
+        ('cartao_credito', 'Cartão de Crédito'),
+        ('cartao_debito', 'Cartão de Débito'),
+        ('pix', 'Pix'),
+    ]
+
+    caixa_pdv = models.ForeignKey('CaixaPdv', related_name='pagamentos', on_delete=models.CASCADE)
+    metodo = models.CharField(max_length=20, choices=METODO_CHOICES)
+    valor = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.get_metodo_display()} - R${self.valor} (Venda #{self.caixa_pdv.numero_pedido})"
+
 
 class ProdutoCaixaPdv(models.Model):
     caixa_pdv = models.ForeignKey('CaixaPdv', on_delete=models.CASCADE)
@@ -38,8 +63,8 @@ class ProdutoCaixaPdv(models.Model):
 
     def __str__(self):
         return f"{self.quantidade} x {self.produto.nome} (Venda #{self.caixa_pdv.numero_pedido})"
-    
-    
+
+
 class Caixa(models.Model):
     STATUS_CHOICES = [
         ('Aberto', 'Aberto'),
@@ -55,7 +80,8 @@ class Caixa(models.Model):
 
     def __str__(self):
         return f"Caixa #{self.id} - {self.status}"
-    
+
+
 class OperacaoCaixa(models.Model):
     OPERACAO_CHOICES = [
         ('adicionar', 'Adicionar'),

@@ -9,6 +9,7 @@ urlpatterns = [
     path('products/search', views.search_products, name='search_products'),
     
     path('finalizar_venda/', views.finalizar_venda, name='finalizar_venda'),
+    path('finalizar_venda_multi/', views.finalizar_venda_multi, name='finalizar_venda_multi'),
 
     path('buscar/venda/<int:id>/', views.get_venda_details, name='admin.caixa.idVenda'),
     path('excluir_venda/', views.excluir_venda, name='excluir_venda'),
