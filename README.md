@@ -5,6 +5,15 @@
 
 Este aplicativo foi desenvolvido para facilitar o gerenciamento de uma microempresa, integrando diversos processos essenciais em um único sistema. Com ele, é possível administrar clientes, controlar estoques de produtos, gerar relatórios detalhados e realizar vendas tanto via PDV (Ponto de Venda) quanto por comandas.
 
+## Atenção!!!
+É nessesário ter o Python 3.10x instalada 
+link: https://www.python.org/downloads/
+
+É nessesário ter o Git instalada 
+link: https://git-scm.com/download/
+
+**Antes de usar cadastre um cliente e uma empresa!**
+
 ## Funcionalidades Principais
 
 - **Gerenciamento de Clientes**: Cadastro, edição e exclusão de clientes, com controle de dados como nome, CPF, endereço, telefone e status.
