@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerador de Licença</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            padding: 40px;
+        }
+        .box {
+            background: #fff;
+            padding: 20px;
+            max-width: 420px;
+            margin: auto;
+            border-radius: 6px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .result {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h3>Gerador de Chave de Licença</h3>
+
+    <label>Data de expiração</label>
+    <input type="date" id="expirationDate">
+
+    <label>LICENSE_SECRET_KEY</label>
+    <input type="text" id="secretKey"
+           value="TEST-e913c0fd-99a3-423d-ad0b-89629b170b28">
+
+    <button onclick="generateKey()">Gerar chave</button>
+
+    <div class="result">
+        <label>Chave gerada</label>
+        <input type="text" id="licenseKey" readonly>
+    </div>
+</div>
+
+<script>
+async function generateKey() {
+    const expirationDate = document.getElementById("expirationDate").value;
+    const secretKey = document.getElementById("secretKey").value;
+
+    if (!expirationDate || !secretKey) {
+        alert("Informe a data e a chave secreta.");
+        return;
+    }
+
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(secretKey);
+    const messageData = encoder.encode(expirationDate);
+
+    const cryptoKey = await crypto.subtle.importKey(
+        "raw",
+        keyData,
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"]
+    );
+
+    const signature = await crypto.subtle.sign(
+        "HMAC",
+        cryptoKey,
+        messageData
+    );
+
+    const base64 = btoa(String.fromCharCode(...new Uint8Array(signature)))
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "");
+
+    const formatted = base64
+        .match(/.{1,4}/g)
+        .join("-")
+        .toUpperCase();
+
+    document.getElementById("licenseKey").value = formatted;
+}
+</script>
+
+</body>
+</html>
